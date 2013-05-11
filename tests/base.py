@@ -67,14 +67,14 @@ class MixerBaseTests(TestCase):
         self.assertTrue(test)
 
     def test_generatorregistry(self):
-        from mixer.main import GeneratorRegistry
+        from mixer.main import Generator
 
-        g = GeneratorRegistry()
-        test = g.random(int)
-        self.assertTrue(-2147483647 <= test < 2147483647)
+        g = Generator()
+        test = g.gen_maker(int)()
+        self.assertTrue(-2147483647 <= next(test) < 2147483647)
 
-        test = g.random(bool)
-        self.assertTrue(test in [True, False])
+        test = g.gen_maker(bool)()
+        self.assertTrue(next(test) in [True, False])
 
     def test_mixer(self):
         from mixer.main import TypeMixer

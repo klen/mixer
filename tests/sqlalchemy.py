@@ -13,7 +13,7 @@ class User(BASE):
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String)
+    name = Column(String(10))
 
 
 class MixerTestSQLAlchemy(TestCase):
@@ -23,5 +23,9 @@ class MixerTestSQLAlchemy(TestCase):
 
         mixer = TypeMixer(User)
         user = mixer.blend()
-        import ipdb; ipdb.set_trace()  # XXX BREAKPOINT
         self.assertTrue(user)
+        self.assertTrue(user.id)
+        self.assertTrue(user.name)
+
+        user = mixer.blend(name='John')
+        self.assertEqual(user.name, 'John')

@@ -2,12 +2,14 @@ import datetime
 import sys
 import random
 import decimal
+from functools import wraps
 
 DEFAULT_STRING_LENGTH = 8
 DEFAULT_CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789' # nolint
 
 
 def loop(gen_func):
+    @wraps(gen_func)
     def wrapper(*args, **kwargs):
         while True:
             yield gen_func(*args, **kwargs)

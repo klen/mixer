@@ -17,7 +17,7 @@ help:
 	@egrep "^# target:" [Mm]akefile
 
 .PHONY: clean
-# target: clean - Display callable targets
+# target: clean - Clean repo
 clean:
 	@rm -rf build dist docs/_build
 	@rm -f *.py[co]
