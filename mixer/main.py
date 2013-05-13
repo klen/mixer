@@ -12,15 +12,6 @@ RANDOM = object()
 FAKE = object()
 
 
-class Relation(object):
-
-    def __init__(self, **params):
-        self.params = params
-
-    def generate(self):
-        return type(hash(self.params), [], self.params)()
-
-
 class GeneratorMeta(type):
 
     def __new__(mcs, name, bases, params):
@@ -115,16 +106,37 @@ class Generator(object):
         return gen_maker
 
 
+class TypeMixerMeta(type):
+    mixers = dict()
+
+    def __call__(cls, cls_type, generator=None):
+        cls_type = cls.__load_cls(cls_type)
+        if not cls_type in cls.mixers:
+            cls.mixers[cls_type] = super(TypeMixerMeta, cls).__call__(
+                cls_type, generator
+            )
+        return cls.mixers[cls_type]
+
+    @staticmethod
+    def __load_cls(cls_type):
+        if isinstance(cls_type, basestring):
+            mod, cls_type = cls_type.rsplit('.', 1)
+            mod = import_module(mod)
+            cls_type = getattr(mod, cls_type)
+        return cls_type
+
+
 class TypeMixer(object):
+
+    __metaclass__ = TypeMixerMeta
 
     default = DEFAULT
     random = RANDOM
     fake = FAKE
     generator = Generator
-    relation_cls = Relation
 
     def __init__(self, cls, generator=None):
-        self.cls = self.__load_cls(cls)
+        self.cls = cls
         self.fields = list(self.__load_fields())
         self.generator = generator or self.generator
         self.generators = dict()
@@ -133,7 +145,7 @@ class TypeMixer(object):
         target = self.cls()
 
         # Prepare relations
-        relations = defaultdict(dict)
+        relations = defaultdict(defaultdict)
         for key, params in values.items():
             if '__' in key:
                 rname, rvalue = key.split('__', 1)
@@ -142,14 +154,21 @@ class TypeMixer(object):
 
         for fname, fcls in self.fields:
 
-            value = values.get(fname, self.default)
+            if fname in relations:
+                params = relations[fname]
+                mixer = TypeMixer(fcls)
+                value = mixer.blend(**params)
 
-            if value in [self.default, self.random, self.fake]:
-                value = self.get_value(
-                    fcls, fname,
-                    value is self.random,
-                    value is self.fake,
-                )
+            else:
+
+                value = values.get(fname, self.default)
+
+                if value in [self.default, self.random, self.fake]:
+                    value = self.get_value(
+                        fcls, fname,
+                        value is self.random,
+                        value is self.fake,
+                    )
 
             setattr(target, fname, value)
 
@@ -167,14 +186,6 @@ class TypeMixer(object):
 
     def make_generator(self, fcls, fname=None, fake=False):
         return self.generator.gen_maker(fcls, fname, fake)()
-
-    @staticmethod
-    def __load_cls(cls_type):
-        if isinstance(cls_type, basestring):
-            mod, cls_type = cls_type.rsplit('.', 1)
-            mod = import_module(mod)
-            cls_type = getattr(mod, cls_type)
-        return cls_type
 
     def __load_fields(self):
         for fname in dir(self.cls):

@@ -77,24 +77,25 @@ class MixerBaseTests(TestCase):
         self.assertTrue(next(test) in [True, False])
 
     def test_mixer(self):
-        from mixer.main import TypeMixer, Relation
+        from mixer.main import TypeMixer
 
         class Test:
             one = int
             two = int
-            three = int
+            name = str
 
         class Scheme:
             name = str
             money = int
             male = bool
-            prop = Relation
+            prop = Test
 
         mixer = TypeMixer(Scheme)
         test = mixer.blend(prop__two=2, prop__one=1)
         self.assertTrue(test.male in [True, False])
         self.assertTrue(len(test.name))
-        self.assertEqual(test.prop.test, 123)
+        self.assertEqual(test.prop.two, 2)
+        self.assertTrue(test.prop.name)
 
         test = mixer.blend(name='John')
         self.assertEqual(test.name, 'John')
