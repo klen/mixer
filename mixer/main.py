@@ -2,12 +2,23 @@ import datetime
 
 import decimal
 from importlib import import_module
+from collections import defaultdict
 
 from . import generators as g, fakers as f
 
 
+DEFAULT = object()
 RANDOM = object()
 FAKE = object()
+
+
+class Relation(object):
+
+    def __init__(self, **params):
+        self.params = params
+
+    def generate(self):
+        return type(hash(self.params), [], self.params)()
 
 
 class GeneratorMeta(type):
@@ -106,9 +117,11 @@ class Generator(object):
 
 class TypeMixer(object):
 
+    default = DEFAULT
     random = RANDOM
     fake = FAKE
     generator = Generator
+    relation_cls = Relation
 
     def __init__(self, cls, generator=None):
         self.cls = self.__load_cls(cls)
@@ -118,33 +131,42 @@ class TypeMixer(object):
 
     def blend(self, **values):
         target = self.cls()
+
+        # Prepare relations
+        relations = defaultdict(dict)
+        for key, params in values.items():
+            if '__' in key:
+                rname, rvalue = key.split('__', 1)
+                relations[rname][rvalue] = params
+                del values[key]
+
         for fname, fcls in self.fields:
-            value = values.get(fname, self.random)
 
-            if value is self.random:
-                value = self.get_random(fcls)
+            value = values.get(fname, self.default)
 
-            if value is self.fake:
-                value = self.get_fake(fcls, fname)
+            if value in [self.default, self.random, self.fake]:
+                value = self.get_value(
+                    fcls, fname,
+                    value is self.random,
+                    value is self.fake,
+                )
 
             setattr(target, fname, value)
 
         return target
 
-    def get_random(self, fcls):
-        gen = self.get_generator(fcls)
-        return next(gen)
-
-    def get_fake(self, fcls, fname):
-        gen = self.get_generator(fcls, fname, True)
+    def get_value(self, fcls, fname, random=False, fake=False):
+        gen = self.get_generator(fcls, fname, fake)
         return next(gen)
 
     def get_generator(self, fcls, fname=None, fake=False):
         key = fcls, fname, fake
         if not key in self.generators:
-            gen_maker = self.generator.gen_maker(*key)
-            self.generators[key] = gen_maker()
+            self.generators[key] = self.make_generator(fcls, fname, fake)
         return self.generators[key]
+
+    def make_generator(self, fcls, fname=None, fake=False):
+        return self.generator.gen_maker(fcls, fname, fake)()
 
     @staticmethod
     def __load_cls(cls_type):
