@@ -58,7 +58,7 @@ class MixerTestSQLAlchemy(TestCase):
         self.assertEqual(user.name, 'John')
         self.assertTrue(user.updated in (True, False))
 
-        # mixer = TypeMixer('tests.sqlalchemy.Role')
-        # role = mixer.blend()
-        # self.assertTrue(role.user)
-        # self.assertEqual(role.user_id, role.user.id)
+        mixer = TypeMixer('tests.sqlalchemy.Role')
+        role = mixer.blend()
+        self.assertTrue(role.user)
+        self.assertEqual(role.user_id, role.user.id)

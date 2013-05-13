@@ -152,31 +152,38 @@ class TypeMixer(object):
                 relations[rname][rvalue] = params
                 del values[key]
 
+        # Fill fields
         for fname, fcls in self.fields:
 
             if fname in relations:
                 params = relations[fname]
-                mixer = TypeMixer(fcls)
-                value = mixer.blend(**params)
+                self.set_relation(target, fcls, fname, params=params)
+                continue
 
-            else:
+            value = values.get(fname, self.default)
 
-                value = values.get(fname, self.default)
-
-                if value in [self.default, self.random, self.fake]:
-                    value = self.get_value(
-                        fcls, fname,
-                        value is self.random,
-                        value is self.fake,
-                    )
+            if value in [self.default, self.random, self.fake]:
+                self.set_value(
+                    target, fcls, fname,
+                    value is self.random,
+                    value is self.fake,
+                )
+                continue
 
             setattr(target, fname, value)
 
         return target
 
-    def get_value(self, fcls, fname, random=False, fake=False):
+    @staticmethod
+    def set_relation(target, fcls, fname, random=False, fake=False,
+                     params=None):
+        params = params or dict()
+        mixer = TypeMixer(fcls)
+        setattr(target, fname, mixer.blend(**params))
+
+    def set_value(self, target, fcls, fname, random=False, fake=False):
         gen = self.get_generator(fcls, fname, fake)
-        return next(gen)
+        setattr(target, fname, next(gen))
 
     def get_generator(self, fcls, fname=None, fake=False):
         key = fcls, fname, fake

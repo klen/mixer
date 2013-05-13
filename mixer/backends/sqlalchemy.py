@@ -12,7 +12,6 @@ from sqlalchemy.types import (
     UnicodeText, VARCHAR)
 
 
-
 class Generator(BaseGenerator):
     types = {
         (String, VARCHAR, Unicode, NVARCHAR, NCHAR, CHAR, Text,
@@ -37,20 +36,36 @@ class TypeMixer(BaseTypeMixer):
         super(TypeMixer, self).__init__(cls, generator=generator)
         self.mapper = self.cls._sa_class_manager.mapper
 
-    def get_value(self, column, fname, random=False, fake=False):
+    def set_value(self, target, column, fname, random=False, fake=False):
         if not isinstance(column, Column):
-            import ipdb; ipdb.set_trace()  # XXX BREAKPOINT
-            return self.get_relation(column, fname)
+            return self.set_relation(target, column, fname,
+                                     random=random, fake=fake)
 
         if not random and not fake:
 
             if column.default:
-                return column.default.arg
+                return setattr(target, fname, column.default.arg)
 
             if column.nullable:
-                return None
+                return setattr(target, fname, None)
 
-        return super(TypeMixer, self).get_value(column, fname, random, fake)
+        return super(TypeMixer, self).set_value(target, column, fname,
+                                                random, fake)
+
+    @staticmethod
+    def set_relation(target, relation, fname, random=False, fake=False,
+                     params=None):
+        params = params or dict()
+
+        col = relation.local_remote_pairs[0][0]
+        if col.nullable and not params:
+            return None
+        mixer = TypeMixer(relation.mapper.class_)
+        value = mixer.blend(**params)
+
+        setattr(target, col.name,
+                relation.mapper.identity_key_from_instance(value)[1][0])
+        setattr(target, fname, value)
 
     def make_generator(self, column, fname=None, fake=False):
         args = list()
