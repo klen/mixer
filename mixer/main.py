@@ -134,6 +134,7 @@ class TypeMixer(object):
     default = DEFAULT
     random = RANDOM
     fake = FAKE
+    load = RANDOM
     generator = Generator
 
     def __init__(self, cls, mixer=None, generator=None):

@@ -31,9 +31,13 @@ class Generator(BaseGenerator):
     }
 
 
+LOAD = object()
+
+
 class TypeMixer(BaseTypeMixer):
 
     generator = Generator
+    load = LOAD
 
     def __init__(self, cls, **params):
         super(TypeMixer, self).__init__(cls, **params)
@@ -46,11 +50,15 @@ class TypeMixer(BaseTypeMixer):
 
         if not random and not fake:
 
-            if column.default:
-                return setattr(target, fname, column.default.arg)
+            if (column.autoincrement and column.primary_key) \
+                    or column.nullable:
+                return False
 
-            if column.nullable:
-                return setattr(target, fname, None)
+            if column.default:
+                default = column.default.arg(target) \
+                    if column.default.is_callable \
+                    else column.default.arg
+                return setattr(target, fname, default)
 
         return super(TypeMixer, self).set_value(target, column, fname,
                                                 random, fake)
@@ -95,5 +103,20 @@ class TypeMixer(BaseTypeMixer):
 
 class Mixer(BaseMixer):
     type_mixer_cls = TypeMixer
+
+    def __init__(self, session=None, commit=False, **params):
+        super(Mixer, self).__init__(**params)
+        self.session = session
+        assert not commit or self.session, "Set session for commits"
+        self.commit = commit
+
+    def blend(self, type_cls, **values):
+        result = super(Mixer, self).blend(type_cls, **values)
+
+        if self.commit:
+            self.session.add(result)
+            self.session.commit()
+
+        return result
 
 # lint_ignore=W0212

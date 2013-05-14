@@ -57,7 +57,7 @@ class MixerTestSQLAlchemy(TestCase):
         mixer = TypeMixer(User)
         user = mixer.blend()
         self.assertTrue(user)
-        self.assertTrue(user.id)
+        self.assertFalse(user.id)
         self.assertTrue(user.name)
         self.assertEqual(user.score, 50)
         self.assertEqual(len(user.name), 10)
@@ -76,7 +76,7 @@ class MixerTestSQLAlchemy(TestCase):
     def test_mixer(self):
         from mixer.backend.sqlalchemy import Mixer
 
-        mixer = Mixer()
+        mixer = Mixer(session=self.session, commit=True)
         role = mixer.blend('tests.sqlalchemy.Role')
         self.assertTrue(role)
         self.assertTrue(role.user)
