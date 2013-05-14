@@ -2,7 +2,10 @@ from __future__ import absolute_import
 import datetime
 import decimal
 
-from ..main import TypeMixer as BaseTypeMixer, Generator as BaseGenerator
+from ..main import (
+    TypeMixer as BaseTypeMixer,
+    Generator as BaseGenerator,
+    Mixer as BaseMixer)
 from ..generators import gen_small_integer
 from sqlalchemy import Column
 from sqlalchemy.types import (
@@ -32,8 +35,8 @@ class TypeMixer(BaseTypeMixer):
 
     generator = Generator
 
-    def __init__(self, cls, generator=None):
-        super(TypeMixer, self).__init__(cls, generator=generator)
+    def __init__(self, cls, **params):
+        super(TypeMixer, self).__init__(cls, **params)
         self.mapper = self.cls._sa_class_manager.mapper
 
     def set_value(self, target, column, fname, random=False, fake=False):
@@ -88,5 +91,9 @@ class TypeMixer(BaseTypeMixer):
         for column in mapper.columns:
             if not column in relations:
                 yield column.name, column
+
+
+class Mixer(BaseMixer):
+    type_mixer_cls = TypeMixer
 
 # lint_ignore=W0212

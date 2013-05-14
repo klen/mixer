@@ -109,13 +109,14 @@ class Generator(object):
 class TypeMixerMeta(type):
     mixers = dict()
 
-    def __call__(cls, cls_type, generator=None):
+    def __call__(cls, cls_type, mixer=None, generator=None):
         cls_type = cls.__load_cls(cls_type)
-        if not cls_type in cls.mixers:
-            cls.mixers[cls_type] = super(TypeMixerMeta, cls).__call__(
-                cls_type, generator
+        key = (mixer, cls_type)
+        if not key in cls.mixers:
+            cls.mixers[key] = super(TypeMixerMeta, cls).__call__(
+                cls_type, mixer=mixer, generator=generator
             )
-        return cls.mixers[cls_type]
+        return cls.mixers[key]
 
     @staticmethod
     def __load_cls(cls_type):
@@ -135,8 +136,9 @@ class TypeMixer(object):
     fake = FAKE
     generator = Generator
 
-    def __init__(self, cls, generator=None):
+    def __init__(self, cls, mixer=None, generator=None):
         self.cls = cls
+        self.mixer = mixer
         self.fields = list(self.__load_fields())
         self.generator = generator or self.generator
         self.generators = dict()
@@ -199,3 +201,16 @@ class TypeMixer(object):
             if fname.startswith('_'):
                 continue
             yield fname, getattr(self.cls, fname)
+
+
+class Mixer(object):
+
+    type_mixer_cls = TypeMixer
+
+    def __init__(self, fake=False, **params):
+        self.params = params
+        self.fake = fake
+
+    def blend(self, cls_type, **values):
+        type_mixer = self.type_mixer_cls(cls_type, mixer=self)
+        return type_mixer.blend(**values)
