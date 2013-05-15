@@ -2,7 +2,6 @@ import datetime
 
 import decimal
 from importlib import import_module
-from collections import defaultdict
 
 from . import generators as g, fakers as f
 
@@ -13,8 +12,25 @@ FAKE = object()
 SELECT = object()
 
 
-class GeneratorMeta(type):
+class Field(object):
+    """ Store field imformation.
+    """
+    def __init__(self, scheme, name):
+        self.scheme = scheme
+        self.name = name
 
+
+class Relation(Field):
+    """ Store relation field imformation.
+    """
+    def __init__(self, scheme, name, params=None):
+        super(Relation, self).__init__(scheme, name)
+        self.params = params or dict()
+
+
+class GeneratorMeta(type):
+    """ Precache generators.
+    """
     def __new__(mcs, name, bases, params):
         generators = dict()
         fakers = dict()
@@ -50,7 +66,8 @@ class GeneratorMeta(type):
 
 
 class Generator(object):
-
+    """ Make generators for types.
+    """
     __metaclass__ = GeneratorMeta
 
     generators = {
@@ -108,6 +125,8 @@ class Generator(object):
 
 
 class TypeMixerMeta(type):
+    """ Cache mixers by class.
+    """
     mixers = dict()
 
     def __call__(cls, cls_type, mixer=None, generator=None):
@@ -132,7 +151,6 @@ class TypeMixer(object):
 
     __metaclass__ = TypeMixerMeta
 
-    default = DEFAULT
     fake = FAKE
     generator = Generator
     select = SELECT
@@ -141,55 +159,89 @@ class TypeMixer(object):
     def __init__(self, cls, mixer=None, generator=None):
         self.cls = cls
         self.mixer = mixer
-        self.fields = list(self.__load_fields())
+        self.fields = dict(self.__load_fields())
         self.generator = generator or self.generator
         self.generators = dict()
+
+    def __repr__(self):
+        return "<TypeMixer {0}>".format(self.cls)
 
     def blend(self, **values):
         target = self.cls()
 
+        defaults = dict(**self.fields)
+
         # Prepare relations
-        relations = defaultdict(defaultdict)
         for key, params in values.items():
             if '__' in key:
                 rname, rvalue = key.split('__', 1)
-                relations[rname][rvalue] = params
+                field = defaults.get(rname)
+                if isinstance(field, Relation):
+                    field.params.update({
+                        rvalue: params
+                    })
+                else:
+                    defaults[rname] = Relation(field.scheme, field.name, {
+                        rvalue: params
+                    })
                 del values[key]
 
-        # Fill fields
-        for fname, fcls in self.fields:
+        defaults.update(values)
 
-            if fname in relations:
-                params = relations[fname]
-                self.set_relation(target, fcls, fname, params=params)
-                continue
+        for fname, fvalue in defaults.items():
+            if isinstance(fvalue, Relation):
+                self.gen_relation(target, fname, fvalue)
 
-            value = values.get(fname, self.default)
+            elif isinstance(fvalue, Field):
+                self.gen_field(target, fname, fvalue)
 
-            if value in [self.default, self.random, self.fake, self.select]:
-                self.set_value(
-                    target, fcls, fname,
-                    random=value is self.random,
-                    fake=value is self.fake,
-                    select=value is self.select,
-                )
-                continue
+            elif fvalue is self.random:
+                self.gen_random(target, fname)
 
-            setattr(target, fname, value)
+            elif fvalue is self.fake:
+                self.gen_fake(target, fname)
+
+            elif fvalue is self.select:
+                self.gen_select(target, fname)
+
+            else:
+                self.set_value(target, fname, fvalue)
 
         return target
 
     @staticmethod
-    def set_relation(target, fcls, fname, random=False, fake=False,
-                     select=False, params=None):
-        params = params or dict()
-        mixer = TypeMixer(fcls)
-        setattr(target, fname, mixer.blend(**params))
+    def set_value(target, fname, fvalue):
+        if callable(fvalue):
+            fvalue = fvalue()
+        setattr(target, fname, fvalue)
 
-    def set_value(self, target, fcls, fname, random=False, fake=False,
-                  select=False):
-        gen = self.get_generator(fcls, fname, fake)
+    def gen_value(self, target, fname, fcls, fake=False):
+        """ Generate values from basic types.
+            Set value to target.
+        """
+        gen = self.get_generator(fcls, fname, fake=fake)
         setattr(target, fname, next(gen))
+
+    def gen_field(self, target, fname, field):
+        """ Generate value by field scheme.
+        """
+        self.gen_value(target, fname, field.scheme)
+
+    def gen_relation(self, target, fname, relation):
+        """ Blend a relation object.
+        """
+        mixer = TypeMixer(relation.scheme, self.mixer, self.generator)
+        setattr(target, fname, mixer.blend(**relation.params))
+
+    def gen_random(self, target, fname):
+        field = self.fields.get(fname)
+        self.gen_value(target, fname, field.scheme)
+
+    gen_select = gen_random
+
+    def gen_fake(self, target, fname):
+        field = self.fields.get(fname)
+        self.gen_value(target, fname, field.scheme, fake=True)
 
     def get_generator(self, fcls, fname=None, fake=False):
         key = fcls, fname, fake
@@ -204,12 +256,11 @@ class TypeMixer(object):
         for fname in dir(self.cls):
             if fname.startswith('_'):
                 continue
-            yield fname, getattr(self.cls, fname)
+            yield fname, Field(getattr(self.cls, fname), fname)
 
 
 class Mixer(object):
 
-    default = DEFAULT
     fake = FAKE
     select = SELECT
     random = RANDOM
