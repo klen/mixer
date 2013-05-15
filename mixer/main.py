@@ -10,6 +10,7 @@ from . import generators as g, fakers as f
 DEFAULT = object()
 RANDOM = object()
 FAKE = object()
+SELECT = object()
 
 
 class GeneratorMeta(type):
@@ -132,10 +133,10 @@ class TypeMixer(object):
     __metaclass__ = TypeMixerMeta
 
     default = DEFAULT
-    random = RANDOM
     fake = FAKE
-    load = RANDOM
     generator = Generator
+    select = SELECT
+    random = RANDOM
 
     def __init__(self, cls, mixer=None, generator=None):
         self.cls = cls
@@ -165,11 +166,12 @@ class TypeMixer(object):
 
             value = values.get(fname, self.default)
 
-            if value in [self.default, self.random, self.fake]:
+            if value in [self.default, self.random, self.fake, self.select]:
                 self.set_value(
                     target, fcls, fname,
-                    value is self.random,
-                    value is self.fake,
+                    random=value is self.random,
+                    fake=value is self.fake,
+                    select=value is self.select,
                 )
                 continue
 
@@ -179,12 +181,13 @@ class TypeMixer(object):
 
     @staticmethod
     def set_relation(target, fcls, fname, random=False, fake=False,
-                     params=None):
+                     select=False, params=None):
         params = params or dict()
         mixer = TypeMixer(fcls)
         setattr(target, fname, mixer.blend(**params))
 
-    def set_value(self, target, fcls, fname, random=False, fake=False):
+    def set_value(self, target, fcls, fname, random=False, fake=False,
+                  select=False):
         gen = self.get_generator(fcls, fname, fake)
         setattr(target, fname, next(gen))
 
@@ -206,6 +209,10 @@ class TypeMixer(object):
 
 class Mixer(object):
 
+    default = DEFAULT
+    fake = FAKE
+    select = SELECT
+    random = RANDOM
     type_mixer_cls = TypeMixer
 
     def __init__(self, fake=False, **params):
