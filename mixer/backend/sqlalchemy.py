@@ -5,7 +5,6 @@ import datetime
 import decimal
 from sqlalchemy import func
 from sqlalchemy.orm.interfaces import MANYTOONE
-# from sqlalchemy.orm.properties import RelationshipProperty
 from sqlalchemy.types import (
     BIGINT, BOOLEAN, BigInteger, Boolean, CHAR, DATE, DATETIME, DECIMAL, Date,
     DateTime, FLOAT, Float, INT, INTEGER, Integer, NCHAR, NVARCHAR, NUMERIC,
@@ -80,19 +79,16 @@ class TypeMixer(BaseTypeMixer):
     def gen_relation(self, target, fname, field):
         relation = field.scheme
         if relation.direction == MANYTOONE:
-            relname = relation.back_populates
-            if relname and relation.mapper.get_property(relname):
-                field.params[relname] = target
+            col = relation.local_remote_pairs[0][0]
+            if col.nullable and not field.params:
+                return False
 
-        col = relation.local_remote_pairs[0][0]
-        if col.nullable and not field.params:
-            return None
+            mixer = TypeMixer(relation.mapper.class_)
+            value = mixer.blend(**field.params)
 
-        mixer = TypeMixer(relation.mapper.class_)
-        value = mixer.blend(**field.params)
-        setattr(target, fname, value)
-        setattr(target, col.name,
-                relation.mapper.identity_key_from_instance(value)[1][0])
+            setattr(target, relation.key, value)
+            setattr(target, col.name,
+                    relation.mapper.identity_key_from_instance(value)[1][0])
 
     def gen_fake(self, target, fname):
         field = self.fields.get(fname)

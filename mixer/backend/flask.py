@@ -1,24 +1,6 @@
 from __future__ import absolute_import
 
-from sqlalchemy.orm.interfaces import MANYTOONE
-from .sqlalchemy import TypeMixer as BaseTypeMixer, Mixer as BaseMixer
-
-
-class TypeMixer(BaseTypeMixer):
-
-    def gen_relation(self, target, fname, field):
-        relation = field.scheme
-        if relation.direction == MANYTOONE:
-            col = relation.local_remote_pairs[0][0]
-            if col.nullable and not field.params:
-                return False
-
-            mixer = TypeMixer(relation.mapper.class_)
-            value = mixer.blend(**field.params)
-
-            setattr(target, relation.key, value)
-            setattr(target, col.name,
-                    relation.mapper.identity_key_from_instance(value)[1][0])
+from .sqlalchemy import TypeMixer, Mixer as BaseMixer
 
 
 class Mixer(BaseMixer):
