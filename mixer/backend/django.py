@@ -29,7 +29,7 @@ class Generator(BaseGenerator):
 
 class TypeMixerMeta(BaseTypeMixerMeta):
 
-    def __load_cls(mcs, cls_type):
+    def __load_cls(cls, cls_type):
         if isinstance(cls_type, basestring):
             assert '.' in cls_type, ("'model_class' must be either a model"
                                      " or a model name in the format"
@@ -43,7 +43,27 @@ class TypeMixer(BaseTypeMixer):
 
     __metaclass__ = TypeMixerMeta
 
+    generator = Generator
+
+    def make_generator(self, field, fname=None, fake=False):
+        fcls = type(field)
+        stype = self.generator.cls_to_simple(fcls)
+        gen_maker = self.generator.gen_maker(fcls, fname, fake)
+        args = list()
+
+        if stype is str:
+            args.append(field.max_length)
+
+        return gen_maker(*args)
+
+    def __load_fields(self):
+        for field in self.cls._meta.fields:
+            yield field.name, Field(field, field.name)
+
 
 class Mixer(BaseMixer):
 
     type_mixer_cls = TypeMixer
+
+
+# lint_ignore=W0212
