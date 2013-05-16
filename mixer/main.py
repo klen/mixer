@@ -76,6 +76,7 @@ class Generator(object):
         int: g.gen_integer,
         long: g.gen_big_integer,
         str: g.gen_string,
+        datetime.date: g.gen_date,
         datetime.datetime: g.gen_datetime,
         datetime.time: g.gen_time,
         decimal.Decimal: g.gen_decimal,

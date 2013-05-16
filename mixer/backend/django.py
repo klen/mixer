@@ -8,6 +8,7 @@ from ..main import (
     TypeMixer as BaseTypeMixer,
     Generator as BaseGenerator,
     Mixer as BaseMixer)
+from .. import fakers as f
 from django.db import models
 
 
@@ -23,7 +24,6 @@ class Generator(BaseGenerator):
         models.TimeField: datetime.time,
         models.DecimalField: decimal.Decimal,
         models.FloatField: float,
-
     }
 
 
@@ -54,16 +54,33 @@ class TypeMixer(BaseTypeMixer):
         if stype is str:
             args.append(field.max_length)
 
+        if fcls is models.EmailField:
+            return f.gen_email()
+
         return gen_maker(*args)
 
     def __load_fields(self):
         for field in self.cls._meta.fields:
+            if isinstance(field, models.AutoField):
+                continue
             yield field.name, Field(field, field.name)
 
 
 class Mixer(BaseMixer):
 
     type_mixer_cls = TypeMixer
+
+    def __init__(self, commit=False, **params):
+        super(Mixer, self).__init__(**params)
+        self.commit = commit
+
+    def blend(self, type_cls, **values):
+        result = super(Mixer, self).blend(type_cls, **values)
+
+        if self.commit:
+            result.save()
+
+        return result
 
 
 # lint_ignore=W0212
