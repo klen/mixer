@@ -78,6 +78,9 @@ class MixerBaseTests(TestCase):
         test = next(f.gen_email(host='gmail'))
         self.assertTrue('gmail' in test)
 
+        test = next(f.gen_ip4())
+        self.assertTrue('.' in test)
+
     def test_generatorregistry(self):
         from mixer.main import Generator
 

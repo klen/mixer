@@ -217,3 +217,12 @@ def get_email(username=None, host=None, zone=None, **kwargs):
     )
 
 gen_email = g.loop(get_email)
+
+
+def get_ip4(**kwargs):
+    gen = g.gen_positive_integer(256)
+    return '{0}.{1}.{2}.{3}'.format(
+        next(gen), next(gen), next(gen), next(gen),
+    )
+
+gen_ip4 = g.loop(get_ip4)
