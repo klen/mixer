@@ -176,14 +176,8 @@ class TypeMixer(object):
             if '__' in key:
                 rname, rvalue = key.split('__', 1)
                 field = defaults.get(rname)
-                if isinstance(field, Relation):
-                    field.params.update({
-                        rvalue: params
-                    })
-                else:
-                    defaults[rname] = Relation(field.scheme, field.name, {
-                        rvalue: params
-                    })
+                defaults.setdefault(rname, Relation(field.scheme, field.name))
+                defaults[rname].params.update({rvalue: params})
                 del values[key]
 
         defaults.update(values)
