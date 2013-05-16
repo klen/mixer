@@ -46,17 +46,6 @@ class TypeMixer(BaseTypeMixer):
         super(TypeMixer, self).__init__(cls, **params)
         self.mapper = self.cls._sa_class_manager.mapper
 
-    # def set_value(self, target, fname, fvalue):
-        # super(TypeMixer, self).set_value(target, fname, fvalue)
-        # field = self.fields.get(fname)
-        # if isinstance(field.scheme, RelationshipProperty)\
-                # and field.scheme.direction == MANYTOONE:
-            # relation = field.scheme
-            # col = relation.local_remote_pairs[0][0]
-            # import ipdb; ipdb.set_trace()  # XXX BREAKPOINT
-            # setattr(target, col.name,
-                # relation.mapper.identity_key_from_instance(fvalue)[1][0])
-
     def gen_field(self, target, fname, field):
         column = field.scheme
 
@@ -74,6 +63,8 @@ class TypeMixer(BaseTypeMixer):
 
     def gen_random(self, target, fname):
         field = self.fields.get(fname)
+        if isinstance(field, Relation):
+            return self.gen_relation(target, fname, field)
         return super(TypeMixer, self).gen_value(target, fname, field.scheme)
 
     def gen_select(self, target, fname):
@@ -100,8 +91,8 @@ class TypeMixer(BaseTypeMixer):
         mixer = TypeMixer(relation.mapper.class_)
         value = mixer.blend(**field.params)
         setattr(target, fname, value)
-        # setattr(target, col.name,
-                # relation.mapper.identity_key_from_instance(value)[1][0])
+        setattr(target, col.name,
+                relation.mapper.identity_key_from_instance(value)[1][0])
 
     def gen_fake(self, target, fname):
         field = self.fields.get(fname)
