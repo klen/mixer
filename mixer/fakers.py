@@ -130,8 +130,9 @@ def get_lastname():
 gen_lastname = g.loop(get_lastname)
 
 
-def get_name(mask=DEFAULT_NAME_MASK):
-    return mask.format(firstname=get_firstname(), lastname=get_lastname())
+def get_name(max_length=100, mask=DEFAULT_NAME_MASK):
+    name = mask.format(firstname=get_firstname(), lastname=get_lastname())
+    return name[:max_length]
 
 gen_name = g.loop(get_name)
 

@@ -114,3 +114,6 @@ class MixerBaseTests(TestCase):
 
         test = mixer.blend(name=mixer.fake)
         self.assertTrue(' ' in test.name)
+
+        test = mixer.blend(name=mixer.random)
+        self.assertFalse(' ' in test.name)
