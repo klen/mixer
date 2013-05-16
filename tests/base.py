@@ -10,7 +10,7 @@ class MixerBaseTests(TestCase):
     def test_generators(self):
         from mixer import generators as g
 
-        test = next(g.gen_choice(1, 2, 3))
+        test = next(g.gen_choice((1, 2, 3)))
         self.assertTrue(test in (1, 2, 3))
 
         self.assertTrue(g.get_date())
@@ -66,7 +66,7 @@ class MixerBaseTests(TestCase):
         test = next(f.gen_numerify('##-####'))
         self.assertTrue(test)
 
-        test = next(f.gen_username(50))
+        test = next(f.gen_username(length=50))
         self.assertTrue(test)
 
         test = next(f.gen_hostname())

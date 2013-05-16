@@ -118,41 +118,41 @@ USERNAMES = (
 )
 
 
-def get_firstname():
-    return g.get_choice(*FIRSTNAME_CHOICES)
+def get_firstname(**kwargs):
+    return g.get_choice(FIRSTNAME_CHOICES)
 
 gen_firstname = g.loop(get_firstname)
 
 
-def get_lastname():
-    return g.get_choice(*LASTNAME_CHOICES)
+def get_lastname(**kwargs):
+    return g.get_choice(LASTNAME_CHOICES)
 
 gen_lastname = g.loop(get_lastname)
 
 
-def get_name(max_length=100, mask=DEFAULT_NAME_MASK):
+def get_name(mask=DEFAULT_NAME_MASK, length=100, **kwargs):
     name = mask.format(firstname=get_firstname(), lastname=get_lastname())
-    return name[:max_length]
+    return name[:length]
 
 gen_name = g.loop(get_name)
 
 
-def get_country():
-    return g.get_choice(*COUNTRY_CHOICES)
+def get_country(**kwargs):
+    return g.get_choice(COUNTRY_CHOICES)
 
 gen_country = g.loop(get_country)
 
 
-def get_city():
-    return g.get_choice(
-        "{0} {1}".format(g.get_choice(*CITY_PREFIX_CHOICES), get_firstname()),
-        "{0} {1}".format(get_lastname(), g.get_choice(*CITY_SUFFIX_CHOICES)),
-    )
+def get_city(**kwargs):
+    return g.get_choice((
+        "{0} {1}".format(g.get_choice(CITY_PREFIX_CHOICES), get_firstname()),
+        "{0} {1}".format(get_lastname(), g.get_choice(CITY_SUFFIX_CHOICES)),
+    ))
 
 gen_city = g.loop(get_city)
 
 
-def get_lorem(length=None):
+def get_lorem(length=None, **kwargs):
     lorem = ' '.join(g.get_choices(LOREM_CHOICES))
     if length:
         lorem = lorem[:length]
@@ -161,7 +161,7 @@ def get_lorem(length=None):
 gen_lorem = g.loop(get_lorem)
 
 
-def get_numerify(template, symbol='#'):
+def get_numerify(template='', symbol='#', **kwargs):
     return ''.join(
         (str(random.randint(0, 10)) if c == '#' else c)
         for c in template
@@ -170,37 +170,44 @@ def get_numerify(template, symbol='#'):
 gen_numerify = g.loop(get_numerify)
 
 
-def get_username(max_length=100):
+def get_username(length=100, **kwargs):
     params = dict(
-        one=g.get_choice(*USERNAMES),
-        two=g.get_choice(*USERNAMES),
+        one=g.get_choice(USERNAMES),
+        two=g.get_choice(USERNAMES),
         num=g.get_positive_integer(high=2020),
     )
-    username = g.get_choice(
+    username = g.get_choice((
         '{one}_{two}'.format(**params),
         '{one}.{two}'.format(**params),
         '{one}{num}'.format(**params),
         '{num}{one}'.format(**params),
-    )
-    return username[:max_length]
+    ))
+    return username[:length]
 
 gen_username = g.loop(get_username)
 
 
-def get_hostname(host=None, zone=None):
+def get_hostname(host=None, zone=None, **kwargs):
     params = dict(
-        host=host or g.get_choice(*HOSTNAMES),
-        zone=zone or g.get_choice(*HOSTZONES)
+        host=host or g.get_choice(HOSTNAMES),
+        zone=zone or g.get_choice(HOSTZONES)
     )
-    return g.get_choice(
+    return g.get_choice((
         '{host}.{zone}'.format(**params),
         'www.{host}.{zone}'.format(**params)
-    )
+    ))
 
 gen_hostname = g.loop(get_hostname)
 
 
-def get_email(username=None, host=None, zone=None):
+def get_email(username=None, host=None, zone=None, **kwargs):
+    """
+    Generate email.
+
+    :param username: set the username or get it by random if none
+    :param host: set the host or get it by random if none
+    :param zone: set the zone or get it by random if none
+    """
     hostname = get_hostname(host, zone)
     if hostname.startswith('www.'):
         hostname = hostname[4:]

@@ -10,3 +10,5 @@ class Rabbit(models.Model):
     updated_at = models.DateTimeField()
 
     opened_at = models.TimeField()
+    percent = models.FloatField()
+    money = models.IntegerField()

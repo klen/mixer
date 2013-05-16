@@ -45,7 +45,14 @@ class TypeMixer(BaseTypeMixer):
         super(TypeMixer, self).__init__(cls, **params)
         self.mapper = self.cls._sa_class_manager.mapper
 
-    def gen_field(self, target, fname, field):
+    def gen_field(self, target, field_name, field):
+        """
+        Generate value by field.
+
+        :param target: Target for generate value.
+        :param field_name: Name of field for generation.
+        :param relation: Instance of :class:`Field`
+        """
         column = field.scheme
 
         if (column.autoincrement and column.primary_key) \
@@ -56,63 +63,79 @@ class TypeMixer(BaseTypeMixer):
             default = column.default.arg(target) \
                 if column.default.is_callable \
                 else column.default.arg
-            return setattr(target, fname, default)
+            return setattr(target, field_name, default)
 
-        return super(TypeMixer, self).gen_value(target, fname, column)
+        return super(TypeMixer, self).gen_value(target, field_name, column)
 
-    def gen_random(self, target, fname):
-        field = self.fields.get(fname)
+    def gen_random(self, target, field_name):
+        """
+        Generate random value of field with `field_name` for `target`
+
+        :param target: Target for generate value.
+        :param field_name: Name of field for generation.
+        """
+        field = self.fields.get(field_name)
         if isinstance(field, Relation):
-            return self.gen_relation(target, fname, field)
-        return super(TypeMixer, self).gen_value(target, fname, field.scheme)
+            return self.gen_relation(target, field_name, field)
+        return super(TypeMixer, self).gen_value(
+            target, field_name, field.scheme, fake=False)
 
-    def gen_select(self, target, fname):
+    def gen_select(self, target, field_name):
+        """
+        Select exists value from database.
+
+        :param target: Target for generate value.
+        :param field_name: Name of field for generation.
+        """
         if not self.mixer or not self.mixer.session:
             return False
 
-        relation = self.mapper.get_property(fname)
+        relation = self.mapper.get_property(field_name)
         value = self.mixer.session.query(
             relation.mapper.class_
         ).order_by(func.random()).first()
-        setattr(target, fname, value)
+        setattr(target, field_name, value)
 
-    def gen_relation(self, target, fname, field):
-        relation = field.scheme
-        if relation.direction == MANYTOONE:
-            col = relation.local_remote_pairs[0][0]
-            if col.nullable and not field.params:
+    def gen_relation(self, target, field_name, relation):
+        """
+        Generate a related relation by `relation`
+
+        :param target: Target for generate value.
+        :param field_name: Name of relation for generation.
+        :param relation: Instance of :class:`Relation`
+
+        """
+        rel = relation.scheme
+        if rel.direction == MANYTOONE:
+            col = rel.local_remote_pairs[0][0]
+            if col.nullable and not relation.params:
                 return False
 
-            mixer = TypeMixer(relation.mapper.class_)
-            value = mixer.blend(**field.params)
+            mixer = TypeMixer(rel.mapper.class_)
+            value = mixer.blend(**relation.params)
 
-            setattr(target, relation.key, value)
+            setattr(target, rel.key, value)
             setattr(target, col.name,
-                    relation.mapper.identity_key_from_instance(value)[1][0])
+                    rel.mapper.identity_key_from_instance(value)[1][0])
 
-    def gen_fake(self, target, fname):
-        field = self.fields.get(fname)
-        return super(TypeMixer, self).gen_value(
-            target, fname, field.scheme, fake=True)
-
-    def make_generator(self, column, fname=None, fake=False):
+    def make_generator(self, column, field_name=None, fake=False):
         """ Make values generator for column.
 
             :param column: SqlAlchemy column
-            :param fname: Field name
+            :param field_name: Field name
             :param fake: Force fake data
         """
-        args = list()
+        kwargs = dict()
         ftype = type(column.type)
         stype = self.generator.cls_to_simple(ftype)
 
         if stype is str:
-            args.append(column.type.length)
+            kwargs['length'] = column.type.length
 
-        return self.generator.gen_maker(stype, fname, fake)(*args)
+        return self.generator.gen_maker(stype, field_name, fake)(**kwargs)
 
     def __load_fields(self):
-        """ Prepare TypeMixer.
+        """ Prepare SQLALchemyTypeMixer.
             Select columns and relations for data generation.
         """
         mapper = self.cls._sa_class_manager.mapper
@@ -128,16 +151,34 @@ class TypeMixer(BaseTypeMixer):
 
 
 class Mixer(BaseMixer):
+
     type_mixer_cls = TypeMixer
 
     def __init__(self, session=None, commit=False, **params):
+        """Initialize the SQLAlchemy Mixer.
+
+        :param fake: (True) Generate fake data instead of random data.
+        :param session: SQLAlchemy session. Using for commits.
+        :param commit: (False) Commit instance to session after creation.
+
+        """
         super(Mixer, self).__init__(**params)
         self.session = session
         assert not commit or self.session, "Set session for commits"
         self.commit = commit
 
-    def blend(self, type_cls, **values):
-        result = super(Mixer, self).blend(type_cls, **values)
+    def blend(self, scheme, **values):
+        """
+        Generate instance of `scheme`.
+
+        :param scheme: Scheme class for generation
+        :param **values: Predefined fields
+
+        ::
+            mixer = Mixer(session=session, commit=True)
+            mixer.blend(UserModel, username='testuser')
+        """
+        result = super(Mixer, self).blend(scheme, **values)
 
         if self.commit:
             self.session.add(result)

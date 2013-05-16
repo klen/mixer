@@ -8,13 +8,21 @@ class Mixer(BaseMixer):
     type_mixer_cls = TypeMixer
 
     def __init__(self, app=None, commit=False, **kwargs):
+        """
+        Initialize the SQLAlchemy Mixer.
+
+        :param fake: (True) Generate fake data instead of random data.
+        :param app: Flask application
+        :param commit: (False) Commit instance to session after creation.
+        """
         super(Mixer, self).__init__(**kwargs)
         self.commit = commit
         if app:
             self.init_app(app)
 
     def init_app(self, app):
-        """This callback can be used to initialize an application for the
+        """
+        This callback can be used to initialize an application for the
         use with this mixer setup.
 
         :param app: Flask application

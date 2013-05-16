@@ -322,7 +322,8 @@ class TypeMixer(object):
 
 
 class Mixer(object):
-    """This class is used for integration to one or more applications.
+    """
+    This class is used for integration to one or more applications.
 
     :param fake: (True) Generate fake data instead of random data.
 
@@ -360,7 +361,7 @@ class Mixer(object):
         return "<Mixer [{0}]>".format('fake' if self.fake else 'rand')
 
     def blend(self, scheme, **values):
-        """Generate instance of `cls_type`.
+        """Generate instance of `scheme`.
 
         :param scheme: Scheme class for generation
         :param **values: Predefined fields

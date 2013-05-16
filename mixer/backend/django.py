@@ -3,7 +3,7 @@ from __future__ import absolute_import
 import datetime
 import decimal
 from ..main import (
-    Relation, Field,
+    Field,
     TypeMixerMeta as BaseTypeMixerMeta,
     TypeMixer as BaseTypeMixer,
     Generator as BaseGenerator,
@@ -49,19 +49,20 @@ class TypeMixer(BaseTypeMixer):
         fcls = type(field)
         stype = self.generator.cls_to_simple(fcls)
         gen_maker = self.generator.gen_maker(fcls, fname, fake)
-        args = list()
+        kwargs = dict()
 
         if stype is str:
-            args.append(field.max_length)
+            kwargs['length'] = field.max_length
 
         if fcls is models.EmailField:
             return f.gen_email()
 
-        return gen_maker(*args)
+        return gen_maker(**kwargs)
 
     def __load_fields(self):
         for field in self.cls._meta.fields:
-            if isinstance(field, models.AutoField):
+            if isinstance(field, models.AutoField)\
+                    and self.mixer and self.mixer.commit:
                 continue
             yield field.name, Field(field, field.name)
 
@@ -74,8 +75,8 @@ class Mixer(BaseMixer):
         super(Mixer, self).__init__(**params)
         self.commit = commit
 
-    def blend(self, type_cls, **values):
-        result = super(Mixer, self).blend(type_cls, **values)
+    def blend(self, scheme, **values):
+        result = super(Mixer, self).blend(scheme, **values)
 
         if self.commit:
             result.save()
