@@ -105,8 +105,8 @@ class MixerTestSQLAlchemy(TestCase):
         user = mixer.blend(User, profile__name='test')
         self.assertEqual(user.profile.name, 'test')
 
-        # user = mixer.blend(User, profile=profile)
-        # self.assertEqual(user.profile, profile)
+        user = mixer.blend(User, profile=profile)
+        self.assertEqual(user.profile, profile)
 
         user = mixer.blend(User, score=mixer.random)
         self.assertNotEqual(user.score, 50)
