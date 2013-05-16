@@ -45,9 +45,10 @@ setup(
         if l and not l.startswith('#')],
     test_suite='tests',
     tests_require=[
-        'sqlalchemy',
-        'flask',
         'django',
+        'flask',
+        'flask-sqlalchemy',
+        'sqlalchemy',
     ]
 )
 
