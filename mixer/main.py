@@ -176,7 +176,8 @@ class TypeMixer(object):
             if '__' in key:
                 rname, rvalue = key.split('__', 1)
                 field = defaults.get(rname)
-                defaults.setdefault(rname, Relation(field.scheme, field.name))
+                if not isinstance(field, Relation):
+                    defaults[rname] = Relation(field.scheme, field.name)
                 defaults[rname].params.update({rvalue: params})
                 del values[key]
 
@@ -267,3 +268,5 @@ class Mixer(object):
     def blend(self, cls_type, **values):
         type_mixer = self.type_mixer_cls(cls_type, mixer=self)
         return type_mixer.blend(**values)
+
+# lint_ignore=C901
