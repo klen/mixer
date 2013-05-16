@@ -96,6 +96,28 @@ LOREM_CHOICES = (
 )
 
 
+HOSTNAMES = (
+    "facebook", "google", "youtube", "yahoo", "baidu", "wikipedia", "amazon",
+    "qq", "live", "taobao", "blogspot", "linkedin", "twitter", "bing",
+    "yandex", "vk", "msn", "ebay", "163", "wordpress", "ask", "weibo", "mail",
+    "microsoft", "hao123", "tumblr", "xvideos", "googleusercontent", "fc2"
+)
+
+HOSTZONES = (
+    "aero", "asia", "biz", "cat", "com", "coop", "info", "int", "jobs", "mobi",
+    "museum", "name", "net", "org", "post", "pro", "tel", "travel", "xxx",
+    "edu", "gov", "mil", "eu", "ee", "dk", "de", "ch", "bg", "vn", "tw", "tr",
+    "tm", "su", "si", "sh", "se", "pt", "ar", "pl", "pe", "nz", "my", "it",
+    "gr", "fr", "pm", "re", "tf", "wf", "yt", "fi", "br", "ac", "ru", "cn"
+)
+
+USERNAMES = (
+    "root", "admin", "user", "owner", "monkey", "ass", "nut", "job", "mom",
+    "akholic", "spamalot", "daddy", "ustink", "nutjob", "cookie", "jack",
+    "raider", "raiser", "kitty", "lover", "potato", "cave", "diller", "kicker"
+)
+
+
 def get_firstname():
     return g.get_choice(*FIRSTNAME_CHOICES)
 
@@ -145,3 +167,45 @@ def get_numerify(template, symbol='#'):
     )
 
 gen_numerify = g.loop(get_numerify)
+
+
+def get_username(max_length=100):
+    params = dict(
+        one=g.get_choice(*USERNAMES),
+        two=g.get_choice(*USERNAMES),
+        num=g.get_positive_integer(high=2020),
+    )
+    username = g.get_choice(
+        '{one}_{two}'.format(**params),
+        '{one}.{two}'.format(**params),
+        '{one}{num}'.format(**params),
+        '{num}{one}'.format(**params),
+    )
+    return username[:max_length]
+
+gen_username = g.loop(get_username)
+
+
+def get_hostname(host=None, zone=None):
+    params = dict(
+        host=host or g.get_choice(*HOSTNAMES),
+        zone=zone or g.get_choice(*HOSTZONES)
+    )
+    return g.get_choice(
+        '{host}.{zone}'.format(**params),
+        'www.{host}.{zone}'.format(**params)
+    )
+
+gen_hostname = g.loop(get_hostname)
+
+
+def get_email(username=None, host=None, zone=None):
+    hostname = get_hostname(host, zone)
+    if hostname.startswith('www.'):
+        hostname = hostname[4:]
+    return '{0}@{1}'.format(
+        username or get_username(),
+        get_hostname(host, zone),
+    )
+
+gen_email = g.loop(get_email)

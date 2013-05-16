@@ -84,7 +84,7 @@ gen_small_integer = loop(get_small_integer)
 
 
 def get_positive_integer(high=4294967294):
-    return get_integer(low=0, high=4294967294)
+    return get_integer(low=0, high=high)
 
 gen_positive_integer = loop(get_positive_integer)
 

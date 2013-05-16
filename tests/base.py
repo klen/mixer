@@ -66,6 +66,18 @@ class MixerBaseTests(TestCase):
         test = next(f.gen_numerify('##-####'))
         self.assertTrue(test)
 
+        test = next(f.gen_username(50))
+        self.assertTrue(test)
+
+        test = next(f.gen_hostname())
+        self.assertTrue(test)
+
+        test = next(f.gen_email())
+        self.assertTrue(test)
+
+        test = next(f.gen_email(host='gmail'))
+        self.assertTrue('gmail' in test)
+
     def test_generatorregistry(self):
         from mixer.main import Generator
 
