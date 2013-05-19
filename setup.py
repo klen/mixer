@@ -49,9 +49,13 @@ setup(
     author_email='horneds@gmail.com',
     url='http://github.com/klen/mixer',
     classifiers=[
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
+        'Natural Language :: English',
+        'Natural Language :: Russian',
         'Operating System :: OS Independent',
+        'Programming Language :: Python :: 3.3',
         'Programming Language :: Python',
     ],
 
