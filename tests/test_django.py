@@ -35,6 +35,7 @@ class MixerTestDjango(TestCase):
         self.assertTrue(isinstance(rabbit.updated_at, datetime.datetime))
         self.assertTrue(isinstance(rabbit.opened_at, datetime.time))
         self.assertTrue('@' in rabbit.email)
+        self.assertTrue(rabbit.speed)
         self.assertTrue(rabbit.description)
 
     def test_random_fields(self):

@@ -34,7 +34,7 @@ class Rabbit(models.Model):
     some_field = models.CommaSeparatedIntegerField(max_length=12)
     funny = models.NullBooleanField(null=False, blank=False)
     slug = models.SlugField()
-    money = models.DecimalField(max_digits=3, decimal_places=1)
+    speed = models.DecimalField(max_digits=3, decimal_places=1)
 
 
 class Hole(models.Model):
