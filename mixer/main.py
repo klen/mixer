@@ -2,6 +2,7 @@ import datetime
 
 import decimal
 from importlib import import_module
+from collections import defaultdict
 
 from . import generators as g, fakers as f
 
@@ -15,6 +16,8 @@ SELECT = object()
 class Field(object):
     """ Store field imformation.
     """
+    is_relation = False
+
     def __init__(self, scheme, name):
         self.scheme = scheme
         self.name = name
@@ -23,6 +26,8 @@ class Field(object):
 class Relation(Field):
     """ Store relation field imformation.
     """
+    is_relation = True
+
     def __init__(self, scheme, name, params=None):
         super(Relation, self).__init__(scheme, name)
         self.params = params or dict()
@@ -168,10 +173,15 @@ class TypeMixer(object):
     def __init__(self, cls, mixer=None, generator=None, fake=True):
         self.cls = cls
         self.mixer = mixer
-        self.fake = self.mixer and self.mixer.fake or fake
+        self.fake = fake
+
+        if self.mixer:
+            self.fake = self.mixer.fake
+
         self.fields = dict(self.__load_fields())
         self.generator = generator or self.generator
         self.generators = dict()
+        self.post_save_values = defaultdict(list)
 
     def __repr__(self):
         return "<TypeMixer {0}>".format(self.cls)
@@ -183,6 +193,7 @@ class TypeMixer(object):
         :param **values: Predefined fields
         """
         target = self.cls()
+        self.post_save_values = defaultdict(list)
 
         defaults = dict(**self.fields)
 
@@ -376,6 +387,14 @@ class Mixer(object):
 
         """
         type_mixer = self.type_mixer_cls(scheme, mixer=self)
-        return type_mixer.blend(**values)
+        result = type_mixer.blend(**values)
+        result = self.post_generate(result, type_mixer)
+        for fname, fvalue in type_mixer.post_save_values.items():
+            setattr(result, fname, fvalue)
+        return result
+
+    @staticmethod
+    def post_generate(target, type_mixer):
+        return target
 
 # lint_ignore=C901

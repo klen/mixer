@@ -212,10 +212,7 @@ def get_email(username=None, host=None, zone=None, **kwargs):
     hostname = get_hostname(host, zone)
     if hostname.startswith('www.'):
         hostname = hostname[4:]
-    return '{0}@{1}'.format(
-        username or get_username(),
-        get_hostname(host, zone),
-    )
+    return '{0}@{1}'.format(username or get_username(), hostname)
 
 gen_email = g.loop(get_email)
 

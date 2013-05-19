@@ -128,8 +128,8 @@ def get_decimal(i=4, d=2, positive=False, **kwargs):
     d = 10 ** d
     return decimal.Decimal(
         "{0}.{1}".format(
-            get_integer(low=0 if positive else -i, high=i),
-            get_positive_integer(high=d)
+            get_integer(low=0 if positive else -i, high=i-1),
+            get_positive_integer(high=d-1)
         )
     )
 

@@ -174,19 +174,7 @@ class Mixer(BaseMixer):
         assert not commit or self.session, "Set session for commits"
         self.commit = commit
 
-    def blend(self, scheme, **values):
-        """
-        Generate instance of `scheme`.
-
-        :param scheme: Scheme class for generation
-        :param **values: Predefined fields
-
-        ::
-            mixer = Mixer(session=session, commit=True)
-            mixer.blend(UserModel, username='testuser')
-        """
-        result = super(Mixer, self).blend(scheme, **values)
-
+    def post_generate(self, result, type_mixer):
         if self.commit:
             self.session.add(result)
             self.session.commit()
