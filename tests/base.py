@@ -1,5 +1,13 @@
 from unittest import TestCase
 
+from mixer.main import Mixer
+
+
+class Test:
+    one = int
+    two = int
+    name = str
+
 
 class MixerBaseTests(TestCase):
 
@@ -91,13 +99,8 @@ class MixerBaseTests(TestCase):
         test = g.gen_maker(bool)()
         self.assertTrue(next(test) in [True, False])
 
-    def test_mixer(self):
+    def test_typemixer(self):
         from mixer.main import TypeMixer
-
-        class Test:
-            one = int
-            two = int
-            name = str
 
         class Scheme:
             name = str
@@ -120,3 +123,27 @@ class MixerBaseTests(TestCase):
 
         test = mixer.blend(name=mixer.random)
         self.assertFalse(' ' in test.name)
+
+    def test_mixer(self):
+        mixer = Mixer()
+
+        gen = ('test{0}'.format(i) for i in xrange(500))
+        test = mixer.blend('tests.base.Test', name=gen)
+        self.assertEqual(test.name, 'test0')
+
+        name_gen = mixer.sequence(lambda c: 'test' + str(c))
+        test = mixer.blend('tests.base.Test', name=name_gen)
+        test = mixer.blend('tests.base.Test', name=name_gen)
+        test = mixer.blend('tests.base.Test', name=name_gen)
+        self.assertEqual(test.name, 'test2')
+
+        name_gen = mixer.sequence('test{0}')
+        test = mixer.blend('tests.base.Test', name=name_gen)
+        test = mixer.blend('tests.base.Test', name=name_gen)
+        self.assertEqual(test.name, 'test1')
+
+    def test_cycle(self):
+        mixer = Mixer()
+        test = mixer.cycle(3).blend('tests.base.Test')
+        self.assertEqual(len(test), 3)
+        self.assertTrue(type(test[0]), Test)

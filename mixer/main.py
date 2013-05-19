@@ -3,6 +3,7 @@ import datetime
 import decimal
 from importlib import import_module
 from collections import defaultdict
+from types import GeneratorType
 
 from . import generators as g, fakers as f
 
@@ -239,6 +240,9 @@ class TypeMixer(object):
         if callable(field_value):
             field_value = field_value()
 
+        elif isinstance(field_value, GeneratorType):
+            field_value = next(field_value)
+
         setattr(target, field_name, field_value)
 
     def gen_value(self, target, fname, fcls, fake=None):
@@ -333,6 +337,24 @@ class TypeMixer(object):
             yield fname, Field(getattr(self.cls, fname), fname)
 
 
+class MetaMixer:
+
+    def __init__(self, mixer, count=5):
+        self.count = count
+        self.mixer = mixer
+
+    def blend(self, scheme, **values):
+        result = []
+        for _ in xrange(self.count):
+            result.append(
+                self.mixer.blend(scheme, **values)
+            )
+        return result
+
+    def __getattr__(self, name):
+        raise AttributeError('Use "cycle" only for "blend"')
+
+
 class Mixer(object):
     """
     This class is used for integration to one or more applications.
@@ -396,5 +418,20 @@ class Mixer(object):
     @staticmethod
     def post_generate(target, type_mixer):
         return target
+
+    @staticmethod
+    def sequence(func):
+        if isinstance(func, basestring):
+            func = func.format
+
+        def gen():
+            counter = 0
+            while True:
+                yield func(counter)
+                counter += 1
+        return gen()
+
+    def cycle(self, count=5):
+        return MetaMixer(self, count)
 
 # lint_ignore=C901
