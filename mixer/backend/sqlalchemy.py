@@ -111,7 +111,12 @@ class TypeMixer(BaseTypeMixer):
             if col.nullable and not relation.params:
                 return False
 
-            mixer = TypeMixer(rel.mapper.class_)
+            mixer = TypeMixer(
+                rel.mapper.class_,
+                mixer=self.mixer,
+                generator=self.generator,
+                fake=self.fake,
+            )
             value = mixer.blend(**relation.params)
 
             setattr(target, rel.key, value)

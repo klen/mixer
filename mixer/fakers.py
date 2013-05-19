@@ -171,9 +171,10 @@ gen_numerify = g.loop(get_numerify)
 
 
 def get_username(length=100, **kwargs):
+    gen = g.gen_choice(USERNAMES)
     params = dict(
-        one=g.get_choice(USERNAMES),
-        two=g.get_choice(USERNAMES),
+        one=next(gen),
+        two=next(gen),
         num=g.get_positive_integer(high=2020),
     )
     username = g.get_choice((

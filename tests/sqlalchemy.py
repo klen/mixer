@@ -71,7 +71,7 @@ class MixerTestSQLAlchemy(TestCase):
         self.assertFalse(user.id)
         self.assertTrue(user.name)
         self.assertEqual(user.score, 50)
-        self.assertEqual(len(user.name), 10)
+        self.assertTrue(2 < len(user.name) <= 10)
         self.assertEqual(user.role, 'client')
         self.assertTrue(user.updated_at is None)
         self.assertTrue(user.profile)

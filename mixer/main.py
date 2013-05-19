@@ -89,6 +89,7 @@ class Generator(object):
         ('firstname', str): f.gen_firstname,
         ('last_name', str): f.gen_lastname,
         ('lastname', str): f.gen_lastname,
+        ('title', str): f.gen_lorem,
         ('description', str): f.gen_lorem,
         ('content', str): f.gen_lorem,
         ('city', str): f.gen_city,
@@ -137,12 +138,12 @@ class TypeMixerMeta(type):
     """
     mixers = dict()
 
-    def __call__(cls, cls_type, mixer=None, generator=None):
+    def __call__(cls, cls_type, mixer=None, generator=None, fake=True):
         cls_type = cls.__load_cls(cls_type)
         key = (mixer, cls_type)
         if not key in cls.mixers:
             cls.mixers[key] = super(TypeMixerMeta, cls).__call__(
-                cls_type, mixer=mixer, generator=generator
+                cls_type, mixer=mixer, generator=generator, fake=fake,
             )
         return cls.mixers[key]
 
