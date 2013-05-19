@@ -1,16 +1,18 @@
 from __future__ import absolute_import
 
 import datetime
-from collections import defaultdict
 import decimal
+from collections import defaultdict
+
+from django.db import models
+
+from .. import generators as g, mix_types as t, six
 from ..main import (
     Field, Relation,
     TypeMixerMeta as BaseTypeMixerMeta,
     TypeMixer as BaseTypeMixer,
     Generator as BaseGenerator,
     Mixer as BaseMixer)
-from .. import generators as g, types as t
-from django.db import models
 
 
 class Generator(BaseGenerator):
@@ -36,7 +38,7 @@ class Generator(BaseGenerator):
 class TypeMixerMeta(BaseTypeMixerMeta):
 
     def __load_cls(cls, cls_type):
-        if isinstance(cls_type, basestring):
+        if isinstance(cls_type, six.string_types):
             assert '.' in cls_type, ("'model_class' must be either a model"
                                      " or a model name in the format"
                                      " app_label.model_name")
@@ -45,7 +47,7 @@ class TypeMixerMeta(BaseTypeMixerMeta):
         return cls_type
 
 
-class TypeMixer(BaseTypeMixer):
+class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
     __metaclass__ = TypeMixerMeta
 
@@ -174,4 +176,4 @@ class Mixer(BaseMixer):
         return result
 
 
-# lint_ignore=W0212,W0201
+# lint_ignore=W0212,W0201,E1002,F0401

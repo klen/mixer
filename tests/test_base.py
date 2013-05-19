@@ -130,7 +130,7 @@ class MixerBaseTests(TestCase):
     def test_mixer(self):
         mixer = Mixer()
 
-        gen = ('test{0}'.format(i) for i in xrange(500))
+        gen = ('test{0}'.format(i) for i in range(500))
         test = mixer.blend('tests.test_base.Test', name=gen)
         self.assertEqual(test.name, 'test0')
 

@@ -11,7 +11,7 @@ from sqlalchemy.types import (
     Numeric, SMALLINT, SmallInteger, String, TEXT, TIME, Text, Time, Unicode,
     UnicodeText, VARCHAR)
 
-from .. import types as t
+from .. import mix_types as t
 from ..main import (
     Relation, Field,
     TypeMixer as BaseTypeMixer,

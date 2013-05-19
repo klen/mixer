@@ -31,7 +31,7 @@ def get_choices(choices=None, length=None, **kwargs):
     gen = gen_choice(choices)
     if length is None:
         length = len(choices)
-    return tuple(next(gen) for _ in xrange(length))
+    return tuple(next(gen) for _ in range(length))
 
 gen_choices = loop(get_choices)
 

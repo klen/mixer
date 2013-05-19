@@ -7,7 +7,8 @@ from importlib import import_module
 from collections import defaultdict
 from types import GeneratorType
 
-from . import generators as g, fakers as f, types as t
+from . import generators as g, fakers as f, mix_types as t
+from . import six
 
 
 DEFAULT = object()
@@ -54,8 +55,8 @@ class GeneratorMeta(type):
         fakers.update(params.get('fakers', dict()))
         types.update(params.get('types', dict()))
 
-        mcs.flat_keys(generators)
-        mcs.flat_keys(types)
+        generators = dict(mcs.flat_keys(generators))
+        types = dict(mcs.flat_keys(types))
 
         params['generators'] = generators
         params['fakers'] = fakers
@@ -68,16 +69,14 @@ class GeneratorMeta(type):
         for key, value in d.items():
             if isinstance(key, (tuple, list)):
                 for k in key:
-                    d[k] = value
-                del d[key]
-        return d
+                    yield k, value
+                continue
+            yield key, value
 
 
-class Generator(object):
+class Generator(six.with_metaclass(GeneratorMeta)):
     """ Make generators for types.
     """
-    __metaclass__ = GeneratorMeta
-
     generators = {
         bool: g.gen_boolean,
         float: g.gen_float,
@@ -114,9 +113,7 @@ class Generator(object):
         ('login', str): f.gen_username,
     }
 
-    types = {
-        unicode: str,
-    }
+    types = {}
 
     @classmethod
     def cls_to_simple(cls, fcls):
@@ -165,16 +162,14 @@ class TypeMixerMeta(type):
 
     @staticmethod
     def __load_cls(cls_type):
-        if isinstance(cls_type, basestring):
+        if isinstance(cls_type, six.string_types):
             mod, cls_type = cls_type.rsplit('.', 1)
             mod = import_module(mod)
             cls_type = getattr(mod, cls_type)
         return cls_type
 
 
-class TypeMixer(object):
-
-    __metaclass__ = TypeMixerMeta
+class TypeMixer(six.with_metaclass(TypeMixerMeta)):
 
     fake = FAKE
     generator = Generator
@@ -216,9 +211,8 @@ class TypeMixer(object):
                 if not isinstance(field, Relation):
                     defaults[rname] = Relation(field.scheme, field.name)
                 defaults[rname].params.update({rvalue: params})
-                del values[key]
-
-        defaults.update(values)
+                continue
+            defaults[key] = params
 
         # Fill fields
         for fname, fvalue in defaults.items():
@@ -355,7 +349,7 @@ class MetaMixer:
 
     def blend(self, scheme, **values):
         result = []
-        for _ in xrange(self.count):
+        for _ in range(self.count):
             result.append(
                 self.mixer.blend(scheme, **values)
             )
@@ -431,7 +425,7 @@ class Mixer(object):
 
     @staticmethod
     def sequence(func):
-        if isinstance(func, basestring):
+        if isinstance(func, six.string_types):
             func = func.format
 
         def gen():
@@ -444,4 +438,4 @@ class Mixer(object):
     def cycle(self, count=5):
         return MetaMixer(self, count)
 
-# lint_ignore=C901
+# lint_ignore=C901,W0622,F0401

@@ -6,8 +6,8 @@ Mixer is simply application for generate instances of Django or SQLAlchemy model
 Mixer supports:
 
     - Django_;
-    - Flask-SqlAlchemy;
     - SQLAlchemy_;
+    - Flask-SqlAlchemy (only for python 2.6, 2.7);
 
 .. image:: https://secure.travis-ci.org/klen.png?branch=develop
     :target: http://travis-ci.org/klen/mixer
@@ -19,7 +19,10 @@ Mixer supports:
 Requirements
 =============
 
-- python >= 2.6
+- python (2.6, 2.7, 3.2, 3.3)
+- Django (1.4, 1.5) for django ORM suport;
+- SQLAlchemy for SQLAlchemy ORM suport;
+- Flask-SQLALchemy for SQLAlchemy ORM suport and integration as Flask application;
 
 
 Installation
