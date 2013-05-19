@@ -9,8 +9,8 @@ Mixer supports:
     - Flask-SqlAlchemy;
     - SQLAlchemy_;
 
-.. image:: https://secure.travis-ci.org/horneds/mixer.png?branch=develop
-    :target: http://travis-ci.org/horneds/mixer
+.. image:: https://secure.travis-ci.org/klen.png?branch=develop
+    :target: http://travis-ci.org/klen/mixer
     :alt: Build Status
 
 .. contents::
@@ -61,7 +61,7 @@ Licensed under a `BSD license`_.
 
 
 .. _BSD license: http://www.linfo.org/bsdlicense.html
-.. _horneds: http://horneds.github.com/
+.. _horneds: http://klen.github.io
 .. _SQLAlchemy: http://www.sqlalchemy.org/
 .. _Flask: http://flask.pocoo.org/
 .. _Django: http://djangoproject.org/

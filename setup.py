@@ -45,9 +45,9 @@ setup(
     long_description=read('README.rst'),
     platforms=('Any'),
 
-    author='horneds',
+    author='Kirill Klenov',
     author_email='horneds@gmail.com',
-    url='http://github.com/horneds/mixer',
+    url='http://github.com/klen/mixer',
     classifiers=[
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
