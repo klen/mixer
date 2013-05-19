@@ -14,7 +14,10 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relation, sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
-from unittest import TestCase
+try:
+    from unittest2 import TestCase
+except ImportError:
+    from unittest import TestCase
 
 
 ENGINE = create_engine('sqlite:///:memory:')
@@ -81,7 +84,7 @@ class MixerTestSQLAlchemy(TestCase):
         self.assertEqual(user.name, 'John')
         self.assertTrue(user.updated_at in (True, False))
 
-        mixer = TypeMixer('tests.sqlalchemy.Role')
+        mixer = TypeMixer('tests.test_sqlalchemy.Role')
         role = mixer.blend()
         self.assertTrue(role.user)
         self.assertEqual(role.user_id, role.user.id)
@@ -90,7 +93,7 @@ class MixerTestSQLAlchemy(TestCase):
         from mixer.backend.sqlalchemy import Mixer
 
         mixer = Mixer(session=self.session, commit=True)
-        role = mixer.blend('tests.sqlalchemy.Role')
+        role = mixer.blend('tests.test_sqlalchemy.Role')
         self.assertTrue(role)
         self.assertTrue(role.user)
 
@@ -101,7 +104,7 @@ class MixerTestSQLAlchemy(TestCase):
         role = mixer.blend(Role, user=mixer.select)
         self.assertTrue(role.user in users)
 
-        profile = mixer.blend('tests.sqlalchemy.Profile')
+        profile = mixer.blend('tests.test_sqlalchemy.Profile')
         user = mixer.blend(User, profile__name='test')
         self.assertEqual(user.profile.name, 'test')
 
@@ -113,3 +116,5 @@ class MixerTestSQLAlchemy(TestCase):
 
         user = mixer.blend(User, username=lambda: 'callable_value')
         self.assertEqual(user.username, 'callable_value')
+
+# lint_ignore=F0401

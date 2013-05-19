@@ -1,4 +1,7 @@
-from unittest import TestCase
+try:
+    from unittest2 import TestCase
+except ImportError:
+    from unittest import TestCase
 
 from mixer.main import Mixer
 
@@ -128,22 +131,28 @@ class MixerBaseTests(TestCase):
         mixer = Mixer()
 
         gen = ('test{0}'.format(i) for i in xrange(500))
-        test = mixer.blend('tests.base.Test', name=gen)
+        test = mixer.blend('tests.test_base.Test', name=gen)
         self.assertEqual(test.name, 'test0')
 
         name_gen = mixer.sequence(lambda c: 'test' + str(c))
-        test = mixer.blend('tests.base.Test', name=name_gen)
-        test = mixer.blend('tests.base.Test', name=name_gen)
-        test = mixer.blend('tests.base.Test', name=name_gen)
+        test = mixer.blend(Test, name=name_gen)
+        test = mixer.blend(Test, name=name_gen)
+        test = mixer.blend(Test, name=name_gen)
         self.assertEqual(test.name, 'test2')
 
         name_gen = mixer.sequence('test{0}')
-        test = mixer.blend('tests.base.Test', name=name_gen)
-        test = mixer.blend('tests.base.Test', name=name_gen)
+        test = mixer.blend(Test, name=name_gen)
+        test = mixer.blend(Test, name=name_gen)
         self.assertEqual(test.name, 'test1')
 
     def test_cycle(self):
         mixer = Mixer()
-        test = mixer.cycle(3).blend('tests.base.Test')
+        test = mixer.cycle(3).blend(Test)
         self.assertEqual(len(test), 3)
         self.assertTrue(type(test[0]), Test)
+
+        test = mixer.cycle(3).blend(Test,
+                                    name=mixer.sequence('lama{0}'))
+        self.assertEqual(test[2].name, 'lama2')
+
+# lint_ignore=F0401

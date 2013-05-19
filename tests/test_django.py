@@ -1,9 +1,10 @@
 from __future__ import absolute_import
 
 import datetime
+from .django_app.models import *
 
-from django.test import TestCase
 from django.core.management import call_command
+from django.test import TestCase
 
 from mixer.backend.django import Mixer
 
@@ -85,3 +86,5 @@ class MixerTestDjango(TestCase):
 
         num = mixer.blend('django_app.colornumber')
         self.assertEqual(num.doors.count(), 1)
+
+# lint_ignore=F0401,W0401

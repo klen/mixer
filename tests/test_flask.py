@@ -3,7 +3,10 @@ from __future__ import absolute_import
 from datetime import datetime
 
 from flask_sqlalchemy import SQLAlchemy
-from unittest import TestCase
+try:
+    from unittest2 import TestCase
+except ImportError:
+    from unittest import TestCase
 
 
 db = SQLAlchemy()
@@ -78,11 +81,11 @@ class MixerTestFlask(TestCase):
         with self.app.test_request_context():
             db.create_all()
 
-            node = mixer.blend('tests.flask.Node')
+            node = mixer.blend('tests.test_flask.Node')
             self.assertTrue(node.id)
             self.assertFalse(node.parent)
 
-            role = mixer.blend('tests.flask.Role')
+            role = mixer.blend('tests.test_flask.Role')
             self.assertTrue(role.user)
             self.assertEqual(role.user_id, role.user.id)
 
@@ -97,17 +100,17 @@ class MixerTestFlask(TestCase):
             user = mixer.blend(User, username='test')
             self.assertEqual(user.username, 'test')
 
-            role = mixer.blend('tests.flask.Role', user__username='test2')
+            role = mixer.blend('tests.test_flask.Role', user__username='test2')
             self.assertEqual(role.user.username, 'test2')
 
             users = User.query.all()
-            role = mixer.blend('tests.flask.Role', user=mixer.select)
+            role = mixer.blend('tests.test_flask.Role', user=mixer.select)
             self.assertTrue(role.user in users)
 
-            role = mixer.blend('tests.flask.Role', user=mixer.random)
+            role = mixer.blend('tests.test_flask.Role', user=mixer.random)
             self.assertTrue(role.user)
 
-            profile = mixer.blend('tests.flask.Profile')
+            profile = mixer.blend('tests.test_flask.Profile')
             user = mixer.blend(User, profile=profile)
             self.assertEqual(user.profile, profile)
 
@@ -116,3 +119,5 @@ class MixerTestFlask(TestCase):
 
             user = mixer.blend(User, username=lambda: 'callable_value')
             self.assertEqual(user.username, 'callable_value')
+
+# lint_ignore=F0401
