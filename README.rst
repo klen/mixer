@@ -1,10 +1,16 @@
 Mixer
 #####
 
-mixer -- Short description.
+Mixer is simply application for generate instances of Django or SQLAlchemy models. It's useful for testing or fixtures replacement.
 
-.. image:: https://secure.travis-ci.org/horneds/mixer.png?branch=develop
-    :target: http://travis-ci.org/horneds/mixer
+Mixer supports:
+
+    - Django_;
+    - SQLAlchemy_;
+    - Flask-SqlAlchemy (only for python 2.6, 2.7);
+
+.. image:: https://secure.travis-ci.org/klen.png?branch=develop
+    :target: http://travis-ci.org/klen/mixer
     :alt: Build Status
 
 .. contents::
@@ -13,7 +19,10 @@ mixer -- Short description.
 Requirements
 =============
 
-- python >= 2.6
+- python (2.6, 2.7, 3.2, 3.3)
+- Django (1.4, 1.5) for django ORM suport;
+- SQLAlchemy for SQLAlchemy ORM suport;
+- Flask-SQLALchemy for SQLAlchemy ORM suport and integration as Flask application;
 
 
 Installation
@@ -55,4 +64,7 @@ Licensed under a `BSD license`_.
 
 
 .. _BSD license: http://www.linfo.org/bsdlicense.html
-.. _horneds: http://horneds.github.com/
+.. _horneds: http://klen.github.io
+.. _SQLAlchemy: http://www.sqlalchemy.org/
+.. _Flask: http://flask.pocoo.org/
+.. _Django: http://djangoproject.org/

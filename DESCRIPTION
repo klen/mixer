@@ -1,1 +1,1 @@
-Module description
+Mixer -- Is a fixtures replacement. Supported Django, Flask, SqlAlchemy and custom python objects.

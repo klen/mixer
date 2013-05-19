@@ -1,4 +1,15 @@
-from unittest import TestCase
+try:
+    from unittest2 import TestCase
+except ImportError:
+    from unittest import TestCase
+
+from mixer.main import Mixer
+
+
+class Test:
+    one = int
+    two = int
+    name = str
 
 
 class MixerBaseTests(TestCase):
@@ -10,7 +21,7 @@ class MixerBaseTests(TestCase):
     def test_generators(self):
         from mixer import generators as g
 
-        test = next(g.gen_choice(1, 2, 3))
+        test = next(g.gen_choice((1, 2, 3)))
         self.assertTrue(test in (1, 2, 3))
 
         self.assertTrue(g.get_date())
@@ -66,6 +77,21 @@ class MixerBaseTests(TestCase):
         test = next(f.gen_numerify('##-####'))
         self.assertTrue(test)
 
+        test = next(f.gen_username(length=50))
+        self.assertTrue(test)
+
+        test = next(f.gen_hostname())
+        self.assertTrue(test)
+
+        test = next(f.gen_email())
+        self.assertTrue(test)
+
+        test = next(f.gen_email(host='gmail'))
+        self.assertTrue('gmail' in test)
+
+        test = next(f.gen_ip4())
+        self.assertTrue('.' in test)
+
     def test_generatorregistry(self):
         from mixer.main import Generator
 
@@ -76,13 +102,8 @@ class MixerBaseTests(TestCase):
         test = g.gen_maker(bool)()
         self.assertTrue(next(test) in [True, False])
 
-    def test_mixer(self):
+    def test_typemixer(self):
         from mixer.main import TypeMixer
-
-        class Test:
-            one = int
-            two = int
-            name = str
 
         class Scheme:
             name = str
@@ -102,3 +123,36 @@ class MixerBaseTests(TestCase):
 
         test = mixer.blend(name=mixer.fake)
         self.assertTrue(' ' in test.name)
+
+        test = mixer.blend(name=mixer.random)
+        self.assertFalse(' ' in test.name)
+
+    def test_mixer(self):
+        mixer = Mixer()
+
+        gen = ('test{0}'.format(i) for i in range(500))
+        test = mixer.blend('tests.test_base.Test', name=gen)
+        self.assertEqual(test.name, 'test0')
+
+        name_gen = mixer.sequence(lambda c: 'test' + str(c))
+        test = mixer.blend(Test, name=name_gen)
+        test = mixer.blend(Test, name=name_gen)
+        test = mixer.blend(Test, name=name_gen)
+        self.assertEqual(test.name, 'test2')
+
+        name_gen = mixer.sequence('test{0}')
+        test = mixer.blend(Test, name=name_gen)
+        test = mixer.blend(Test, name=name_gen)
+        self.assertEqual(test.name, 'test1')
+
+    def test_cycle(self):
+        mixer = Mixer()
+        test = mixer.cycle(3).blend(Test)
+        self.assertEqual(len(test), 3)
+        self.assertTrue(type(test[0]), Test)
+
+        test = mixer.cycle(3).blend(Test,
+                                    name=mixer.sequence('lama{0}'))
+        self.assertEqual(test[2].name, 'lama2')
+
+# lint_ignore=F0401
