@@ -18,10 +18,12 @@ class MixerTestDjango(TestCase):
 
     def test_base(self):
         from mixer.backend.django import Mixer
+        from .django_app.models import Rabbit
 
         mixer = Mixer(commit=True)
         rabbit = mixer.blend('django_app.rabbit')
 
+        self.assertTrue(isinstance(rabbit, Rabbit))
         self.assertTrue(rabbit.id)
         self.assertTrue(rabbit.pk)
         self.assertEqual(rabbit.pk, 1)
@@ -31,3 +33,7 @@ class MixerTestDjango(TestCase):
         self.assertTrue(isinstance(rabbit.updated_at, datetime.datetime))
         self.assertTrue(isinstance(rabbit.opened_at, datetime.time))
         self.assertTrue('@' in rabbit.email)
+
+        hole = mixer.blend('django_app.hole', title='hole4')
+        self.assertEqual(hole.owner.pk, 2)
+        self.assertEqual(hole.title, 'hole4')
