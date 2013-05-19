@@ -11,7 +11,7 @@ from sqlalchemy.types import (
     Numeric, SMALLINT, SmallInteger, String, TEXT, TIME, Text, Time, Unicode,
     UnicodeText, VARCHAR)
 
-from ..generators import gen_small_integer
+from .. import types as t
 from ..main import (
     Relation, Field,
     TypeMixer as BaseTypeMixer,
@@ -21,8 +21,8 @@ from ..main import (
 
 class Generator(BaseGenerator):
     types = {
-        (String, VARCHAR, Unicode, NVARCHAR, NCHAR, CHAR, Text,
-         UnicodeText, TEXT): str,
+        (String, VARCHAR, Unicode, NVARCHAR, NCHAR, CHAR): str,
+        (Text, UnicodeText, TEXT): t.Text,
         (Boolean, BOOLEAN): bool,
         (Date, DATE): datetime.date,
         (DateTime, DATETIME): datetime.datetime,
@@ -30,8 +30,8 @@ class Generator(BaseGenerator):
         (DECIMAL, Numeric, NUMERIC): decimal.Decimal,
         (Float, FLOAT): float,
         (Integer, INTEGER, INT): int,
-        (BigInteger, BIGINT): long,
-        (SmallInteger, SMALLINT): gen_small_integer,
+        (BigInteger, BIGINT): t.BigInteger,
+        (SmallInteger, SMALLINT): t.SmallInteger,
     }
 
 

@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import datetime
 
 import decimal
@@ -5,7 +7,7 @@ from importlib import import_module
 from collections import defaultdict
 from types import GeneratorType
 
-from . import generators as g, fakers as f
+from . import generators as g, fakers as f, types as t
 
 
 DEFAULT = object()
@@ -80,12 +82,20 @@ class Generator(object):
         bool: g.gen_boolean,
         float: g.gen_float,
         int: g.gen_integer,
-        long: g.gen_big_integer,
         str: g.gen_string,
         datetime.date: g.gen_date,
         datetime.datetime: g.gen_datetime,
         datetime.time: g.gen_time,
         decimal.Decimal: g.gen_decimal,
+        t.BigInteger: g.gen_big_integer,
+        t.EmailString: f.gen_email,
+        t.HostnameString: f.gen_hostname,
+        t.IP4String: f.gen_ip4,
+        t.NullOrBoolean: g.gen_null_or_boolean,
+        t.PositiveDecimal: g.gen_positive_decimal,
+        t.PositiveInteger: g.gen_positive_integer,
+        t.SmallInteger: g.gen_small_integer,
+        t.Text: f.gen_lorem,
         None: g.loop(lambda: ''),
     }
 

@@ -9,23 +9,27 @@ from ..main import (
     TypeMixer as BaseTypeMixer,
     Generator as BaseGenerator,
     Mixer as BaseMixer)
-from .. import fakers as f
-from .. import generators as g
+from .. import generators as g, types as t
 from django.db import models
 
 
 class Generator(BaseGenerator):
     types = {
-        (models.CharField, models.TextField, models.SlugField): str,
+        (models.CharField, models.SlugField): str,
+        models.TextField: t.Text,
         models.BooleanField: bool,
-        models.BigIntegerField: long,
-        (models.AutoField, models.IntegerField,
-         models.PositiveIntegerField, models.SmallIntegerField): int,
+        models.BigIntegerField: t.BigInteger,
+        (models.AutoField, models.IntegerField): int,
+        models.PositiveIntegerField: t.PositiveInteger,
+        models.PositiveSmallIntegerField: t.PositiveSmallInteger,
+        models.SmallIntegerField: t.SmallInteger,
         models.DateField: datetime.date,
         models.DateTimeField: datetime.datetime,
         models.TimeField: datetime.time,
         models.DecimalField: decimal.Decimal,
         models.FloatField: float,
+        models.EmailField: t.EmailString,
+        models.IPAddressField: t.IP4String,
     }
 
 
@@ -131,12 +135,6 @@ class TypeMixer(BaseTypeMixer):
         elif stype is decimal.Decimal:
             kwargs['i'] = field.max_digits - field.decimal_places
             kwargs['d'] = field.decimal_places
-
-        if fcls is models.EmailField:
-            return f.gen_email()
-
-        if fcls is models.IPAddressField:
-            return f.gen_ip4()
 
         if fcls is models.CommaSeparatedIntegerField:
             return g.gen_choices([1, 2, 3, 4, 5, 6, 7, 8, 9, 0],
