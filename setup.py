@@ -8,6 +8,7 @@ mixer -- Description
 
 """
 
+import sys
 from os import path as op
 
 from setuptools import setup
@@ -20,6 +21,21 @@ def read(fname):
         return open(op.join(op.dirname(__file__), fname)).read()
     except IOError:
         return ''
+
+tests_require = [
+    'django',
+    'flask-sqlalchemy',
+    'sqlalchemy',
+]
+install_requires = [l for l in read('requirements.txt').split('\n')
+                    if l and not l.startswith('#')]
+
+if sys.version_info < (2, 7):
+    install_requires.append('importlib')
+
+elif sys.version_info > (3, 0):
+    tests_require.remove('flask-sqlalchemy')
+
 
 setup(
     name=__project__,
@@ -40,16 +56,9 @@ setup(
     ],
 
     py_modules=['mixer'],
-    install_requires=[
-        l for l in read('requirements.txt').split('\n')
-        if l and not l.startswith('#')],
+    install_requires=install_requires,
+    tests_require=tests_require,
     test_suite='tests',
-    tests_require=[
-        'django',
-        'flask',
-        'flask-sqlalchemy',
-        'sqlalchemy',
-    ]
 )
 
 # lint_ignore=F0401
