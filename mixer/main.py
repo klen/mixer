@@ -438,4 +438,8 @@ class Mixer(object):
     def cycle(self, count=5):
         return MetaMixer(self, count)
 
-# lint_ignore=C901,W0622,F0401
+
+# Default mixer
+mixer = Mixer()
+
+# lint_ignore=C901,W0622,F0401,W0621

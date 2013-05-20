@@ -117,4 +117,10 @@ class MixerTestSQLAlchemy(TestCase):
         user = mixer.blend(User, username=lambda: 'callable_value')
         self.assertEqual(user.username, 'callable_value')
 
+    def test_default_mixer(self):
+        from mixer.backend.sqlalchemy import mixer
+
+        test = mixer.blend(User)
+        self.assertTrue(test.name)
+
 # lint_ignore=F0401

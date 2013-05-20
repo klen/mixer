@@ -19,6 +19,7 @@ from django.db import models
 
 class Rabbit(models.Model):
     title = models.CharField(max_length=16)
+    username = models.CharField(max_length=16)
     active = models.BooleanField()
     email = models.EmailField()
     description = models.TextField()

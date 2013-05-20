@@ -120,4 +120,10 @@ class MixerTestFlask(TestCase):
             user = mixer.blend(User, username=lambda: 'callable_value')
             self.assertEqual(user.username, 'callable_value')
 
+    def test_default_mixer(self):
+        from mixer.backend.flask import mixer
+
+        test = mixer.blend(User)
+        self.assertTrue(test.username)
+
 # lint_ignore=F0401
