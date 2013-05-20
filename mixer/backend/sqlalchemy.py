@@ -181,4 +181,8 @@ class Mixer(BaseMixer):
 
         return result
 
-# lint_ignore=W0212
+
+# Default mixer
+mixer = Mixer()
+
+# lint_ignore=W0212,E1002

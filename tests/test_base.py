@@ -155,4 +155,10 @@ class MixerBaseTests(TestCase):
                                     name=mixer.sequence('lama{0}'))
         self.assertEqual(test[2].name, 'lama2')
 
+    def test_default_mixer(self):
+        from mixer.main import mixer
+
+        test = mixer.blend(Test)
+        self.assertTrue(test.name)
+
 # lint_ignore=F0401

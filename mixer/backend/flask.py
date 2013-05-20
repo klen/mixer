@@ -35,4 +35,8 @@ class Mixer(BaseMixer):
         # register extension with app
         app.extensions['mixer'] = self
 
+
+# Default mixer
+mixer = Mixer()
+
 # lint_ignore=W0201

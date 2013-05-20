@@ -88,4 +88,10 @@ class MixerTestDjango(TestCase):
         num = mixer.blend('django_app.colornumber')
         self.assertEqual(num.doors.count(), 1)
 
-# lint_ignore=F0401,W0401
+    def test_default_mixer(self):
+        from mixer.backend.django import mixer
+
+        test = mixer.blend(Rabbit)
+        self.assertTrue(test.username)
+
+# lint_ignore=F0401,W0401,E0602
