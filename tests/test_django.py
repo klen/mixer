@@ -98,9 +98,6 @@ class MixerTestDjango(TestCase):
         num = mixer.blend('django_app.number', doors__size=42)
         self.assertEqual(num.doors.all()[0].size, 42)
 
-        num = mixer.blend('django_app.colornumber')
-        self.assertEqual(num.doors.count(), 1)
-
     def test_default_mixer(self):
         from mixer.backend.django import mixer
 
@@ -123,6 +120,10 @@ class MixerTestDjango(TestCase):
         with self.assertNumQueries(1):
             user = mixer.blend('auth.User')
         self.assertTrue(user)
+
+        with self.assertNumQueries(3):
+            customer = mixer.blend(Customer)
+        self.assertTrue(customer)
 
 
 # lint_ignore=F0401,W0401,E0602
