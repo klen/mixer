@@ -59,7 +59,7 @@ setup(
         'Programming Language :: Python',
     ],
 
-    py_modules=['mixer'],
+    packages=['mixer', 'mixer.backend'],
     install_requires=install_requires,
     tests_require=tests_require,
     test_suite='tests',

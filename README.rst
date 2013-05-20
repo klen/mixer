@@ -42,19 +42,19 @@ Bug tracker
 
 If you have any suggestions, bug reports or
 annoyances please report them to the issue tracker
-at https://github.com/horneds/mixer/issues
+at https://github.com/klen/mixer/issues
 
 
 Contributing
 ============
 
-Development of starter happens at github: https://github.com/horneds/mixer
+Development of starter happens at github: https://github.com/klen/mixer
 
 
 Contributors
 =============
 
-* horneds_ (horneds)
+* klen_ (horneds@gmail.com)
 
 
 License
@@ -64,7 +64,7 @@ Licensed under a `BSD license`_.
 
 
 .. _BSD license: http://www.linfo.org/bsdlicense.html
-.. _horneds: http://klen.github.io
+.. _klen: http://klen.github.io
 .. _SQLAlchemy: http://www.sqlalchemy.org/
 .. _Flask: http://flask.pocoo.org/
 .. _Django: http://djangoproject.org/
