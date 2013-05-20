@@ -114,11 +114,13 @@ class Generator(six.with_metaclass(GeneratorMeta)):
         ('title', str): f.gen_lorem,
         ('description', str): f.gen_lorem,
         ('content', str): f.gen_lorem,
+        ('body', str): f.gen_lorem,
         ('city', str): f.gen_city,
         ('country', str): f.gen_country,
         ('email', str): f.gen_email,
         ('username', str): f.gen_username,
         ('login', str): f.gen_username,
+        ('domain', str): f.gen_hostname,
     }
 
     types = {}

@@ -106,7 +106,8 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
         return super(TypeMixer, self).gen_random(target, field_name)
 
     def gen_relation(self, target, field_name, relation):
-        if relation.scheme.null or relation.scheme.blank:
+        if (relation.scheme.null and relation.scheme.blank
+                and not relation.params):
             return None
 
         rel = relation.scheme
