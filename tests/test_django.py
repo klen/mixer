@@ -70,6 +70,16 @@ class MixerTestDjango(TestCase):
         self.assertEqual(hat.brend, 'wood')
         self.assertTrue(hat.color in ('RD', 'GRN', 'BL'))
 
+        hat = mixer.blend('django_app.hat', owner=mixer.select)
+        self.assertTrue(hat.owner)
+
+        silk = mixer.blend('django_app.silk')
+        self.assertFalse(silk.hat.owner)
+
+        silk = mixer.blend('django_app.silk', hat__owner__title='booble')
+        self.assertTrue(silk.hat.owner)
+        self.assertEqual(silk.hat.owner.title, 'booble')
+
         door = mixer.blend('django_app.door', hole__title='flash',
                            hole__size=244)
         self.assertTrue(door.hole.owner)

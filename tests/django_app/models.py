@@ -55,6 +55,11 @@ class Hat(models.Model):
     owner = models.ForeignKey(Rabbit, null=True, blank=True)
 
 
+class Silk(models.Model):
+    color = models.CharField(max_length=20)
+    hat = models.ForeignKey(Hat)
+
+
 class Door(models.Model):
     hole = models.ForeignKey(Hole)
     size = models.PositiveIntegerField()
