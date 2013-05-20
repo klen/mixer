@@ -76,6 +76,9 @@ class MixerTestDjango(TestCase):
         self.assertEqual(door.hole.title, 'flash')
         self.assertEqual(door.hole.size, 244)
 
+        door = mixer.blend('django_app.door')
+        self.assertNotEqual(door.hole.title, 'flash')
+
         num = mixer.blend('django_app.number', doors=[door])
         self.assertEqual(num.doors.get(), door)
 
