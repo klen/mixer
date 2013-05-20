@@ -6,7 +6,7 @@
 # Module information
 # ==================
 
-__version__ = '0.2.6'
+__version__ = '0.2.7'
 __project__ = 'mixer'
 __author__ = "horneds <horneds@gmail.com>"
 __license__ = "BSD"
