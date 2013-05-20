@@ -112,11 +112,10 @@ class MixerBaseTests(TestCase):
             prop = Test
 
         mixer = TypeMixer(Scheme)
-        test = mixer.blend(prop__two=2, prop__one=1)
+        test = mixer.blend(prop__two=2, prop__one=1, prop__name='sigil')
         self.assertTrue(test.male in [True, False])
-        self.assertTrue(len(test.name))
         self.assertEqual(test.prop.two, 2)
-        self.assertTrue(test.prop.name)
+        self.assertEqual(test.prop.name, 'sigil')
 
         test = mixer.blend(name='John')
         self.assertEqual(test.name, 'John')

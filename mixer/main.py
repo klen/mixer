@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import datetime
+from copy import deepcopy
 
 import decimal
 from importlib import import_module
@@ -26,6 +27,9 @@ class Field(object):
         self.scheme = scheme
         self.name = name
 
+    def __deepcopy__(self, memo):
+        return Field(self.scheme, self.name)
+
 
 class Relation(Field):
     """ Store relation field imformation.
@@ -35,6 +39,9 @@ class Relation(Field):
     def __init__(self, scheme, name, params=None):
         super(Relation, self).__init__(scheme, name)
         self.params = params or dict()
+
+    def __deepcopy__(self, memo):
+        return Relation(self.scheme, self.name, deepcopy(self.params))
 
 
 class GeneratorMeta(type):
@@ -108,6 +115,7 @@ class Generator(six.with_metaclass(GeneratorMeta)):
         ('description', str): f.gen_lorem,
         ('content', str): f.gen_lorem,
         ('city', str): f.gen_city,
+        ('country', str): f.gen_country,
         ('email', str): f.gen_email,
         ('username', str): f.gen_username,
         ('login', str): f.gen_username,
@@ -201,7 +209,7 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
         target = self.cls()
         self.post_save_values = defaultdict(list)
 
-        defaults = dict(**self.fields)
+        defaults = deepcopy(self.fields)
 
         # Prepare relations
         for key, params in values.items():
