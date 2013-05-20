@@ -11,7 +11,7 @@ settings.configure(
             'TEST_CHARSET': 'utf8',
         }
     },
-    INSTALLED_APPS=('tests.django_app',)
+    INSTALLED_APPS=('django.contrib.contenttypes', 'django.contrib.auth', 'tests.django_app',)
 )
 
 from django.db import models

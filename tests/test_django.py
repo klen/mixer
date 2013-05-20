@@ -13,7 +13,7 @@ class MixerTestDjango(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        call_command('syncdb')
+        call_command('syncdb', interactive=False)
 
     @classmethod
     def tearDownClass(cls):
@@ -116,6 +116,13 @@ class MixerTestDjango(TestCase):
 
         hole = mixer.blend(Hole, owner=mixer.select)
         self.assertTrue(hole.owner in Rabbit.objects.all())
+
+    def test_contrib(self):
+        from mixer.backend.django import mixer
+
+        with self.assertNumQueries(1):
+            user = mixer.blend('auth.User')
+        self.assertTrue(user)
 
 
 # lint_ignore=F0401,W0401,E0602
