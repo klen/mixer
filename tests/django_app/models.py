@@ -11,10 +11,18 @@ settings.configure(
             'TEST_CHARSET': 'utf8',
         }
     },
-    INSTALLED_APPS=('django.contrib.contenttypes', 'django.contrib.auth', 'tests.django_app',)
+    INSTALLED_APPS=(
+        'django.contrib.contenttypes',
+        'django.contrib.auth',
+        'tests.django_app',)
 )
 
 from django.db import models
+from django.contrib.auth.models import User
+
+
+class Customer(User):
+    name = models.CharField(max_length=100)
 
 
 class Rabbit(models.Model):

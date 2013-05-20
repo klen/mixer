@@ -114,7 +114,8 @@ HOSTZONES = (
 USERNAMES = (
     "root", "admin", "user", "owner", "monkey", "ass", "nut", "job", "mom",
     "akholic", "spamalot", "daddy", "ustink", "nutjob", "cookie", "jack",
-    "raider", "raiser", "kitty", "lover", "potato", "cave", "diller", "kicker"
+    "raider", "raiser", "kitty", "lover", "potato", "cave", "diller", "kicker",
+    "lol", "test", "star", "cat", "dog", "hot", "mix", "boss", "cop", "boy",
 )
 
 
