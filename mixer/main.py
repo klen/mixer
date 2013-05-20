@@ -297,7 +297,8 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
         :param field_name: Name of field for generation.
         """
         field = self.fields.get(field_name)
-        self.gen_value(target, field_name, field.scheme, fake=False)
+        scheme = field and field.scheme or field
+        self.gen_value(target, field_name, scheme, fake=False)
 
     gen_select = gen_random
 

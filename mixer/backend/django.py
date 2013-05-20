@@ -86,9 +86,12 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
     def gen_select(self, target, field_name):
         field = self.fields.get(field_name)
-        if field.is_relation:
+        if field:
             try:
-                return field.scheme.model.objects.order_by('?')[0]
+                return self.set_value(
+                    target, field_name,
+                    field.scheme.rel.to.objects.order_by('?')[0]
+                )
             except Exception:
                 raise Exception(
                     "Cannot find a value for the field: '{0}'".format(
@@ -98,7 +101,7 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
     def gen_random(self, target, field_name):
         field = self.fields.get(field_name)
-        if field.is_relation:
+        if field and field.is_relation:
             return self.gen_relation(target, field_name, field)
         return super(TypeMixer, self).gen_random(target, field_name)
 

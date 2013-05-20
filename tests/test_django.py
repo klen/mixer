@@ -97,4 +97,15 @@ class MixerTestDjango(TestCase):
         test = mixer.blend(Rabbit)
         self.assertTrue(test.username)
 
+    def test_select(self):
+        from mixer.backend.django import mixer
+
+        mixer.cycle(3).blend(Rabbit)
+        hole = mixer.blend(Hole, rabbit=mixer.select)
+        self.assertFalse(hole.rabbit)
+
+        hole = mixer.blend(Hole, owner=mixer.select)
+        self.assertTrue(hole.owner in Rabbit.objects.all())
+
+
 # lint_ignore=F0401,W0401,E0602
