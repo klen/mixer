@@ -44,6 +44,7 @@ setup(
     description=read('DESCRIPTION'),
     long_description=read('README.rst'),
     platforms=('Any'),
+    keywords = "django flask sqlalchemy testing mock stub",
 
     author='Kirill Klenov',
     author_email='horneds@gmail.com',
@@ -55,8 +56,12 @@ setup(
         'Natural Language :: English',
         'Natural Language :: Russian',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 3',
         'Programming Language :: Python',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Topic :: Software Development :: Testing',
+        'Topic :: Utilities',
     ],
 
     packages=['mixer', 'mixer.backend'],
