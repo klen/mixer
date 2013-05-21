@@ -117,8 +117,7 @@ Also see `Flask, Flask-SQLALchemy`_.
 
 Common usage
 ------------
-Quick example:
-.. code:: python
+Quick example: ::
 
         from mixer.main import Mixer
 
