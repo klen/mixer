@@ -38,18 +38,15 @@ Installation
 Usage
 =====
 
-.. note::
-    By default Mixer try to generate fake data. If you want randomize values
-    initialize the Mixer by manual like: Mixer(fake=False)
+ |   By default Mixer try to generate fake data. If you want randomize values
+ |   initialize the Mixer by manual like: Mixer(fake=False)
 
-.. note::
-    By default Mixer saves generated objects in database. If you want disable
-    this, initialize the Mixer by manual like: Mixer(commit=False)
+ |   By default Mixer saves generated objects in database. If you want disable
+ |   this, initialize the Mixer by manual like: Mixer(commit=False)
 
 Django
 ------
-Quick example:
-.. code:: python
+Quick example: ::
 
     from mixer.backend.django import mixer
     from customapp.models import User, UserMessage
@@ -75,8 +72,7 @@ Quick example:
 
 Flask, Flask-SQLAlchemy
 -----------------------
-Quick example:
-.. code:: python
+Quick example: ::
 
     from mixer.backend.flask import mixer
     from models import User, UserMessage
@@ -104,8 +100,7 @@ Quick example:
 
 SQLAlchemy
 ----------
-Example of initialization.
-.. code:: python
+Example of initialization: ::
 
     from mixer.backend.sqlalchemy import Mixer
 
