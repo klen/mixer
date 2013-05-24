@@ -174,7 +174,7 @@ class TypeMixerMeta(type):
 
     def __call__(cls, cls_type, mixer=None, generator=None, fake=True):
         cls_type = cls.__load_cls(cls_type)
-        key = (mixer, cls_type)
+        key = (mixer, cls_type, fake, generator)
         if not key in cls.mixers:
             cls.mixers[key] = super(TypeMixerMeta, cls).__call__(
                 cls_type, mixer=mixer, generator=generator, fake=fake,
@@ -201,10 +201,6 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
         self.cls = cls
         self.mixer = mixer
         self.fake = fake
-
-        if self.mixer:
-            self.fake = self.mixer.fake
-
         self.fields = dict(self.__load_fields())
         self.generator = generator or self.generator
         self.generators = dict()
@@ -388,7 +384,8 @@ class Mixer(object):
     This class is used for integration to one or more applications.
 
     :param fake: (True) Generate fake data instead of random data.
-    :param generator: Instance of :class:`~mixer.main.Generator`
+    :param generator: (:class:`~mixer.main.Generator`) A class for
+                        generation values for types
 
     ::
 
@@ -444,7 +441,8 @@ class Mixer(object):
         """Initialize Mixer instance.
 
         :param fake: (True) Generate fake data instead of random data.
-        :param generator: Instance of :class:`~mixer.main.Generator`
+        :param generator: (:class:`~mixer.main.Generator`) A class for
+                          generation values for types
 
         """
         self.params = params
@@ -471,7 +469,8 @@ class Mixer(object):
             print scheme.active  # True
 
         """
-        type_mixer = self.type_mixer_cls(scheme, mixer=self)
+        type_mixer = self.type_mixer_cls(
+            scheme, mixer=self, fake=self.fake, generator=self.generator)
         result = type_mixer.blend(**values)
         result = self.post_generate(result, type_mixer)
         for fname, fvalue in type_mixer.post_save_values.items():
@@ -483,11 +482,16 @@ class Mixer(object):
         return target
 
     @staticmethod
-    def sequence(func):
-        """ Create sequence for predefined values.
+    def sequence(func=None):
+        """ Create sequence for predefined values. It makes a infinity loop
+            with given function where does increment the counter on each
+            iteration.
 
-            :param func: Function takes one argument (counter) or a format
-                         string
+            :param func: Function takes one argument or a format string. If
+                         func is equal string it should be using as format
+                         string.
+
+                         By default function is equal 'lambda x: x'.
 
             Mixer can uses a generators.
             ::
@@ -517,6 +521,9 @@ class Mixer(object):
         if isinstance(func, six.string_types):
             func = func.format
 
+        elif func is None:
+            func = lambda x: x
+
         def gen():
             counter = 0
             while True:
@@ -527,11 +534,14 @@ class Mixer(object):
     def cycle(self, count=5):
         """ Generate a few objects. Syntastic sugar for cycles.
 
-            :param count: (int) how many objects generate
+            :param count: List of objects or integer.
 
             ::
 
                 users = mixer.cycle(5).blend('somemodule.User')
+
+                profiles = mixer.cycle(5).blend(
+                    'somemodule.Profile', user=mixer.sequence(users))
 
                 apples = mixer.cycle(10).blend(
                     Apple, title=mixer.sequence('apple_{0}')

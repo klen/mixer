@@ -32,7 +32,7 @@ register:
 
 .PHONY: upload
 # target: upload - Upload module on PyPi
-upload:
+upload: docs
 	@python setup.py sdist upload || echo 'Upload already'
 
 .PHONY: t
