@@ -107,7 +107,8 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
     def gen_relation(self, target, field_name, relation):
         if (
-                relation.scheme.null
+                not relation.scheme
+                or relation.scheme.null
                 or relation.scheme.blank
                 or relation.scheme.auto_created
         ) and not relation.params:

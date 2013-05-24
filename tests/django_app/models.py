@@ -80,3 +80,21 @@ class Number(models.Model):
 
 class ColorNumber(Number):
     color = models.CharField(max_length=20)
+
+
+class Client(models.Model):
+    username = models.CharField(max_length=20)
+    name = models.CharField(max_length=50)
+    created_at = models.DateField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    score = models.IntegerField(default=50)
+
+
+class Message(models.Model):
+    content = models.TextField()
+    client = models.ForeignKey(Client)
+
+
+class Tag(models.Model):
+    title = models.CharField(max_length=20)
+    messages = models.ManyToManyField(Message, null=True, blank=True)

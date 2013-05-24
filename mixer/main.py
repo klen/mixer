@@ -1,4 +1,15 @@
+# coding: utf-8
+"""
+    mixer.main
+    ~~~~~~~~~~
+
+    This module implements the objects generation.
+
+    :copyright: 2013 by Kirill Klenov.
+    :license: BSD, see LICENSE for more details.
+"""
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import datetime
 from copy import deepcopy
@@ -219,7 +230,9 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
                 rname, rvalue = key.split('__', 1)
                 field = defaults.get(rname)
                 if not isinstance(field, Relation):
-                    defaults[rname] = Relation(field.scheme, field.name)
+                    defaults[rname] = Relation(
+                        field and field.scheme or field,
+                        field and field.name or rname)
                 defaults[rname].params.update({rvalue: params})
                 continue
             defaults[key] = params
@@ -375,35 +388,67 @@ class Mixer(object):
     This class is used for integration to one or more applications.
 
     :param fake: (True) Generate fake data instead of random data.
+    :param generator: Instance of :class:`~mixer.main.Generator`
 
     ::
+
         class SomeScheme:
             score = int
             name = str
 
         mixer = Mixer()
         instance = mixer.blend(SomeScheme)
+        print instance.name  # Some like: 'Mike Douglass'
 
-        print instance.name
-        # Some like: 'Mike Douglass'
+        mixer = Mixer(fake=False)
+        instance = mixer.blend(SomeScheme)
+        print instance.name  # Some like: 'AKJfdjh3'
 
     """
 
-    # system flags
+    #: Force `fake` value
+    #: If you initialized a :class:`Mixer` with `fake=False`
+    #: you can force a `fake` value for field with this attribute
+    #: ::
+    #:
+    #:      mixer = Mixer(fake=False)
+    #:      user = mixer.blend(User)
+    #:      print user.name  # Some like: Fdjw4das
+    #:      user = mixer.blend(User, name=mixer.fake)
+    #:      print user.name  # Some like: Bob Marley
     fake = FAKE
-    select = SELECT
+
+    #: Force `random` value
+    #: If you initialized a :class:`Mixer` with `fake=True` by default
+    #: you can force a `random` value for field with this attribute
+    #: ::
+    #:
+    #:      mixer = Mixer()
+    #:      user = mixer.blend(User)
+    #:      print user.name  # Some like: Bob Marley
+    #:      user = mixer.blend(User, name=mixer.fake)
+    #:      print user.name  # Some like: Fdjw4das
+    #:
+    #: This is also usefull on ORM model generation for randomize fields
+    #: with default values (or null).
     random = RANDOM
+
+    #: When you generate some ORM models you can set value for related fields
+    #: from database (select by random)
+    select = SELECT
 
     # generator's controller class
     type_mixer_cls = TypeMixer
 
-    def __init__(self, fake=True, **params):
+    def __init__(self, fake=True, generator=None, **params):
         """Initialize Mixer instance.
 
         :param fake: (True) Generate fake data instead of random data.
+        :param generator: Instance of :class:`~mixer.main.Generator`
 
         """
         self.params = params
+        self.generator = generator
         self.fake = fake
 
     def __repr__(self):
@@ -412,15 +457,18 @@ class Mixer(object):
     def blend(self, scheme, **values):
         """Generate instance of `scheme`.
 
-        :param scheme: Scheme class for generation
-        :param **values: Predefined fields
+        :param scheme: Scheme class for generation or string with class path.
+        :param values: Keyword params with predefined values
 
         ::
-            mixer = Mixer()
-            mixer.blend(SomeSheme, active=True)
 
-            print scheme.active
-            # True
+            mixer = Mixer()
+
+            mixer.blend(SomeSheme, active=True)
+            print scheme.active  # True
+
+            mixer.blend('module.SomeSheme', active=True)
+            print scheme.active  # True
 
         """
         type_mixer = self.type_mixer_cls(scheme, mixer=self)
@@ -436,6 +484,36 @@ class Mixer(object):
 
     @staticmethod
     def sequence(func):
+        """ Create sequence for predefined values.
+
+            :param func: Function takes one argument (counter) or a format
+                         string
+
+            Mixer can uses a generators.
+            ::
+
+                gen = (name for name in ['test0', 'test1', 'test2'])
+                for counter in range(3):
+                    mixer.blend(Scheme, name=gen)
+
+            Mixer.sequence is a helper for create generators from functions.
+
+            ::
+
+                for counter in range(3):
+                    mixer.blend(Scheme, name=mixer.sequence(
+                        lambda c: 'test%s' % c
+                    ))
+
+            Short format is a python formating string
+
+            ::
+
+                for counter in range(3):
+                    mixer.blend(Scheme, name=mixer.sequence('test{0}'))
+
+
+        """
         if isinstance(func, six.string_types):
             func = func.format
 
@@ -447,6 +525,18 @@ class Mixer(object):
         return gen()
 
     def cycle(self, count=5):
+        """ Generate a few objects. Syntastic sugar for cycles.
+
+            :param count: (int) how many objects generate
+
+            ::
+
+                users = mixer.cycle(5).blend('somemodule.User')
+
+                apples = mixer.cycle(10).blend(
+                    Apple, title=mixer.sequence('apple_{0}')
+
+        """
         return MetaMixer(self, count)
 
 
