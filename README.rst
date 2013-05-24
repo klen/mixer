@@ -15,6 +15,8 @@ Mixer supports:
     :target: http://travis-ci.org/klen/mixer
     :alt: Build Status
 
+Documentation on pypi: http://pythonhosted.org/mixer/index.html
+
 .. contents::
 
 
