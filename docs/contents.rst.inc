@@ -30,13 +30,13 @@ Bug tracker
 
 If you have any suggestions, bug reports or
 annoyances please report them to the issue tracker
-at https://github.com/klen/Flask-Mixer/issues
+at https://github.com/klen/Mixer/issues
 
 
 Contributing
 ~~~~~~~~~~~~
 
-Development of flask-mixer happens at github: https://github.com/klen/Flask-Mixer
+Development of mixer happens at github: https://github.com/klen/Mixer
 
 
 Contributors
@@ -52,4 +52,4 @@ Licensed under a `BSD license`_.
 
 
 .. _BSD license: http://www.linfo.org/bsdlicense.html
-.. _klen: http://klen.github.com/
+.. _klen: http://klen.github.io/
