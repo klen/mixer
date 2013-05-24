@@ -32,7 +32,7 @@ register:
 
 .PHONY: upload
 # target: upload - Upload module on PyPi
-upload:
+upload: docs
 	@python setup.py sdist upload || echo 'Upload already'
 
 .PHONY: t
@@ -49,6 +49,10 @@ audit:
 doc: docs
 	python setup.py build_sphinx --source-dir=docs/ --build-dir=docs/_build --all-files
 	python setup.py upload_sphinx --upload-dir=docs/_build/html
+
+.PHONY: serve
+serve:
+	pyserve docs/_build/html/
 
 .PHONY: pep8
 pep8:

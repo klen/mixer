@@ -1,5 +1,5 @@
-Mixer
-#####
+|logo| Mixer
+############
 
 Mixer is simply application for generate instances of Django or SQLAlchemy models. It's useful for testing or fixtures replacement.
 Fast and convenient test-data generation.
@@ -14,6 +14,8 @@ Mixer supports:
 .. image:: https://secure.travis-ci.org/klen/mixer.png?branch=develop
     :target: http://travis-ci.org/klen/mixer
     :alt: Build Status
+
+Documentation on pypi: http://pythonhosted.org/mixer/index.html
 
 .. contents::
 
@@ -166,3 +168,4 @@ Licensed under a `BSD license`_.
 .. _SQLAlchemy: http://www.sqlalchemy.org/
 .. _Flask: http://flask.pocoo.org/
 .. _Django: http://djangoproject.org/
+.. |logo| image:: https://raw.github.com/klen/mixer/develop/logo.png
