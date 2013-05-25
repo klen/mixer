@@ -161,7 +161,7 @@ class Mixer(BaseMixer):
 
     type_mixer_cls = TypeMixer
 
-    def __init__(self, session=None, commit=False, **params):
+    def __init__(self, session=None, commit=True, **params):
         """Initialize the SQLAlchemy Mixer.
 
         :param fake: (True) Generate fake data instead of random data.

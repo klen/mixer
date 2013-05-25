@@ -7,7 +7,7 @@ class Mixer(BaseMixer):
 
     type_mixer_cls = TypeMixer
 
-    def __init__(self, app=None, commit=False, **kwargs):
+    def __init__(self, app=None, commit=True, **kwargs):
         """
         Initialize the SQLAlchemy Mixer.
 
