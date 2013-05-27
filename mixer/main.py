@@ -64,30 +64,31 @@ class Mix(object):
             t.one.two
             t & obj  # equal: getattr(getattr(obj, 'one'), 'two')
     """
-    def __init__(self, name=None, parent=None):
-        self.__name = name
+    def __init__(self, value=None, parent=None):
+        self.__value = value
         self.__parent = parent
+        self.__func = None
 
-    def __getattr__(self, name):
-        return Mix(name, self if self.__name else None)
+    def __getattr__(self, value):
+        return Mix(value, self if self.__value else None)
+
+    def __call__(self, func):
+        self.__func = func
+        return self
 
     def __and__(self, value):
         if self.__parent:
             value = self.__parent & value
-        return getattr(value, self.__name)
+        value = getattr(value, self.__value)
+        if self.__func:
+            return self.__func(value)
+        return value
 
+    def __str__(self):
+        return '%s/%s' % (self.__value, str(self.__parent or ''))
 
-class Later(object):
-    """ Later calculation of these target's attributes
-    """
-    def __init__(self, value=None):
-        self.__value = value
-
-    def __getattr__(self, name):
-        return Mix(name)
-
-    def __abs__(self):
-        return self.__value
+    def __repr__(self):
+        return '<Mix %s>' % str(self)
 
 
 class GeneratorMeta(type):
@@ -239,7 +240,6 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
         self.fields = dict(self.__load_fields())
         self.generator = generator or self.generator
         self.generators = dict()
-        self.set_values = None
         self.gen_values = defaultdict(set)
 
     def __repr__(self):
@@ -252,7 +252,6 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
         :param **values: Predefined fields
         """
         target = self.cls()
-        self.set_values = defaultdict(list)
 
         defaults = deepcopy(self.fields)
 
@@ -270,10 +269,18 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
             defaults[key] = params
 
         # Fill fields
-        values = list(self.fill_fields(target, defaults))
+        post_values = filter(None, (
+            self.set_value(target, fname, fvalue, finaly=True)
+            for (fname, fvalue) in filter(None, self.fill_fields(
+                target, defaults
+            ))
+        ))
 
         if self.mixer:
             target = self.mixer.post_generate(target)
+
+        for fname, fvalue in post_values:
+            setattr(target, fname, fvalue)
 
         return target
 
@@ -303,18 +310,25 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
 
             yield self.set_value(target, fname, fvalue)
 
-    @staticmethod
-    def set_value(target, field_name, field_value):
+    def set_value(self, target, field_name, field_value, finaly=False):
         """ Set `value` to `target` as `field_name`.
         """
-        if callable(field_value):
-            field_value = field_value()
+        if isinstance(field_value, Mix):
+            if not finaly:
+                return field_name, field_value
 
-        elif isinstance(field_value, GeneratorType):
-            field_value = next(field_value)
+            return self.set_value(
+                target, field_name, field_value & target, finaly=finaly)
+
+        if callable(field_value):
+            return self.set_value(
+                target, field_name, field_value(), finaly=finaly)
+
+        if isinstance(field_value, GeneratorType):
+            return self.set_value(
+                target, field_name, next(field_value), finaly=finaly)
 
         setattr(target, field_name, field_value)
-        return field_name, field_value
 
     def gen_value(self, target, field_name, field_class, fake=None,
                   unique=False):
@@ -502,7 +516,22 @@ class Mixer(object):
     #: from database (select by random)
     select = SELECT
 
-    mix = Later()
+    #: Virtual link on the mixed object.
+    #: ::
+    #:
+    #:      mixer = Mixer()
+    #:      # here `mixer.mix` points on a generated `User` instance
+    #:      user = mixer.blend(User, username=mixer.mix.first_name)
+    #:      assert user.username == user.first_name
+    #:
+    #:      # here `mixer.mix` points on a generated `Message.author` instance
+    #:      message = mixer.blend(Message, author__name=mixer.mix.login)
+    #:
+    #:      # Mixer mix can get a function
+    #:      message = mixer.blend(Message, title=mixer.mix.author(
+    #:          lambda author: 'Author: %s' % author.name
+    #:      ))
+    mix = Mix()
 
     # generator's controller class
     type_mixer_cls = TypeMixer
@@ -541,10 +570,7 @@ class Mixer(object):
         """
         type_mixer = self.type_mixer_cls(
             scheme, mixer=self, fake=self.fake, generator=self.generator)
-        result = type_mixer.blend(**values)
-        for fname, fvalue in type_mixer.set_values.items():
-            setattr(result, fname, fvalue)
-        return result
+        return type_mixer.blend(**values)
 
     @staticmethod
     def post_generate(target):
@@ -622,4 +648,4 @@ class Mixer(object):
 # Default mixer
 mixer = Mixer()
 
-# lint_ignore=C901,W0622,F0401,W0621
+# lint_ignore=C901,W0622,F0401,W0621,W0231

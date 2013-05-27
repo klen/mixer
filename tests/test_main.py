@@ -129,10 +129,18 @@ class MixerBaseTests(TestCase):
     def test_mix(self):
         from mixer.main import mixer
         lama = type('One', tuple(), dict(
-            one=type('Two', tuple(), dict(two=2))
+            two=int,
+            one=type('Two', tuple(), dict(two=2.1))
         ))
         mix = mixer.mix.one.two
-        self.assertEqual(mix & lama, 2)
+        self.assertEqual(mix & lama, 2.1)
+
+        test = mixer.blend(lama, one__two=2.1)
+        self.assertEqual(test.one.two, 2.1)
+        self.assertNotEqual(test.two, test.one.two)
+
+        test = mixer.blend(lama, one__two=2.1, two=mixer.mix.one.two)
+        self.assertEqual(test.two, test.one.two)
 
     def test_meta_typemixer(self):
         from mixer.main import TypeMixer
