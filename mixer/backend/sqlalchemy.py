@@ -171,8 +171,7 @@ class Mixer(BaseMixer):
         """
         super(Mixer, self).__init__(**params)
         self.session = session
-        assert not commit or self.session, "Set session for commits"
-        self.commit = commit
+        self.commit = bool(session) and commit
 
     def post_generate(self, result, type_mixer):
         if self.commit:

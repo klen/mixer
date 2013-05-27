@@ -37,6 +37,6 @@ class Mixer(BaseMixer):
 
 
 # Default mixer
-mixer = Mixer()
+mixer = Mixer(commit=False)
 
 # lint_ignore=W0201
