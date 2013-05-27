@@ -205,6 +205,7 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
         self.generator = generator or self.generator
         self.generators = dict()
         self.post_save_values = defaultdict(list)
+        self.gen_values = defaultdict(set)
 
     def __repr__(self):
         return "<TypeMixer {0}>".format(self.cls)
@@ -268,15 +269,27 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
 
         setattr(target, field_name, field_value)
 
-    def gen_value(self, target, fname, fcls, fake=None):
+    def gen_value(self, target, field_name, field_class, fake=None,
+                  unique=False):
         """ Generate values from basic types.
             Set value to target.
         """
-        if fake is None:
-            fake = self.fake
+        fake = self.fake if fake is None else fake
+        gen = self.get_generator(field_class, field_name, fake=fake)
+        value = next(gen)
 
-        gen = self.get_generator(fcls, fname, fake=fake)
-        setattr(target, fname, next(gen))
+        if unique:
+            counter = 0
+            while value in self.gen_values[field_class]:
+                value = next(gen)
+                counter += 1
+                if counter > 100:
+                    raise RuntimeError(
+                        "Cannot generate a unique value for %s" % field_name
+                    )
+            self.gen_values[field_class].add(value)
+
+        self.set_value(target, field_name, value)
 
     def gen_field(self, target, field_name, field):
         """
@@ -286,7 +299,8 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
         :param field_name: Name of field for generation.
         :param relation: Instance of :class:`Field`
         """
-        self.gen_value(target, field_name, field.scheme)
+        unique = self.is_unique(field)
+        self.gen_value(target, field_name, field.scheme, unique=unique)
 
     def gen_relation(self, target, field_name, relation):
         """
@@ -298,7 +312,7 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
 
         """
         mixer = TypeMixer(relation.scheme, self.mixer, self.generator)
-        setattr(target, field_name, mixer.blend(**relation.params))
+        self.set_value(target, field_name, mixer.blend(**relation.params))
 
     def gen_random(self, target, field_name):
         """
@@ -351,6 +365,12 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
         :param fake: Generate fake data instead of random data.
         """
         return self.generator.gen_maker(field_class, field_name, fake)()
+
+    @staticmethod
+    def is_unique(field):
+        """ Return True is field's value should be a unique.
+        """
+        return False
 
     def __load_fields(self):
         """ Generator of scheme's fields.

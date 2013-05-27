@@ -65,7 +65,7 @@ class TypeMixer(BaseTypeMixer):
                 else column.default.arg
             return setattr(target, field_name, default)
 
-        return super(TypeMixer, self).gen_value(target, field_name, column)
+        return super(TypeMixer, self).gen_field(target, field_name, field)
 
     def gen_random(self, target, field_name):
         """
@@ -94,7 +94,7 @@ class TypeMixer(BaseTypeMixer):
         value = self.mixer.session.query(
             relation.mapper.class_
         ).order_by(func.random()).first()
-        setattr(target, field_name, value)
+        self.set_value(target, field_name, value)
 
     def gen_relation(self, target, field_name, relation):
         """
@@ -124,6 +124,10 @@ class TypeMixer(BaseTypeMixer):
             setattr(target, rel.key, value)
             setattr(target, col.name,
                     rel.mapper.identity_key_from_instance(value)[1][0])
+
+    @staticmethod
+    def is_unique(field):
+        return field.scheme.unique
 
     def make_generator(self, column, field_name=None, fake=False):
         """ Make values generator for column.

@@ -152,6 +152,10 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
         return gen_maker(**kwargs)
 
+    @staticmethod
+    def is_unique(field):
+        return field.scheme.unique
+
     def __load_fields(self):
         for field in self.cls._meta.fields:
 

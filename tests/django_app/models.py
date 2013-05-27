@@ -2,6 +2,7 @@ from django.conf import settings
 
 settings.configure(
     ROOT_URLCONF='tests.django_app.urls',
+    DEBUG=True,
     DATABASES={
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -27,7 +28,7 @@ class Customer(User):
 
 class Rabbit(models.Model):
     title = models.CharField(max_length=16)
-    username = models.CharField(max_length=16)
+    username = models.CharField(max_length=16, unique=True)
     active = models.BooleanField()
     email = models.EmailField()
     description = models.TextField()
