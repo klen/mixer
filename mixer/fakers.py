@@ -112,10 +112,15 @@ HOSTZONES = (
 )
 
 USERNAMES = (
-    "root", "admin", "user", "owner", "monkey", "ass", "nut", "job", "mom",
-    "akholic", "spamalot", "daddy", "ustink", "nutjob", "cookie", "jack",
-    "raider", "raiser", "kitty", "lover", "potato", "cave", "diller", "kicker",
-    "lol", "test", "star", "cat", "dog", "hot", "mix", "boss", "cop", "boy",
+    "admin", "akholic", "ass", "bear", "bee", "beep", "blood", "bone", "boots",
+    "boss", "boy", "boyscouts", "briefs", "candy", "cat", "cave", "climb",
+    "cookie", "cop", "crunching", "daddy", "diller", "dog", "fancy", "gamer",
+    "garlic", "gnu", "hot", "jack", "job", "kicker", "kitty", "lemin", "lol",
+    "lover", "low", "mix", "mom", "monkey", "nasty", "new", "nut", "nutjob",
+    "owner", "park", "peppermint", "pitch", "poor", "potato", "prune",
+    "raider", "raiser", "ride", "root", "scull", "shattered", "show", "sleep",
+    "sneak", "spamalot", "star", "table", "test", "tips", "user", "ustink",
+    "weak"
 )
 
 
@@ -176,13 +181,12 @@ def get_username(length=100, **kwargs):
     params = dict(
         one=next(gen),
         two=next(gen),
-        num=g.get_positive_integer(high=2020),
+        num=g.get_integer(low=1900, high=2020),
     )
     username = g.get_choice((
         '{one}_{two}'.format(**params),
         '{one}.{two}'.format(**params),
-        '{one}{num}'.format(**params),
-        '{num}{one}'.format(**params),
+        '{two}{one}{num}'.format(**params),
     ))
     return username[:length]
 
