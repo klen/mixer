@@ -126,6 +126,22 @@ class MixerBaseTests(TestCase):
         test = mixer.blend(name=mixer.random)
         self.assertFalse(' ' in test.name)
 
+    def test_mix(self):
+        from mixer.main import mixer
+        lama = type('One', tuple(), dict(
+            two=int,
+            one=type('Two', tuple(), dict(two=2.1))
+        ))
+        mix = mixer.mix.one.two
+        self.assertEqual(mix & lama, 2.1)
+
+        test = mixer.blend(lama, one__two=2.1)
+        self.assertEqual(test.one.two, 2.1)
+        self.assertNotEqual(test.two, test.one.two)
+
+        test = mixer.blend(lama, one__two=2.1, two=mixer.mix.one.two)
+        self.assertEqual(test.two, test.one.two)
+
     def test_meta_typemixer(self):
         from mixer.main import TypeMixer
 
@@ -139,7 +155,7 @@ class MixerBaseTests(TestCase):
         mixer = Mixer()
 
         gen = ('test{0}'.format(i) for i in range(500))
-        test = mixer.blend('tests.test_base.Test', name=gen)
+        test = mixer.blend('tests.test_main.Test', name=gen)
         self.assertEqual(test.name, 'test0')
 
         name_gen = mixer.sequence(lambda c: 'test' + str(c))

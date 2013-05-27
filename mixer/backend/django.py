@@ -2,7 +2,6 @@ from __future__ import absolute_import
 
 import datetime
 import decimal
-from collections import defaultdict
 
 from django.db import models
 
@@ -53,21 +52,16 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
     generator = Generator
 
-    def blend(self, **values):
-        self.post_save_values = defaultdict(list)
-        return super(TypeMixer, self).blend(**values)
-
-    def set_value(self, target, field_name, field_value):
+    def set_value(self, target, field_name, field_value, finaly=False):
 
         field = self.fields.get(field_name)
         if field and field.scheme in self.cls._meta.local_many_to_many:
             if not isinstance(field_value, (list, tuple)):
                 field_value = [field_value]
-            self.post_save_values[field_name] += field_value
-            return False
+            return field_name, field_value
 
         return super(TypeMixer, self).set_value(
-            target, field_name, field_value
+            target, field_name, field_value, finaly
         )
 
     def gen_field(self, target, field_name, field):
@@ -117,21 +111,16 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
         rel = relation.scheme
         new_scheme = rel.related.parent_model
 
-        if new_scheme == self.cls:
-            if relation.scheme in self.cls._meta.local_many_to_many:
-                self.post_save_values[field_name] = [target]
-            else:
-                self.gen_select(target, field_name)
-            return False
+        value = target
+        if new_scheme != self.cls:
+            value = self.mixer and self.mixer.blend(
+                new_scheme, **relation.params
+            ) or TypeMixer(
+                new_scheme, mixer=self.mixer, generator=self.generator,
+                fake=self.fake,
+            ).blend(**relation.params)
 
-        value = self.mixer and self.mixer.blend(
-            new_scheme, **relation.params
-        ) or TypeMixer(
-            new_scheme, mixer=self.mixer, generator=self.generator,
-            fake=self.fake,
-        ).blend(**relation.params)
-
-        self.set_value(target, rel.name, value)
+        return self.set_value(target, rel.name, value)
 
     def make_generator(self, field, fname=None, fake=False):
         fcls = type(field)
@@ -181,7 +170,7 @@ class Mixer(BaseMixer):
         super(Mixer, self).__init__(**params)
         self.commit = commit
 
-    def post_generate(self, result, type_mixer):
+    def post_generate(self, result):
         if self.commit:
             result.save()
 

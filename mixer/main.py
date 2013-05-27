@@ -43,7 +43,7 @@ class Field(object):
 
 
 class Relation(Field):
-    """ Store relation field imformation.
+    """ Store relation field information.
     """
     is_relation = True
 
@@ -53,6 +53,42 @@ class Relation(Field):
 
     def __deepcopy__(self, memo):
         return Relation(self.scheme, self.name, deepcopy(self.params))
+
+
+class Mix(object):
+    """ Saves a chain of attirbutes for feature usage.
+
+        ::
+
+            t =  Mix()
+            t.one.two
+            t & obj  # equal: getattr(getattr(obj, 'one'), 'two')
+    """
+    def __init__(self, value=None, parent=None):
+        self.__value = value
+        self.__parent = parent
+        self.__func = None
+
+    def __getattr__(self, value):
+        return Mix(value, self if self.__value else None)
+
+    def __call__(self, func):
+        self.__func = func
+        return self
+
+    def __and__(self, value):
+        if self.__parent:
+            value = self.__parent & value
+        value = getattr(value, self.__value)
+        if self.__func:
+            return self.__func(value)
+        return value
+
+    def __str__(self):
+        return '%s/%s' % (self.__value, str(self.__parent or ''))
+
+    def __repr__(self):
+        return '<Mix %s>' % str(self)
 
 
 class GeneratorMeta(type):
@@ -204,7 +240,6 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
         self.fields = dict(self.__load_fields())
         self.generator = generator or self.generator
         self.generators = dict()
-        self.post_save_values = defaultdict(list)
         self.gen_values = defaultdict(set)
 
     def __repr__(self):
@@ -217,7 +252,6 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
         :param **values: Predefined fields
         """
         target = self.cls()
-        self.post_save_values = defaultdict(list)
 
         defaults = deepcopy(self.fields)
 
@@ -235,37 +269,64 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
             defaults[key] = params
 
         # Fill fields
-        for fname, fvalue in defaults.items():
+        post_values = filter(None, (
+            self.set_value(target, fname, fvalue, finaly=True)
+            for (fname, fvalue) in filter(None, self.fill_fields(
+                target, defaults
+            ))
+        ))
 
-            if isinstance(fvalue, Relation):
-                self.gen_relation(target, fname, fvalue)
+        if self.mixer:
+            target = self.mixer.post_generate(target)
 
-            elif isinstance(fvalue, Field):
-                self.gen_field(target, fname, fvalue)
-
-            elif fvalue is self.random:
-                self.gen_random(target, fname)
-
-            elif fvalue is self.fake:
-                self.gen_fake(target, fname)
-
-            elif fvalue is self.select:
-                self.gen_select(target, fname)
-
-            else:
-                self.set_value(target, fname, fvalue)
+        for fname, fvalue in post_values:
+            setattr(target, fname, fvalue)
 
         return target
 
-    @staticmethod
-    def set_value(target, field_name, field_value):
+    def fill_fields(self, target, defaults):
+
+        for fname, fvalue in defaults.items():
+
+            if isinstance(fvalue, Relation):
+                yield self.gen_relation(target, fname, fvalue)
+                continue
+
+            if isinstance(fvalue, Field):
+                yield self.gen_field(target, fname, fvalue)
+                continue
+
+            if fvalue is self.random:
+                yield self.gen_random(target, fname)
+                continue
+
+            if fvalue is self.fake:
+                yield self.gen_fake(target, fname)
+                continue
+
+            if fvalue is self.select:
+                yield self.gen_select(target, fname)
+                continue
+
+            yield self.set_value(target, fname, fvalue)
+
+    def set_value(self, target, field_name, field_value, finaly=False):
         """ Set `value` to `target` as `field_name`.
         """
-        if callable(field_value):
-            field_value = field_value()
+        if isinstance(field_value, Mix):
+            if not finaly:
+                return field_name, field_value
 
-        elif isinstance(field_value, GeneratorType):
-            field_value = next(field_value)
+            return self.set_value(
+                target, field_name, field_value & target, finaly=finaly)
+
+        if callable(field_value):
+            return self.set_value(
+                target, field_name, field_value(), finaly=finaly)
+
+        if isinstance(field_value, GeneratorType):
+            return self.set_value(
+                target, field_name, next(field_value), finaly=finaly)
 
         setattr(target, field_name, field_value)
 
@@ -289,7 +350,7 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
                     )
             self.gen_values[field_class].add(value)
 
-        self.set_value(target, field_name, value)
+        return self.set_value(target, field_name, value)
 
     def gen_field(self, target, field_name, field):
         """
@@ -300,7 +361,7 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
         :param relation: Instance of :class:`Field`
         """
         unique = self.is_unique(field)
-        self.gen_value(target, field_name, field.scheme, unique=unique)
+        return self.gen_value(target, field_name, field.scheme, unique=unique)
 
     def gen_relation(self, target, field_name, relation):
         """
@@ -312,7 +373,8 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
 
         """
         mixer = TypeMixer(relation.scheme, self.mixer, self.generator)
-        self.set_value(target, field_name, mixer.blend(**relation.params))
+        return self.set_value(
+            target, field_name, mixer.blend(**relation.params))
 
     def gen_random(self, target, field_name):
         """
@@ -323,7 +385,7 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
         """
         field = self.fields.get(field_name)
         scheme = field and field.scheme or field
-        self.gen_value(target, field_name, scheme, fake=False)
+        return self.gen_value(target, field_name, scheme, fake=False)
 
     gen_select = gen_random
 
@@ -335,7 +397,7 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
         :param field_name: Name of field for generation.
         """
         field = self.fields.get(field_name)
-        self.gen_value(target, field_name, field.scheme, fake=True)
+        return self.gen_value(target, field_name, field.scheme, fake=True)
 
     def get_generator(self, field_class, field_name=None, fake=None):
         """
@@ -454,6 +516,23 @@ class Mixer(object):
     #: from database (select by random)
     select = SELECT
 
+    #: Virtual link on the mixed object.
+    #: ::
+    #:
+    #:      mixer = Mixer()
+    #:      # here `mixer.mix` points on a generated `User` instance
+    #:      user = mixer.blend(User, username=mixer.mix.first_name)
+    #:      assert user.username == user.first_name
+    #:
+    #:      # here `mixer.mix` points on a generated `Message.author` instance
+    #:      message = mixer.blend(Message, author__name=mixer.mix.login)
+    #:
+    #:      # Mixer mix can get a function
+    #:      message = mixer.blend(Message, title=mixer.mix.author(
+    #:          lambda author: 'Author: %s' % author.name
+    #:      ))
+    mix = Mix()
+
     # generator's controller class
     type_mixer_cls = TypeMixer
 
@@ -491,14 +570,10 @@ class Mixer(object):
         """
         type_mixer = self.type_mixer_cls(
             scheme, mixer=self, fake=self.fake, generator=self.generator)
-        result = type_mixer.blend(**values)
-        result = self.post_generate(result, type_mixer)
-        for fname, fvalue in type_mixer.post_save_values.items():
-            setattr(result, fname, fvalue)
-        return result
+        return type_mixer.blend(**values)
 
     @staticmethod
-    def post_generate(target, type_mixer):
+    def post_generate(target):
         return target
 
     @staticmethod
@@ -573,4 +648,4 @@ class Mixer(object):
 # Default mixer
 mixer = Mixer()
 
-# lint_ignore=C901,W0622,F0401,W0621
+# lint_ignore=C901,W0622,F0401,W0621,W0231

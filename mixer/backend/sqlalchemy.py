@@ -177,7 +177,7 @@ class Mixer(BaseMixer):
         self.session = session
         self.commit = bool(session) and commit
 
-    def post_generate(self, result, type_mixer):
+    def post_generate(self, result):
         if self.commit:
             self.session.add(result)
             self.session.commit()

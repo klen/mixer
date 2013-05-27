@@ -114,6 +114,27 @@ class MixerTestDjango(TestCase):
         hole = mixer.blend(Hole, owner=mixer.select)
         self.assertTrue(hole.owner in Rabbit.objects.all())
 
+    def test_mix(self):
+        from mixer.backend.django import mixer
+
+        test = mixer.blend(Rabbit, title=mixer.mix.username)
+        self.assertEqual(test.title, test.username)
+
+        test = Rabbit.objects.get(pk=test.pk)
+        self.assertEqual(test.title, test.username)
+
+        test = mixer.blend(Hole, title=mixer.mix.owner.title)
+        self.assertEqual(test.title, test.owner.title)
+
+        test = mixer.blend(Door, hole__title=mixer.mix.owner.title)
+        self.assertEqual(test.hole.title, test.hole.owner.title)
+
+        test = mixer.blend(Door, hole__title=mixer.mix.owner.username(
+            lambda t: t + 's hole'
+        ))
+        self.assertTrue(test.hole.owner.username in test.hole.title)
+        self.assertTrue('s hole' in test.hole.title)
+
     def test_contrib(self):
         from mixer.backend.django import mixer
 
