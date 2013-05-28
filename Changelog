@@ -1,6 +1,13 @@
+2013-05-28  horneds
+
+	* Version 0.3.2
+	* Fix python3 support
+	* Force random related values for django
+
 2013-05-27  horneds
 
-	* Fix release 0.3.1
+	* Version 0.3.1
+	* Fix release 0.3.0
 	* Added work with unique values
 	* Added mixer.mix property
 
