@@ -268,13 +268,15 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
                 continue
             defaults[key] = params
 
-        # Fill fields
-        post_values = filter(None, (
-            self.set_value(target, fname, fvalue, finaly=True)
-            for (fname, fvalue) in filter(None, self.fill_fields(
-                target, defaults
-            ))
-        ))
+        # Fill fields in 2 steps
+        post_values = [
+            item for item in [
+                self.set_value(target, fname, fvalue, finaly=True)
+                for (fname, fvalue) in [
+                    item for item in self.fill_fields(target, defaults) if item
+                ]
+            ] if item
+        ]
 
         if self.mixer:
             target = self.mixer.post_generate(target)
