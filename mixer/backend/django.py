@@ -109,6 +109,9 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
             return None
 
         rel = relation.scheme
+        if not rel:
+            raise ValueError('Unknown relation: %s' % field_name)
+
         new_scheme = rel.related.parent_model
 
         value = target

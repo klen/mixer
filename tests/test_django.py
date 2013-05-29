@@ -149,5 +149,24 @@ class MixerTestDjango(TestCase):
             customer = mixer.blend(Customer)
         self.assertTrue(customer)
 
+    @staticmethod
+    def test_invalid_scheme():
+        from mixer.backend.django import mixer
+        try:
+            mixer.blend('django_app.Unknown')
+        except ValueError:
+            return False
+        raise Exception('test.failed')
+
+    @staticmethod
+    def test_invalid_relation():
+        from mixer.backend.django import mixer
+
+        try:
+            mixer.blend('django_app.Hole', unknown__test=1)
+        except ValueError:
+            return False
+        raise Exception('test.failed')
+
 
 # lint_ignore=F0401,W0401,E0602
