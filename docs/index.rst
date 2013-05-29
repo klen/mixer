@@ -7,6 +7,8 @@ Welcome to Mixer
 
 Welcome to Mixer's documentation.
 
+.. include:: badges.rst
+
 .. automodule:: mixer
 
 .. include:: contents.rst.inc
