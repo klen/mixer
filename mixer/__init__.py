@@ -1,4 +1,3 @@
-# coding: utf-8
 """
     Mixer is a python module that adds object generation
     tool for testing your application. It's supported Django_ ORM or

@@ -1,4 +1,7 @@
-|logo| Mixer is simply application for generate instances of Django or SQLAlchemy models. It's useful for testing or fixtures replacement.
+|logo| Mixer
+############
+
+Mixer is simply application for generate instances of Django or SQLAlchemy models. It's useful for testing or fixtures replacement.
 Fast and convenient test-data generation.
 
 Mixer supports:
@@ -12,7 +15,23 @@ Mixer supports:
     :target: http://travis-ci.org/klen/mixer
     :alt: Build Status
 
-Documentation on pypi: http://pythonhosted.org/mixer/index.html
+.. image:: https://coveralls.io/repos/klen/mixer.png?branch=develop
+    :target: https://coveralls.io/r/klen/mixer
+    :alt: Coverals
+
+.. image:: https://pypip.in/v/mixer.png
+    :target: https://crate.io/packages/mixer
+    :alt: Version
+
+.. image:: https://pypip.in/d/mixer.png
+    :target: https://crate.io/packages/mixer
+    :alt: Downloads
+
+.. image:: https://dl.dropboxusercontent.com/u/487440/reformal/donate.png
+    :target: https://www.gittip.com/klen/
+    :alt: Donate
+
+Docs are available at https://mixer.readthedocs.org/. Pull requests with documentation enhancements and/or fixes are awesome and most welcome.
 
 .. contents::
 
@@ -165,4 +184,5 @@ Licensed under a `BSD license`_.
 .. _SQLAlchemy: http://www.sqlalchemy.org/
 .. _Flask: http://flask.pocoo.org/
 .. _Django: http://djangoproject.org/
-.. |logo| image:: https://raw.github.com/klen/mixer/develop/logo.png
+.. |logo| image:: https://raw.github.com/klen/mixer/develop/docs/_static/logo.png
+           :width: 100
