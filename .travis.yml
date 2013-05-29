@@ -1,17 +1,26 @@
 language: python
 
-python:
-  - "2.6"
+python: "2.7"
 
 env:
-  - TOXENV=py26-d14,py26-d15
-  - TOXENV=py27-d14,py27-d15
-  - TOXENV=py33-d15
+    - TOXENV=py26-d14
+    - TOXENV=py26-d15
+    - TOXENV=py27-d14
+    - TOXENV=py27-d15
+    - TOXENV=py33-d15
+    - TOXENV=cov
 
-# command to install dependencies
-install:
-    - pip install tox
+branches:
+    only:
+        - master
+        - develop
 
-# command to run tests
-script:
-    - tox
+install: pip install --quiet --use-mirrors tox
+
+script: tox
+
+after_script:
+    - if [ $TOXENV == "cov" ]; then
+        pip install --quiet --use-mirrors coveralls;
+        coveralls;
+      fi
