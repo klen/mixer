@@ -6,11 +6,11 @@
     :target: https://coveralls.io/r/klen/mixer
     :alt: Coverals
 
-.. image:: https://pypip.in/v/mixer.png
+.. image:: https://pypip.in/v/mixer/badge.png
     :target: https://crate.io/packages/mixer
     :alt: Version
 
-.. image:: https://pypip.in/d/mixer.png
+.. image:: https://pypip.in/d/mixer/badge.png
     :target: https://crate.io/packages/mixer
     :alt: Downloads
 
