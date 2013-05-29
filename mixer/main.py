@@ -209,7 +209,13 @@ class TypeMixerMeta(type):
     mixers = dict()
 
     def __call__(cls, cls_type, mixer=None, generator=None, fake=True):
-        cls_type = cls.__load_cls(cls_type)
+        backup = cls_type
+        try:
+            cls_type = cls.__load_cls(cls_type)
+            assert cls_type
+        except (AttributeError, AssertionError):
+            raise ValueError('Invalid scheme: %s' % backup)
+
         key = (mixer, cls_type, fake, generator)
         if not key in cls.mixers:
             cls.mixers[key] = super(TypeMixerMeta, cls).__call__(

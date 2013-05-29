@@ -190,4 +190,14 @@ class MixerBaseTests(TestCase):
         test = mixer.blend(Test)
         self.assertTrue(test.name)
 
+    @staticmethod
+    def test_invalid_scheme():
+        from mixer.main import mixer
+        try:
+            mixer.blend('tests.test_main.Unknown')
+        except ValueError:
+            return False
+        raise Exception('test.failed')
+
+
 # lint_ignore=F0401
