@@ -15,7 +15,7 @@ Mixer supports:
     :target: http://travis-ci.org/klen/mixer
     :alt: Build Status
 
-.. image:: https://coveralls.io/repos/klen/mixer.png?branch=develop
+.. image:: https://coveralls.io/repos/klen/mixer/badge.png?branch=develop
     :target: https://coveralls.io/r/klen/mixer
     :alt: Coverals
 
@@ -185,4 +185,4 @@ Licensed under a `BSD license`_.
 .. _Flask: http://flask.pocoo.org/
 .. _Django: http://djangoproject.org/
 .. |logo| image:: https://raw.github.com/klen/mixer/develop/docs/_static/logo.png
-           :width: 100
+                  :width: 100
