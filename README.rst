@@ -1,7 +1,7 @@
 |logo| Mixer
 ############
 
-Mixer is simply application for generate instances of Django or SQLAlchemy models. It's useful for testing or fixtures replacement.
+Mixer is simply application to generate instances of Django or SQLAlchemy models. It's useful for testing or fixtures replacement.
 Fast and convenient test-data generation.
 
 Mixer supports:
