@@ -58,6 +58,9 @@ class MixerTestDjango(TestCase):
         self.assertTrue(rabbit.some_field)
         self.assertTrue(rabbit.money)
 
+        hat = mixer.blend('django_app.hat', color=mixer.random)
+        self.assertTrue(hat.color in ('RD', 'GRN', 'BL'))
+
     def test_relation(self):
         mixer = Mixer()
 
@@ -169,4 +172,4 @@ class MixerTestDjango(TestCase):
         raise Exception('test.failed')
 
 
-# lint_ignore=F0401,W0401,E0602
+# lint_ignore=F0401,W0401,E0602,W0212

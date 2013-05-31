@@ -11,6 +11,7 @@ from sqlalchemy import (
     String,
     create_engine,
     ForeignKey,
+    Enum,
 )
 from sqlalchemy.orm import relation, sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
@@ -43,6 +44,7 @@ class User(BASE):
     score = Column(SmallInteger, default=50, nullable=False)
     updated_at = Column(Boolean)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    enum = Column(Enum('one', 'two'), nullable=False)
 
     profile_id = Column(Integer, ForeignKey('profile.id'), nullable=False)
 
@@ -79,6 +81,7 @@ class MixerTestSQLAlchemy(TestCase):
         self.assertTrue(user.updated_at is None)
         self.assertTrue(user.profile)
         self.assertEqual(user.profile.user, user)
+        self.assertTrue(user.enum in ('one', 'two'))
 
         user = mixer.blend(name='John', updated_at=mixer.random)
         self.assertEqual(user.name, 'John')

@@ -1,3 +1,8 @@
+2013-05-31  horneds
+
+	* Version 0.4.1
+	* Respect django choices and SQLAlchemy Enum
+
 2013-05-30  horneds
 
 	* Version 0.4.0

@@ -9,9 +9,9 @@ from sqlalchemy.types import (
     BIGINT, BOOLEAN, BigInteger, Boolean, CHAR, DATE, DATETIME, DECIMAL, Date,
     DateTime, FLOAT, Float, INT, INTEGER, Integer, NCHAR, NVARCHAR, NUMERIC,
     Numeric, SMALLINT, SmallInteger, String, TEXT, TIME, Text, Time, Unicode,
-    UnicodeText, VARCHAR)
+    UnicodeText, VARCHAR, Enum)
 
-from .. import mix_types as t
+from .. import mix_types as t, generators as g
 from ..main import (
     Relation, Field,
     TypeMixer as BaseTypeMixer,
@@ -142,6 +142,9 @@ class TypeMixer(BaseTypeMixer):
 
         if stype is str:
             kwargs['length'] = column.type.length
+
+        if ftype is Enum:
+            return g.gen_choice(column.type.enums)
 
         return self.generator.gen_maker(stype, field_name, fake)(**kwargs)
 
