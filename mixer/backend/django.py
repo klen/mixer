@@ -72,10 +72,6 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
             return self.set_value(
                 target, field_name, field.scheme.get_default())
 
-        if field.scheme.choices:
-            choice = g.get_choice([c[0] for c in field.scheme.choices])
-            return self.set_value(target, field_name, choice)
-
         super(TypeMixer, self).gen_field(target, field_name, field)
 
     def gen_select(self, target, field_name):
@@ -128,8 +124,16 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
     def make_generator(self, field, fname=None, fake=False):
         fcls = type(field)
         stype = self.generator.cls_to_simple(fcls)
-        gen_maker = self.generator.gen_maker(fcls, fname, fake)
+
         kwargs = dict()
+
+        if fcls is models.CommaSeparatedIntegerField:
+            return g.gen_choices(
+                [1, 2, 3, 4, 5, 6, 7, 8, 9, 0], field.max_length)
+
+        if field and field.choices:
+            choices, _ = list(zip(*field.choices))
+            return g.gen_choice(choices)
 
         if stype is str:
             kwargs['length'] = field.max_length
@@ -138,10 +142,7 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
             kwargs['i'] = field.max_digits - field.decimal_places
             kwargs['d'] = field.decimal_places
 
-        if fcls is models.CommaSeparatedIntegerField:
-            return g.gen_choices([1, 2, 3, 4, 5, 6, 7, 8, 9, 0],
-                                 field.max_length)
-
+        gen_maker = self.generator.gen_maker(fcls, fname, fake)
         return gen_maker(**kwargs)
 
     @staticmethod
