@@ -15,11 +15,11 @@ from .. import mix_types as t, generators as g
 from ..main import (
     Relation, Field,
     TypeMixer as BaseTypeMixer,
-    Generator as BaseGenerator,
+    GenFactory as BaseFactory,
     Mixer as BaseMixer)
 
 
-class Generator(BaseGenerator):
+class GenFactory(BaseFactory):
     types = {
         (String, VARCHAR, Unicode, NVARCHAR, NCHAR, CHAR): str,
         (Text, UnicodeText, TEXT): t.Text,
@@ -37,13 +37,13 @@ class Generator(BaseGenerator):
 
 class TypeMixer(BaseTypeMixer):
 
-    generator = Generator
+    factory = GenFactory
 
     def __init__(self, cls, **params):
         """ Init TypeMixer and save the mapper.
         """
         super(TypeMixer, self).__init__(cls, **params)
-        self.mapper = self.cls._sa_class_manager.mapper
+        self.mapper = self.__scheme._sa_class_manager.mapper
 
     def gen_field(self, target, field_name, field):
         """
@@ -67,33 +67,33 @@ class TypeMixer(BaseTypeMixer):
 
         return super(TypeMixer, self).gen_field(target, field_name, field)
 
-    def gen_random(self, target, field_name):
+    def gen_random(self, target, field_name, field_value):
         """
         Generate random value of field with `field_name` for `target`
 
         :param target: Target for generate value.
         :param field_name: Name of field for generation.
         """
-        field = self.fields.get(field_name)
+        field = self.__fields.get(field_name)
         if isinstance(field, Relation):
             return self.gen_relation(target, field_name, field)
         return super(TypeMixer, self).gen_value(
             target, field_name, field.scheme, fake=False)
 
-    def gen_select(self, target, field_name):
+    def gen_select(self, target, field_name, field_value):
         """
         Select exists value from database.
 
         :param target: Target for generate value.
         :param field_name: Name of field for generation.
         """
-        if not self.mixer or not self.mixer.session:
+        if not self.__mixer or not self.__mixer.session:
             return False
 
         relation = self.mapper.get_property(field_name)
-        value = self.mixer.session.query(
+        value = self.__mixer.session.query(
             relation.mapper.class_
-        ).order_by(func.random()).first()
+        ).filter(*field_value.args).order_by(func.random()).first()
         self.set_value(target, field_name, value)
 
     def gen_relation(self, target, field_name, relation):
@@ -111,14 +111,14 @@ class TypeMixer(BaseTypeMixer):
             if col.nullable and not relation.params:
                 return False
 
-            value = self.mixer and self.mixer.blend(
+            value = self.__mixer and self.__mixer.blend(
                 rel.mapper.class_,
                 **relation.params
             ) or TypeMixer(
                 rel.mapper.class_,
-                mixer=self.mixer,
-                generator=self.generator,
-                fake=self.fake,
+                mixer=self.__mixer,
+                factory=self.factory,
+                fake=self.__fake,
             ).blend(**relation.params)
 
             setattr(target, rel.key, value)
@@ -138,7 +138,7 @@ class TypeMixer(BaseTypeMixer):
         """
         kwargs = dict()
         ftype = type(column.type)
-        stype = self.generator.cls_to_simple(ftype)
+        stype = self.factory.cls_to_simple(ftype)
 
         if stype is str:
             kwargs['length'] = column.type.length
@@ -146,13 +146,13 @@ class TypeMixer(BaseTypeMixer):
         if ftype is Enum:
             return g.gen_choice(column.type.enums)
 
-        return self.generator.gen_maker(stype, field_name, fake)(**kwargs)
+        return self.factory.gen_maker(stype, field_name, fake)(**kwargs)
 
     def __load_fields(self):
         """ Prepare SQLALchemyTypeMixer.
             Select columns and relations for data generation.
         """
-        mapper = self.cls._sa_class_manager.mapper
+        mapper = self.__scheme._sa_class_manager.mapper
         relations = set()
 
         for rel in mapper.relationships:

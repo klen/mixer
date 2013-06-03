@@ -92,15 +92,24 @@ class MixerBaseTests(TestCase):
         test = next(f.gen_ip4())
         self.assertTrue('.' in test)
 
-    def test_generatorregistry(self):
-        from mixer.main import Generator
+    def test_factory(self):
+        from mixer.main import GenFactory
 
-        g = Generator()
+        g = GenFactory()
         test = g.gen_maker(int)()
         self.assertTrue(-2147483647 <= next(test) < 2147483647)
 
         test = g.gen_maker(bool)()
         self.assertTrue(next(test) in [True, False])
+
+    def test_typemixer_meta(self):
+        from mixer.main import TypeMixer
+
+        mixer1 = TypeMixer(Test)
+        mixer2 = TypeMixer(Test, fake=False)
+        mixer3 = TypeMixer(Test, fake=False)
+        self.assertNotEqual(mixer1, mixer2)
+        self.assertEqual(mixer2, mixer3)
 
     def test_typemixer(self):
         from mixer.main import TypeMixer
@@ -120,11 +129,27 @@ class MixerBaseTests(TestCase):
         test = mixer.blend(name='John')
         self.assertEqual(test.name, 'John')
 
+    def test_typemixer_fake(self):
+        from mixer.main import TypeMixer
+
+        mixer = TypeMixer(Test)
         test = mixer.blend(name=mixer.fake)
         self.assertTrue(' ' in test.name)
 
+        test = mixer.blend(name=mixer.fake(bool))
+        self.assertTrue(test.name in (True, False))
+
+    def test_typemixer_random(self):
+        from mixer.main import TypeMixer
+        from mixer.six import string_types
+
+        mixer = TypeMixer(Test)
         test = mixer.blend(name=mixer.random)
+        self.assertTrue(isinstance(test.name, string_types))
         self.assertFalse(' ' in test.name)
+
+        test = mixer.blend(name=mixer.random(int))
+        self.assertTrue(isinstance(test.name, int))
 
     def test_mix(self):
         from mixer.main import mixer
@@ -141,15 +166,6 @@ class MixerBaseTests(TestCase):
 
         test = mixer.blend(lama, one__two=2.1, two=mixer.mix.one.two)
         self.assertEqual(test.two, test.one.two)
-
-    def test_meta_typemixer(self):
-        from mixer.main import TypeMixer
-
-        mixer1 = TypeMixer(Test)
-        mixer2 = TypeMixer(Test, fake=False)
-        mixer3 = TypeMixer(Test, fake=False)
-        self.assertNotEqual(mixer1, mixer2)
-        self.assertEqual(mixer2, mixer3)
 
     def test_mixer(self):
         mixer = Mixer()
@@ -174,7 +190,7 @@ class MixerBaseTests(TestCase):
         test = mixer.blend(Test, name=name_gen)
         self.assertEqual(test.name, 1)
 
-    def test_cycle(self):
+    def test_mixer_cycle(self):
         mixer = Mixer()
         test = mixer.cycle(3).blend(Test)
         self.assertEqual(len(test), 3)
@@ -184,7 +200,7 @@ class MixerBaseTests(TestCase):
                                     name=mixer.sequence('lama{0}'))
         self.assertEqual(test[2].name, 'lama2')
 
-    def test_default_mixer(self):
+    def test_mixer_default(self):
         from mixer.main import mixer
 
         test = mixer.blend(Test)

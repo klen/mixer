@@ -10,11 +10,11 @@ from ..main import (
     Field, Relation,
     TypeMixerMeta as BaseTypeMixerMeta,
     TypeMixer as BaseTypeMixer,
-    Generator as BaseGenerator,
+    GenFactory as BaseFactory,
     Mixer as BaseMixer)
 
 
-class Generator(BaseGenerator):
+class GenFactory(BaseFactory):
     types = {
         (models.CharField, models.SlugField): str,
         models.TextField: t.Text,
@@ -50,12 +50,12 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
     __metaclass__ = TypeMixerMeta
 
-    generator = Generator
+    factory = GenFactory
 
     def set_value(self, target, field_name, field_value, finaly=False):
 
-        field = self.fields.get(field_name)
-        if field and field.scheme in self.cls._meta.local_many_to_many:
+        field = self.__fields.get(field_name)
+        if field and field.scheme in self.__scheme._meta.local_many_to_many:
             if not isinstance(field_value, (list, tuple)):
                 field_value = [field_value]
             return field_name, field_value
@@ -74,26 +74,30 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
         super(TypeMixer, self).gen_field(target, field_name, field)
 
-    def gen_select(self, target, field_name):
-        field = self.fields.get(field_name)
+    def gen_select(self, target, field_name, field_value):
+        field = self.__fields.get(field_name)
         if field:
             try:
                 return self.set_value(
                     target, field_name,
-                    field.scheme.rel.to.objects.order_by('?')[0]
+                    field.scheme.rel.to.objects
+                    .filter(**field_value.kwargs)
+                    .order_by('?')[0]
                 )
             except Exception:
                 raise Exception(
                     "Cannot find a value for the field: '{0}'".format(
                         field_name
                     ))
-        return super(TypeMixer, self).gen_select(target, field_name)
+        return super(TypeMixer, self).gen_select(
+            target, field_name, field_value)
 
-    def gen_random(self, target, field_name):
-        field = self.fields.get(field_name)
+    def gen_random(self, target, field_name, field_value):
+        field = self.__fields.get(field_name)
         if field and field.is_relation:
             return self.gen_relation(target, field_name, field, force=True)
-        return super(TypeMixer, self).gen_random(target, field_name)
+        return super(TypeMixer, self).gen_random(
+            target, field_name, field_value)
 
     def gen_relation(self, target, field_name, relation, force=False):
         if (
@@ -111,11 +115,11 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
         new_scheme = rel.related.parent_model
 
         value = target
-        if new_scheme != self.cls:
-            value = self.mixer and self.mixer.blend(
+        if new_scheme != self.__scheme:
+            value = self.__mixer and self.__mixer.blend(
                 new_scheme, **relation.params
             ) or TypeMixer(
-                new_scheme, mixer=self.mixer, generator=self.generator,
+                new_scheme, mixer=self.__mixer, factory=self.__factory,
                 fake=self.fake,
             ).blend(**relation.params)
 
@@ -123,7 +127,7 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
     def make_generator(self, field, fname=None, fake=False):
         fcls = type(field)
-        stype = self.generator.cls_to_simple(fcls)
+        stype = self.__factory.cls_to_simple(fcls)
 
         kwargs = dict()
 
@@ -142,7 +146,7 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
             kwargs['i'] = field.max_digits - field.decimal_places
             kwargs['d'] = field.decimal_places
 
-        gen_maker = self.generator.gen_maker(fcls, fname, fake)
+        gen_maker = self.__factory.gen_maker(fcls, fname, fake)
         return gen_maker(**kwargs)
 
     @staticmethod
@@ -150,10 +154,10 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
         return field.scheme.unique
 
     def __load_fields(self):
-        for field in self.cls._meta.fields:
+        for field in self.__scheme._meta.fields:
 
             if isinstance(field, models.AutoField)\
-                    and self.mixer and self.mixer.commit:
+                    and self.__mixer and self.__mixer.commit:
                 continue
 
             if isinstance(field, models.ForeignKey):
@@ -162,7 +166,7 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
             yield field.name, Field(field, field.name)
 
-        for field in self.cls._meta.local_many_to_many:
+        for field in self.__scheme._meta.local_many_to_many:
             yield field.name, Relation(field, field.name)
 
 

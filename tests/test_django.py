@@ -117,8 +117,13 @@ class MixerTestDjango(TestCase):
         hole = mixer.blend(Hole, rabbit=mixer.select)
         self.assertFalse(hole.rabbit)
 
+        rabbits = Rabbit.objects.all()
         hole = mixer.blend(Hole, owner=mixer.select)
-        self.assertTrue(hole.owner in Rabbit.objects.all())
+        self.assertTrue(hole.owner in rabbits)
+
+        rabbit = rabbits[0]
+        hole = mixer.blend(Hole, owner=mixer.select(email=rabbit.email))
+        self.assertEqual(hole.owner, rabbit)
 
     def test_mix(self):
         from mixer.backend.django import mixer
