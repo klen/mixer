@@ -46,11 +46,13 @@ audit:
 	@pylama $(MODULE) -i E501
 
 .PHONY: doc
+# target: doc - Compile the docs
 doc: docs
 	python setup.py build_sphinx --source-dir=docs/ --build-dir=docs/_build --all-files
 	# python setup.py upload_sphinx --upload-dir=docs/_build/html
 
 .PHONY: serve
+# target: serve - Run HTTP server with compiled docs
 serve:
 	pyserve docs/_build/html/
 

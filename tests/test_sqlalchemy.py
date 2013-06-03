@@ -103,10 +103,6 @@ class MixerTestSQLAlchemy(TestCase):
         role = mixer.blend(Role, user__name='test2')
         self.assertEqual(role.user.name, 'test2')
 
-        users = self.session.query(User).all()
-        role = mixer.blend(Role, user=mixer.select)
-        self.assertTrue(role.user in users)
-
         profile = mixer.blend('tests.test_sqlalchemy.Profile')
         user = mixer.blend(User, profile__name='test')
         self.assertEqual(user.profile.name, 'test')
@@ -119,6 +115,19 @@ class MixerTestSQLAlchemy(TestCase):
 
         user = mixer.blend(User, username=lambda: 'callable_value')
         self.assertEqual(user.username, 'callable_value')
+
+    def test_select(self):
+        from mixer.backend.sqlalchemy import Mixer
+
+        mixer = Mixer(session=self.session, commit=True)
+
+        users = self.session.query(User).all()
+        role = mixer.blend(Role, user=mixer.select)
+        self.assertTrue(role.user in users)
+
+        user = users.pop()
+        role = mixer.blend(Role, user=mixer.select(User.name == user.name))
+        self.assertEqual(user, role.user)
 
     def test_default_mixer(self):
         from mixer.backend.sqlalchemy import mixer
