@@ -22,7 +22,7 @@ Models
 
 Somewhere in 'someapp/models.py':
 
-.. code:: python
+.. code-block:: python
 
         from django.db import models
 
@@ -45,7 +45,7 @@ Somewhere in 'someapp/models.py':
 Base Usage
 **********
 
-.. code:: python
+.. code-block:: python
 
     from mixer.backend.django import mixer
 
@@ -65,7 +65,7 @@ Base Usage
 Blend models with values
 ************************
 
-.. code:: python
+.. code-block:: python
 
     from mixer.backend.django import mixer
 
