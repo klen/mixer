@@ -1,6 +1,8 @@
 |logo| Mixer
 ############
 
+.. _description:
+
 Mixer is simply application to generate instances of Django or SQLAlchemy models. It's useful for testing or fixtures replacement.
 Fast and convenient test-data generation.
 
@@ -10,6 +12,8 @@ Mixer supports:
     - SQLAlchemy_;
     - Flask-SqlAlchemy (only for python 2.6, 2.7);
     - Custom schemes;
+
+.. _badges:
 
 .. image:: https://secure.travis-ci.org/klen/mixer.png?branch=develop
     :target: http://travis-ci.org/klen/mixer
@@ -31,10 +35,20 @@ Mixer supports:
     :target: https://www.gittip.com/klen/
     :alt: Donate
 
+
+.. _documentation:
+
 Docs are available at https://mixer.readthedocs.org/. Pull requests with documentation enhancements and/or fixes are awesome and most welcome.
+
+Описание на русском языке: http://klen.github.io/mixer-ru.html
+
+
+.. _contents:
 
 .. contents::
 
+
+.. _requirements:
 
 Requirements
 =============
@@ -45,6 +59,8 @@ Requirements
 - Flask-SQLALchemy for SQLAlchemy ORM suport and integration as Flask application;
 
 
+.. _installation:
+
 Installation
 =============
 
@@ -52,6 +68,8 @@ Installation
 
     pip install mixer
 
+
+.. _usage:
 
 Usage
 =====
@@ -153,6 +171,8 @@ Quick example: ::
         scheme = mixer.blend(Sheme, prop__one=1)
 
 
+.. _bagtracker:
+
 Bug tracker
 ===========
 
@@ -161,11 +181,15 @@ annoyances please report them to the issue tracker
 at https://github.com/klen/mixer/issues
 
 
+.. _contributing:
+
 Contributing
 ============
 
 Development of starter happens at github: https://github.com/klen/mixer
 
+
+.. _contributors:
 
 Contributors
 =============
@@ -173,11 +197,15 @@ Contributors
 * klen_ (horneds@gmail.com)
 
 
+.. _license:
+
 License
 =======
 
 Licensed under a `BSD license`_.
 
+
+.. _links:
 
 .. _BSD license: http://www.linfo.org/bsdlicense.html
 .. _klen: http://klen.github.io

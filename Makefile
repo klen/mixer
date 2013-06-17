@@ -45,9 +45,9 @@ t: clean
 audit:
 	@pylama $(MODULE) -i E501
 
-.PHONY: doc
-# target: doc - Compile the docs
-doc: docs
+.PHONY: docs
+# target: docs - Compile the docs
+docs: docs
 	python setup.py build_sphinx --source-dir=docs/ --build-dir=docs/_build --all-files
 	# python setup.py upload_sphinx --upload-dir=docs/_build/html
 
