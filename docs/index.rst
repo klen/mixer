@@ -3,17 +3,27 @@
 Welcome to Mixer
 ================
 
+.. == logo ==
 .. image:: _static/logo.png
     :width: 100
 
 Welcome to Mixer's documentation.
 
-.. include:: badges.rst
-
+.. == description ==
+.. _description:
 .. automodule:: mixer
 
-.. include:: contents.rst.inc
+.. == badges ==
+.. _badges:
+.. include:: ../README.rst
+    :start-after: .. _badges:
+    :end-before: .. _documentation:
 
-.. _SQLAlchemy: http://www.sqlalchemy.org/
-.. _Flask: http://flask.pocoo.org/
-.. _Django: http://djangoproject.org/
+.. == contents ==
+.. _contents:
+.. include:: contents.rst
+
+.. == links ==
+.. _links:
+.. include:: ../README.rst
+    :start-after: .. _links:

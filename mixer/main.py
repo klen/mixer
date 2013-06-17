@@ -772,7 +772,7 @@ class Mixer(object):
                 users = mixer.cycle(5).blend('somemodule.User')
 
                 profiles = mixer.cycle(5).blend(
-                    'somemodule.Profile', user=mixer.sequence(users))
+                    'somemodule.Profile', user=(user for user in users)
 
                 apples = mixer.cycle(10).blend(
                     Apple, title=mixer.sequence('apple_{0}')

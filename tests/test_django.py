@@ -177,4 +177,4 @@ class MixerTestDjango(TestCase):
         raise Exception('test.failed')
 
 
-# lint_ignore=F0401,W0401,E0602,W0212
+# lint_ignore=F0401,W0401,E0602,W0212,C
