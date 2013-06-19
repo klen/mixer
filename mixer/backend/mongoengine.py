@@ -48,7 +48,7 @@ from mongoengine import (
     UUIDField,
 )
 
-from .. import mix_types as t, generators as g
+from .. import mix_types as t, generators as g, fakers as f
 from ..main import (
     Field, Relation, NO_VALUE,
     TypeMixer as BaseTypeMixer,
@@ -66,22 +66,13 @@ def get_objectid(**kwargs):
     return ObjectId()
 
 
-def get_geopoint(**kwargs):
-    """ Get list storing a latitude and longitude.
-
-    :return list:
-
-    """
-    return [g.get_float(0, 90), g.get_float(0, 90)]
-
-
 def get_pointfield(**kwargs):
     """ Get a Point structure.
 
     :return dict:
 
     """
-    return dict(type='Point', coordinates=get_geopoint())
+    return dict(type='Point', coordinates=f.get_coordinates())
 
 
 def get_linestring(length=5, **kwargs):
@@ -92,7 +83,7 @@ def get_linestring(length=5, **kwargs):
     """
     return dict(
         type='LineString',
-        coordinates=[get_geopoint() for _ in range(length)])
+        coordinates=[f.get_coordinates() for _ in range(length)])
 
 
 def get_polygon(length=5, **kwargs):
@@ -134,7 +125,7 @@ class GenFactory(BaseFactory):
     generators = {
         ObjectIdField: g.loop(get_objectid),
         LineStringField: g.loop(get_linestring),
-        GeoPointField: g.loop(get_geopoint),
+        GeoPointField: g.loop(f.get_coordinates),
         PointField: g.loop(get_pointfield),
         PolygonField: g.loop(get_polygon),
     }

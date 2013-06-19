@@ -18,6 +18,7 @@ by manual, like this:
 from . import generators as g
 import random
 import uuid
+import decimal
 
 DEFAULT_NAME_MASK = "{firstname} {lastname}"
 
@@ -141,16 +142,23 @@ USERNAMES = (
     "weak"
 )
 
+COMPANY_SYFFIXES = ('LLC', 'Group', 'LTD', 'PLC', 'LLP', 'Corp', 'Inc', 'DBA')
+
+GEOCOORD_MASK = decimal.Decimal('.000001')
+
 
 def get_firstname(**kwargs):
     """ Get a first name.
 
     :return str:
 
+    ::
+        print get_firstname()  # -> Johnson
+
     """
     return g.get_choice(FIRSTNAME_CHOICES)
 
-#: Make a generator of first names
+#: Generator's fabric for :meth:`mixer.fakers.get_firstname`
 gen_firstname = g.loop(get_firstname)
 
 
@@ -159,10 +167,13 @@ def get_lastname(**kwargs):
 
     :return str:
 
+    ::
+        print get_lastname()  # -> Gaspar
+
     """
     return g.get_choice(LASTNAME_CHOICES)
 
-#: Make a generator of last names
+#: Generator's fabric for :meth:`mixer.fakers.get_lastname`
 gen_lastname = g.loop(get_lastname)
 
 
@@ -171,11 +182,14 @@ def get_name(mask=DEFAULT_NAME_MASK, length=100, **kwargs):
 
     :return str:
 
+    ::
+        print get_name()  # -> Barbara Clayworth
+
     """
     name = mask.format(firstname=get_firstname(), lastname=get_lastname())
     return name[:length]
 
-#: Make a generator of full names
+#: Generator's fabric for :meth:`mixer.fakers.get_lastname`
 gen_name = g.loop(get_name)
 
 
@@ -184,10 +198,13 @@ def get_country(**kwargs):
 
     :return str:
 
+    ::
+        print get_country()  # -> Italy
+
     """
     return g.get_choice(COUNTRY_CHOICES)
 
-#: Make a generator of countries
+#: Generator's fabric for :meth:`mixer.fakers.get_country`
 gen_country = g.loop(get_country)
 
 
@@ -196,13 +213,16 @@ def get_city(**kwargs):
 
     :return str:
 
+    ::
+        print get_city()  # -> North Carter
+
     """
     return g.get_choice((
         "{0} {1}".format(g.get_choice(CITY_PREFIX_CHOICES), get_firstname()),
         "{0} {1}".format(get_lastname(), g.get_choice(CITY_SUFFIX_CHOICES)),
     ))
 
-#: Make a generator of cities
+#: Generator's fabric for :meth:`mixer.fakers.get_city`
 gen_city = g.loop(get_city)
 
 
@@ -211,13 +231,16 @@ def get_lorem(length=None, **kwargs):
 
     :return str:
 
+    ::
+        print get_lorem()  # -> atque rerum et aut reiciendis...
+
     """
     lorem = ' '.join(g.get_choices(LOREM_CHOICES))
     if length:
         lorem = lorem[:length]
     return lorem
 
-#: Generators fabric. Makes a texts.
+#: Generator's fabric for :meth:`mixer.fakers.get_lorem`
 gen_lorem = g.loop(get_lorem)
 
 
@@ -235,7 +258,7 @@ def get_numerify(template='', symbol='#', **kwargs):
         for c in template
     )
 
-#: Generators fabric. Makes a generators of numeric strings.
+#: Generator's fabric for :meth:`mixer.fakers.get_numerify`
 gen_numerify = g.loop(get_numerify)
 
 
@@ -243,6 +266,9 @@ def get_username(length=100, **kwargs):
     """ Get a username.
 
     :return str:
+
+    ::
+        print get_username()  # -> boss1985
 
     """
     gen = g.gen_choice(USERNAMES)
@@ -258,7 +284,7 @@ def get_username(length=100, **kwargs):
     ))
     return username[:length]
 
-#: Generators fabric. Makes a generators of usernames.
+#: Generator's fabric for :meth:`mixer.fakers.get_username`
 gen_username = g.loop(get_username)
 
 
@@ -266,6 +292,9 @@ def get_hostname(host=None, zone=None, **kwargs):
     """ Get a hostname.
 
     :return str:
+
+    ::
+        print get_hostname()  # -> twitter.az
 
     """
     params = dict(
@@ -277,7 +306,7 @@ def get_hostname(host=None, zone=None, **kwargs):
         'www.{host}.{zone}'.format(**params)
     ))
 
-#: Generators fabric. Makes a generators of hostnames.
+#: Generator's fabric for :meth:`mixer.fakers.get_hostname`
 gen_hostname = g.loop(get_hostname)
 
 
@@ -290,12 +319,16 @@ def get_email(username=None, host=None, zone=None, **kwargs):
 
     :return str:
 
+    ::
+        print get_email()  # -> team.cool@microsoft.de
+
     """
     hostname = get_hostname(host, zone)
     if hostname.startswith('www.'):
         hostname = hostname[4:]
     return '{0}@{1}'.format(username or get_username(), hostname)
 
+#: Generator's fabric for :meth:`mixer.fakers.get_email`
 gen_email = g.loop(get_email)
 
 
@@ -304,12 +337,16 @@ def get_ip4(**kwargs):
 
     :return str:
 
+    ::
+        print get_ip4()  # 192.168.1.1
+
     """
     gen = g.gen_positive_integer(256)
     return '{0}.{1}.{2}.{3}'.format(
         next(gen), next(gen), next(gen), next(gen),
     )
 
+#: Generator's fabric for :meth:`mixer.fakers.get_ip4`
 gen_ip4 = g.loop(get_ip4)
 
 
@@ -332,6 +369,7 @@ def get_url(hostname=None, **kwargs):
 
     return '/'.join(parts)
 
+#: Generator's fabric for :meth:`mixer.fakers.get_url`
 gen_url = g.loop(get_url)
 
 
@@ -343,4 +381,63 @@ def get_uuid(**kwargs):
     """
     return str(uuid.uuid1())
 
+#: Generator's fabric for :meth:`mixer.fakers.get_uuid`
 gen_uuid = g.loop(get_uuid)
+
+
+def get_phone(template='###-###-###', **kwargs):
+    """ Get a phone number.
+
+    :param template: A template for number.
+    :return str:
+
+    """
+    return get_numerify(template)
+
+#: Generator's fabric for :meth:`mixer.fakers.get_phone`
+gen_phone = g.loop(get_phone)
+
+
+def get_company():
+    """ Get a company name.
+
+    :return str:
+
+    """
+    return '%s %s' % (get_lastname(), g.get_choice(COMPANY_SYFFIXES))
+
+#: Generator's fabric for :meth:`mixer.fakers.get_company`
+gen_company = g.loop(get_company)
+
+
+def get_latlon():
+    """ Get a value simular to latitude (longitude).
+
+    :return float:
+
+    ::
+
+        print get_latlon()  # -> 137.60858
+
+    """
+    return float(
+        decimal.Decimal(g.get_float(-180, 180)).quantize(GEOCOORD_MASK))
+
+#: Generator's fabric for :meth:`mixer.fakers.get_latlon`
+gen_latlon = g.loop(get_latlon)
+
+
+def get_coordinates():
+    """ Get a geographic coordinates.
+
+    :return [float, float]:
+
+    ::
+
+        print get_coordinates()  # -> [116.256223, 43.790918]
+
+    """
+    return [get_latlon(), get_latlon()]
+
+#: Generator's fabric for :meth:`mixer.fakers.get_coordinates`
+gen_coordinates = g.loop(get_coordinates)

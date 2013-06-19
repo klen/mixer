@@ -98,6 +98,18 @@ class MixerBaseTests(TestCase):
         test = next(f.gen_uuid())
         self.assertTrue('-' in test)
 
+        test = next(f.gen_phone())
+        self.assertTrue('-' in test)
+
+        test = next(f.gen_company())
+        self.assertTrue(test)
+
+        test = next(f.gen_latlon())
+        self.assertTrue(test)
+
+        test = next(f.gen_coordinates())
+        self.assertTrue(test)
+
     def test_factory(self):
         from mixer.main import GenFactory
 

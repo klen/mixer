@@ -378,6 +378,12 @@ class GenFactory(six.with_metaclass(GenFactoryMeta)):
         ('username', str): f.gen_username,
         ('login', str): f.gen_username,
         ('domain', str): f.gen_hostname,
+        ('phone', str): f.gen_phone,
+        ('company', str): f.gen_company,
+        ('lat', float): f.gen_latlon,
+        ('latitude', float): f.gen_latlon,
+        ('lon', float): f.gen_latlon,
+        ('longitude', float): f.gen_latlon,
     }
 
     types = {}

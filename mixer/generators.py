@@ -65,7 +65,7 @@ def get_choice(choices=None, **kwargs):
 
     return random.choice(choices)
 
-#: Fabric generator for :meth:`mixer.generators.get_choice`
+#: Generator's fabric for :meth:`mixer.generators.get_choice`
 gen_choice = loop(get_choice)
 
 
@@ -87,7 +87,7 @@ def get_choices(choices=None, length=None, **kwargs):
         length = len(choices)
     return tuple(next(gen) for _ in range(length))
 
-#: Fabric generator for :meth:`mixer.generators.get_choices`
+#: Generator's fabric for :meth:`mixer.generators.get_choices`
 gen_choices = loop(get_choices)
 
 
@@ -111,7 +111,7 @@ def get_date(low=(1900, 1, 1), high=(2020, 12, 31), **kwargs):
         seconds=random.randrange(delta.days * 24 * 60 * 60 + delta.seconds))
     return low + delta
 
-#: Fabric generator for :meth:`mixer.generators.get_date`
+#: Generator's fabric for :meth:`mixer.generators.get_date`
 gen_date = loop(get_date)
 
 
@@ -134,7 +134,7 @@ def get_time(low=(0, 0, 0), high=(23, 59, 59), **kwargs):
 
     return datetime.time(h, m, s)
 
-#: Fabric generator for :meth:`mixer.generators.get_time`
+#: Generator's fabric for :meth:`mixer.generators.get_time`
 gen_time = loop(get_time)
 
 
@@ -159,7 +159,7 @@ def get_datetime(low=(1900, 1, 1, 0, 0, 0),
 
     return datetime.datetime(date.year, date.month, date.day, h, ms, s)
 
-#: Fabric generator for :meth:`mixer.generators.get_datetime`
+#: Generator's fabric for :meth:`mixer.generators.get_datetime`
 gen_datetime = loop(get_datetime)
 
 
@@ -178,7 +178,7 @@ def get_integer(low=-2147483647, high=2147483647, **kwargs):
     """
     return random.randint(low, high)
 
-#: Fabric generator for :meth:`mixer.generators.get_integer`
+#: Generator's fabric for :meth:`mixer.generators.get_integer`
 gen_integer = loop(get_integer)
 
 
@@ -196,7 +196,7 @@ def get_big_integer(**kwargs):
     """
     return get_integer(low=-9223372036854775808, high=9223372036854775807)
 
-#: Fabric generator for :meth:`mixer.generators.get_big_integer`
+#: Generator's fabric for :meth:`mixer.generators.get_big_integer`
 gen_big_integer = loop(get_big_integer)
 
 
@@ -214,7 +214,7 @@ def get_small_integer(**kwargs):
     """
     return get_integer(low=-32768, high=32768)
 
-#: Fabric generator for :meth:`mixer.generators.get_small_integer`
+#: Generator's fabric for :meth:`mixer.generators.get_small_integer`
 gen_small_integer = loop(get_small_integer)
 
 
@@ -232,7 +232,7 @@ def get_positive_integer(high=4294967294, **kwargs):
     """
     return get_integer(low=0, high=high)
 
-#: Fabric generator for :meth:`mixer.generators.get_positive_integer`
+#: Generator's fabric for :meth:`mixer.generators.get_positive_integer`
 gen_positive_integer = loop(get_positive_integer)
 
 
@@ -248,7 +248,7 @@ def get_small_positive_integer(**kwargs):
     """
     return get_integer(low=0, high=65536)
 
-#: Fabric generator for :meth:`mixer.generators.get_small_positive_integer`
+#: Generator's fabric for :meth:`mixer.generators.get_small_positive_integer`
 gen_small_positive_integer = loop(get_small_positive_integer)
 
 
@@ -264,7 +264,7 @@ def get_float(low=sys.float_info.min, high=sys.float_info.max, **kwargs):
     """
     return random.uniform(low, high)
 
-#: Fabric generator for :meth:`mixer.generators.get_float`
+#: Generator's fabric for :meth:`mixer.generators.get_float`
 gen_float = loop(get_float)
 
 
@@ -280,7 +280,7 @@ def get_boolean(**kwargs):
     """
     return get_choice((True, False))
 
-#: Fabric generator for :meth:`mixer.generators.get_boolean`
+#: Generator's fabric for :meth:`mixer.generators.get_boolean`
 gen_boolean = loop(get_boolean)
 
 
@@ -296,7 +296,7 @@ def get_null_or_boolean(**kwargs):
     """
     return get_choice((True, False, None))
 
-#: Fabric generator for :meth:`mixer.generators.get_null_or_boolean`
+#: Generator's fabric for :meth:`mixer.generators.get_null_or_boolean`
 gen_null_or_boolean = loop(get_null_or_boolean)
 
 
@@ -313,7 +313,7 @@ def get_string(length=DEFAULT_STRING_LENGTH, chars=DEFAULT_CHARS, **kwargs):
     """
     return ''.join(get_choices(chars, length))
 
-#: Fabric generator for :meth:`mixer.generators.get_string`
+#: Generator's fabric for :meth:`mixer.generators.get_string`
 gen_string = loop(get_string)
 
 
@@ -336,7 +336,7 @@ def get_decimal(i=4, d=2, positive=False, **kwargs):
         )
     )
 
-#: Fabric generator for :meth:`mixer.generators.get_decimal`
+#: Generator's fabric for :meth:`mixer.generators.get_decimal`
 gen_decimal = loop(get_decimal)
 
 
@@ -352,5 +352,5 @@ def get_positive_decimal(**kwargs):
     """
     return get_decimal(positive=True)
 
-#: Fabric generator for :meth:`mixer.generators.get_positive_decimal`
+#: Generator's fabric for :meth:`mixer.generators.get_positive_decimal`
 gen_positive_decimal = loop(get_positive_decimal)
