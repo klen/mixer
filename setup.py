@@ -22,14 +22,11 @@ def read(fname):
     except IOError:
         return ''
 
-tests_require = [
-    'django',
-    'flask-sqlalchemy',
-    'sqlalchemy',
-    'mongoengine',
-]
 install_requires = [l for l in read('requirements.txt').split('\n')
                     if l and not l.startswith('#')]
+
+tests_require = [l for l in read('requirements-tests.txt').split('\n')
+                 if l and not l.startswith('#')]
 
 if sys.version_info < (2, 7):
     install_requires.append('importlib')
