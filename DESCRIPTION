@@ -1,1 +1,1 @@
-Mixer -- Is a fixtures replacement. Supported Django, Flask, SqlAlchemy and custom python objects.
+Mixer -- Is a fixtures replacement. Supported Django ORM, SqlAlchemy ORM, Mongoengine ODM and custom python objects.

@@ -3,13 +3,15 @@
 
 .. _description:
 
-Mixer is simply application to generate instances of Django or SQLAlchemy models. It's useful for testing or fixtures replacement.
+Mixer is application to generate instances of Django or SQLAlchemy models.
+It's useful for testing and fixtures replacement.
 Fast and convenient test-data generation.
 
 Mixer supports:
 
     - Django_;
     - SQLAlchemy_;
+    - Mongoengine_;
     - Flask-SqlAlchemy (only for python 2.6, 2.7);
     - Custom schemes;
 
@@ -56,6 +58,7 @@ Requirements
 - python (2.6, 2.7, 3.2, 3.3)
 - Django (1.4, 1.5) for django ORM suport;
 - SQLAlchemy for SQLAlchemy ORM suport;
+- Mongoengine for Mongoengine ODM support;
 - Flask-SQLALchemy for SQLAlchemy ORM suport and integration as Flask application;
 
 
@@ -136,6 +139,7 @@ Quick example: ::
 
 SQLAlchemy
 ----------
+
 Example of initialization: ::
 
     from mixer.backend.sqlalchemy import Mixer
@@ -149,6 +153,27 @@ Example of initialization: ::
 
 
 Also see `Flask, Flask-SQLALchemy`_.
+
+
+Mongoengine
+-----------
+
+Example usage: ::
+
+    from mixer.backend.mongoengine import mixer
+    
+    class User(Document):
+        created_at = DateTimeField(default=datetime.datetime.now)
+        email = EmailField(required=True)
+        first_name = StringField(max_length=50)
+        last_name = StringField(max_length=50)
+
+    class Post(Document):
+        title = StringField(max_length=120, required=True)
+        author = ReferenceField(User)
+        tags = ListField(StringField(max_length=30))
+
+    post = mixer.blend(Post, author__username='foo')
 
 
 Common usage
@@ -212,5 +237,6 @@ Licensed under a `BSD license`_.
 .. _SQLAlchemy: http://www.sqlalchemy.org/
 .. _Flask: http://flask.pocoo.org/
 .. _Django: http://djangoproject.org/
+.. _Mongoengine: http://mongoengine.org/
 .. |logo| image:: https://raw.github.com/klen/mixer/develop/docs/_static/logo.png
                   :width: 100

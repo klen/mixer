@@ -26,6 +26,7 @@ tests_require = [
     'django',
     'flask-sqlalchemy',
     'sqlalchemy',
+    'mongoengine',
 ]
 install_requires = [l for l in read('requirements.txt').split('\n')
                     if l and not l.startswith('#')]
@@ -44,7 +45,7 @@ setup(
     description=read('DESCRIPTION'),
     long_description=read('README.rst'),
     platforms=('Any'),
-    keywords = "django flask sqlalchemy testing mock stub",
+    keywords = "django flask sqlalchemy testing mock stub mongoengine".split(),
 
     author='Kirill Klenov',
     author_email='horneds@gmail.com',

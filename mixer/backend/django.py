@@ -1,3 +1,4 @@
+""" Django support. """
 from __future__ import absolute_import
 
 import datetime
@@ -7,7 +8,7 @@ from django.db import models
 
 from .. import generators as g, mix_types as t, six
 from ..main import (
-    Field, Relation,
+    Field, Relation, NO_VALUE,
     TypeMixerMeta as BaseTypeMixerMeta,
     TypeMixer as BaseTypeMixer,
     GenFactory as BaseFactory,
@@ -15,6 +16,9 @@ from ..main import (
 
 
 class GenFactory(BaseFactory):
+
+    """ Map a django classes to simple types. """
+
     types = {
         (models.CharField, models.SlugField): str,
         models.TextField: t.Text,
@@ -36,6 +40,8 @@ class GenFactory(BaseFactory):
 
 class TypeMixerMeta(BaseTypeMixerMeta):
 
+    """ Load django models from strings. """
+
     def __load_cls(cls, cls_type):
         if isinstance(cls_type, six.string_types):
             assert '.' in cls_type, ("'model_class' must be either a model"
@@ -48,12 +54,18 @@ class TypeMixerMeta(BaseTypeMixerMeta):
 
 class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
+    """ TypeMixer for Django. """
+
     __metaclass__ = TypeMixerMeta
 
     factory = GenFactory
 
     def set_value(self, target, field_name, field_value, finaly=False):
+        """ Set value to generated instance.
 
+        :return : None or (name, value) for later use
+
+        """
         field = self.__fields.get(field_name)
         if field and field.scheme in self.__scheme._meta.local_many_to_many:
             if not isinstance(field_value, (list, tuple)):
@@ -64,17 +76,27 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
             target, field_name, field_value, finaly
         )
 
-    def gen_field(self, target, field_name, field):
-        if field.scheme.null and field.scheme.blank:
-            return None
+    @staticmethod
+    def get_default(field, target):
+        """ Get default value from field.
 
-        if field.scheme.has_default():
-            return self.set_value(
-                target, field_name, field.scheme.get_default())
+        :return value: A default value or NO_VALUE
 
-        super(TypeMixer, self).gen_field(target, field_name, field)
+        """
+        if not field.scheme.has_default():
+            return NO_VALUE
+
+        return field.scheme.get_default()
 
     def gen_select(self, target, field_name, field_value):
+        """ Select exists value from database.
+
+        :param target: Target for generate value.
+        :param field_name: Name of field for generation.
+
+        :return : None or (name, value) for later use
+
+        """
         field = self.__fields.get(field_name)
         if field:
             try:
@@ -93,6 +115,14 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
             target, field_name, field_value)
 
     def gen_random(self, target, field_name, field_value):
+        """ Generate random value of field with `field_name` for `target`.
+
+        :param target: Target for generate value.
+        :param field_name: Name of field for generation.
+
+        :return : None or (name, value) for later use
+
+        """
         field = self.__fields.get(field_name)
         if field and field.is_relation:
             return self.gen_relation(target, field_name, field, force=True)
@@ -100,6 +130,15 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
             target, field_name, field_value)
 
     def gen_relation(self, target, field_name, relation, force=False):
+        """ Generate a related relation by `relation`.
+
+        :param target: Target for generate value.
+        :param field_name: Name of relation for generation.
+        :param relation: Instance of :class:`Relation`
+
+        :return : None or (name, value) for later use
+
+        """
         if (
                 not relation.scheme
                 or relation.scheme.null
@@ -119,13 +158,21 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
             value = self.__mixer and self.__mixer.blend(
                 new_scheme, **relation.params
             ) or TypeMixer(
-                new_scheme, mixer=self.__mixer, factory=self.__factory,
-                fake=self.fake,
+                new_scheme, factory=self.__factory, fake=self.fake,
             ).blend(**relation.params)
 
         return self.set_value(target, rel.name, value)
 
     def make_generator(self, field, fname=None, fake=False):
+        """ Make values generator for field.
+
+        :param field: A mixer field
+        :param field_name: Field name
+        :param fake: Force fake data
+
+        :return generator:
+
+        """
         fcls = type(field)
         stype = self.__factory.cls_to_simple(fcls)
 
@@ -151,7 +198,21 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
     @staticmethod
     def is_unique(field):
+        """ Return True is field's value should be a unique.
+
+        :return bool:
+
+        """
         return field.scheme.unique
+
+    @staticmethod
+    def is_required(field):
+        """ Return True is field's value should be defined.
+
+        :return bool:
+
+        """
+        return not (field.scheme.null and field.scheme.blank)
 
     def __load_fields(self):
         for field in self.__scheme._meta.fields:
@@ -172,6 +233,8 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
 class Mixer(BaseMixer):
 
+    """ Integration with Django. """
+
     type_mixer_cls = TypeMixer
 
     def __init__(self, commit=True, **params):
@@ -179,6 +242,11 @@ class Mixer(BaseMixer):
         self.commit = commit
 
     def post_generate(self, result):
+        """ Save objects in db.
+
+        :return value: A generated value
+
+        """
         if self.commit:
             result.save()
 

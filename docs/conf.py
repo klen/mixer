@@ -1,4 +1,6 @@
+""" Sphinx configuration. """
 # -*- coding: utf-8 -*-
+
 import os
 import sys
 import datetime
@@ -15,6 +17,7 @@ project = u'Mixer'
 copyright = u'%s, Kirill Klenov' % datetime.datetime.now().year
 version = '.'.join(release.split('.')[:2])
 exclude_patterns = ['_build']
+autodoc_member_order = 'bysource'
 html_use_modindex = False
 html_show_sphinx = False
 htmlhelp_basename = 'Mixerdoc'

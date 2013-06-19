@@ -19,9 +19,55 @@ Welcome to Mixer's documentation.
     :start-after: .. _badges:
     :end-before: .. _documentation:
 
-.. == contents ==
-.. _contents:
-.. include:: contents.rst
+User's Guide
+------------
+
+This part of the documentation will show you how to get started in using Mixer.
+
+.. toctree::
+   :maxdepth: 2
+
+   installation
+   quickstart
+..   django
+..   flask
+..   sqlalchemy
+
+
+API Reference
+-------------
+
+If you are looking for information on a specific function, class or
+method, this part of the documentation is for you.
+
+.. toctree::
+   :maxdepth: 2
+
+   api
+   generators
+   fakers
+
+
+.. == bugtracker ==
+.. _bugtracker:
+.. include:: ../README.rst
+    :start-after: .. _bagtracker:
+    :end-before: .. _contributing:
+
+
+.. == contributing ==
+.. _contributing:
+.. include:: ../README.rst
+    :start-after: .. _contributing:
+    :end-before: .. _contributors:
+
+
+.. == contributors ==
+.. _contributors:
+.. include:: ../README.rst
+    :start-after: .. _contributors:
+    :end-before: .. _license:
+
 
 .. == links ==
 .. _links:
