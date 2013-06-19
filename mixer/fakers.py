@@ -421,7 +421,7 @@ def get_latlon():
 
     """
     return float(
-        decimal.Decimal(g.get_float(-180, 180)).quantize(GEOCOORD_MASK))
+        decimal.Decimal(str(g.get_float(-180, 180))).quantize(GEOCOORD_MASK))
 
 #: Generator's fabric for :meth:`mixer.fakers.get_latlon`
 gen_latlon = g.loop(get_latlon)
