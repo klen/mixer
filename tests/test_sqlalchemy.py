@@ -126,7 +126,7 @@ class MixerTestSQLAlchemy(TestCase):
         self.assertTrue(role.user in users)
 
         user = users.pop()
-        role = mixer.blend(Role, user=mixer.select(User.name == user.name))
+        role = mixer.blend(Role, user=mixer.select(User.id == user.id))
         self.assertEqual(user, role.user)
 
     def test_default_mixer(self):
@@ -135,4 +135,4 @@ class MixerTestSQLAlchemy(TestCase):
         test = mixer.blend(User)
         self.assertTrue(test.name)
 
-# lint_ignore=F0401
+# lint_ignore=F0401,C0110
