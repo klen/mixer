@@ -24,6 +24,7 @@ def read(fname):
 
 install_requires = [l for l in read('requirements.txt').split('\n')
                     if l and not l.startswith('#')]
+
 tests_require = [l for l in read('requirements-tests.txt').split('\n')
                  if l and not l.startswith('#')]
 
