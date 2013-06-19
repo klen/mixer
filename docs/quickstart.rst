@@ -8,17 +8,13 @@ Quickstart
 .. currentmodule:: mixer.main
 
 Mixer is easy to use and realy fun for testing applications.
-
-Base examples
--------------
-
-Mixer has a common api for all backends (Django_, Flask_).
+Module has a common api for all backends (Django_, Flask_).
 
 Django ORM
-^^^^^^^^^^
+----------
 
 Models
-******
+^^^^^^
 
 Somewhere in 'someapp/models.py':
 
@@ -43,7 +39,7 @@ Somewhere in 'someapp/models.py':
 
 
 Base Usage
-**********
+^^^^^^^^^^
 
 .. code-block:: python
 
@@ -63,7 +59,7 @@ Base Usage
 
 
 Blend models with values
-************************
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: python
 
@@ -102,9 +98,35 @@ Blend models with values
 
 
 SQLAlchemy ORM
-^^^^^^^^^^^^^^
+--------------
 
-TODO.
+.. code-block:: python
+
+    from mixer.backend.sqlalchemy import mixer
+
+    # Generate model's instance and save to db
+    message = mixer.blend('path.to.module.ModelClass')
+
+    print message.content  # Some like --> necessitatibus voluptates animi molestiae dolores...
+
+    print message.client.username  # Some like --> daddy102
+
+    print message.client.name  # Some like --> Clark Llandrindod
+
+    # Generate a few pieces
+    messages = mixer.cycle(4).blend('path.to.module.ModelClass')
+
+
+Flask integration
+-----------------
+
+.. automodule:: mixer.backend.flask
+
+
+Mongoengine
+-----------
+
+.. automodule:: mixer.backend.mongoengine
 
 
 .. == links ==

@@ -1,8 +1,10 @@
 """
     Mixer is a python module that adds object generation
-    tool for testing your application. It's supported Django_ ORM or
-    SQLAlchemy_ (Flask_) models. It's useful for testing or fixtures
-    replacement.
+    tool for testing your application.
+
+    It's supported Django_ ORM, SQLAlchemy_ ORM, Mongoengine_ ODM and etc.
+
+    Mixer is very useful for testing and fixtures replacement.
 
     :copyright: 2013 by Kirill Klenov.
     :license: BSD, see LICENSE for more details.

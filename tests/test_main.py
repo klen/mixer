@@ -92,6 +92,12 @@ class MixerBaseTests(TestCase):
         test = next(f.gen_ip4())
         self.assertTrue('.' in test)
 
+        test = next(f.gen_url())
+        self.assertTrue('/' in test)
+
+        test = next(f.gen_uuid())
+        self.assertTrue('-' in test)
+
     def test_factory(self):
         from mixer.main import GenFactory
 
@@ -216,4 +222,4 @@ class MixerBaseTests(TestCase):
         raise Exception('test.failed')
 
 
-# lint_ignore=F0401
+# lint_ignore=F0401,C0110
