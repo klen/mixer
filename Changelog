@@ -1,3 +1,9 @@
+2013-06-20  horneds
+
+	* Version 0.6.3
+	* Now `mixer.random` can accept a choices and return random value
+	  http://mixer.readthedocs.org/en/latest/api.html#force-a-random-values
+
 2013-06-19  horneds
 
 	* Version 0.6.2

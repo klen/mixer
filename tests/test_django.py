@@ -157,6 +157,14 @@ class MixerTestDjango(TestCase):
             customer = mixer.blend(Customer)
         self.assertTrue(customer)
 
+    def test_random(self):
+        from mixer.backend.django import mixer
+
+        user = mixer.blend('auth.User', username=mixer.random(
+            'mixer', 'is', 'fun'
+        ))
+        self.assertTrue(user.username in ('mixer', 'is', 'fun'))
+
     @staticmethod
     def test_invalid_scheme():
         from mixer.backend.django import mixer

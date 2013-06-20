@@ -243,6 +243,11 @@ class Random(ServiceValue):
          user = mixer.blend(User, score=mixer.random(str))
          print user.score  # Some like: Fdjw4das
 
+    Or you can get random value from choices: ::
+
+        user = mixer.blend(User, name=mixer.random('john', 'mike'))
+         print user.name  # mike or john
+
     .. note:: This is also usefull on ORM model generation for randomize fields
               with default values (or null).
 
@@ -602,12 +607,13 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
         unique = self.is_unique(field)
         return self.gen_value(target, field_name, field.scheme, unique=unique)
 
-    def gen_relation(self, target, field_name, relation):
+    def gen_relation(self, target, field_name, relation, force=False):
         """ Generate a related field by `relation`.
 
         :param target: Target for generate value.
         :param field_name: Name of field for generation.
         :param relation: Instance of :class:`Relation`
+        :param force: Force a value generation
 
         :return : None or (name, value) for later use
 
@@ -629,9 +635,18 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
         if field_value.args:
             scheme = field_value.args[0]
 
+            if not isinstance(scheme, type):
+                return self.set_value(
+                    target, field_name, g.get_choice(field_value.args))
+
         else:
-            field = self.__fields.get(field_name)
-            scheme = field and field.scheme or field
+            scheme = self.__fields.get(field_name)
+            if scheme:
+
+                if scheme.is_relation:
+                    return self.gen_relation(target, field_name, scheme, True)
+
+                scheme = scheme.scheme
 
         return self.gen_value(target, field_name, scheme, fake=False)
 

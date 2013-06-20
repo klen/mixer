@@ -206,7 +206,7 @@ class TypeMixer(BaseTypeMixer):
         """
         return field.scheme.required or isinstance(field.scheme, ObjectIdField)
 
-    def gen_relation(self, target, field_name, relation):
+    def gen_relation(self, target, field_name, relation, force=False):
         """ Generate a related relation by `relation`.
 
         :param target: Target for generate value.

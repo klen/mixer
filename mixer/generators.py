@@ -73,7 +73,7 @@ def get_choices(choices=None, length=None, **kwargs):
     """ Get a lot of random elements from collection.
 
     :param choices: A collection
-    :param length: Number of elementss. By default len(collection).
+    :param length: Number of elements. By default len(collection).
 
     :return tuple:
 

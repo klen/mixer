@@ -1,3 +1,5 @@
+""" Test mixer base functionality. """
+
 try:
     from unittest2 import TestCase
 except ImportError:
@@ -7,6 +9,9 @@ from mixer.main import Mixer
 
 
 class Test:
+
+    """ Model scheme for base tests. """
+
     one = int
     two = int
     name = str
@@ -14,11 +19,15 @@ class Test:
 
 class MixerBaseTests(TestCase):
 
+    """ Test base mixer classes. """
+
     def test_base(self):
+        """ Just import version. """
         from mixer import __version__
         self.assertTrue(__version__)
 
     def test_generators(self):
+        """ Test random generators. """
         from mixer import generators as g
 
         test = next(g.gen_choice((1, 2, 3)))
@@ -63,6 +72,7 @@ class MixerBaseTests(TestCase):
         self.assertTrue(test)
 
     def test_faker(self):
+        """ Tests default fakers. """
         from mixer import fakers as f
 
         test = next(f.gen_name())
@@ -111,6 +121,7 @@ class MixerBaseTests(TestCase):
         self.assertTrue(test)
 
     def test_factory(self):
+        """ Test base generator's factory. """
         from mixer.main import GenFactory
 
         g = GenFactory()
@@ -121,6 +132,7 @@ class MixerBaseTests(TestCase):
         self.assertTrue(next(test) in [True, False])
 
     def test_typemixer_meta(self):
+        """ Tests that typemixer is a singleton for current class. """
         from mixer.main import TypeMixer
 
         mixer1 = TypeMixer(Test)
@@ -168,6 +180,10 @@ class MixerBaseTests(TestCase):
 
         test = mixer.blend(name=mixer.random(int))
         self.assertTrue(isinstance(test.name, int))
+
+        names = ['john_', 'kenn_', 'lenny_']
+        test = mixer.blend(name=mixer.random(*names))
+        self.assertTrue(test.name in names)
 
     def test_mix(self):
         from mixer.main import mixer

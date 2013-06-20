@@ -114,21 +114,6 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
         return super(TypeMixer, self).gen_select(
             target, field_name, field_value)
 
-    def gen_random(self, target, field_name, field_value):
-        """ Generate random value of field with `field_name` for `target`.
-
-        :param target: Target for generate value.
-        :param field_name: Name of field for generation.
-
-        :return : None or (name, value) for later use
-
-        """
-        field = self.__fields.get(field_name)
-        if field and field.is_relation:
-            return self.gen_relation(target, field_name, field, force=True)
-        return super(TypeMixer, self).gen_random(
-            target, field_name, field_value)
-
     def gen_relation(self, target, field_name, relation, force=False):
         """ Generate a related relation by `relation`.
 

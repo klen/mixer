@@ -67,21 +67,6 @@ class TypeMixer(BaseTypeMixer):
 
         return column.default.arg
 
-    def gen_random(self, target, field_name, field_value):
-        """ Generate random value of field with `field_name` for `target`.
-
-        :param target: Target for generate value.
-        :param field_name: Name of field for generation.
-
-        :return : None or (name, value) for later use
-
-        """
-        field = self.__fields.get(field_name)
-        if isinstance(field, Relation):
-            return self.gen_relation(target, field_name, field)
-        return super(TypeMixer, self).gen_value(
-            target, field_name, field.scheme, fake=False)
-
     def gen_select(self, target, field_name, field_value):
         """ Select exists value from database.
 
@@ -100,12 +85,13 @@ class TypeMixer(BaseTypeMixer):
         ).filter(*field_value.args).order_by(func.random()).first()
         self.set_value(target, field_name, value)
 
-    def gen_relation(self, target, field_name, relation):
+    def gen_relation(self, target, field_name, relation, force=False):
         """ Generate a related relation by `relation`.
 
         :param target: Target for generate value.
         :param field_name: Name of relation for generation.
         :param relation: Instance of :class:`Relation`
+        :param force: Force a value generation
 
         :return : None or (name, value) for later use
 
@@ -113,7 +99,7 @@ class TypeMixer(BaseTypeMixer):
         rel = relation.scheme
         if rel.direction == MANYTOONE:
             col = rel.local_remote_pairs[0][0]
-            if col.nullable and not relation.params:
+            if col.nullable and not relation.params and not force:
                 return False
 
             value = self.__mixer and self.__mixer.blend(
