@@ -129,6 +129,13 @@ class MixerTestSQLAlchemy(TestCase):
         role = mixer.blend(Role, user=mixer.select(User.id == user.id))
         self.assertEqual(user, role.user)
 
+    def test_random(self):
+        from mixer.backend.sqlalchemy import mixer
+
+        values = ('mixer', 'is', 'fun')
+        user = mixer.blend(User, name=mixer.random(*values))
+        self.assertTrue(user.name in values)
+
     def test_default_mixer(self):
         from mixer.backend.sqlalchemy import mixer
 
