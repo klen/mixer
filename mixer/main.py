@@ -389,6 +389,7 @@ class GenFactory(six.with_metaclass(GenFactoryMeta)):
         ('latitude', float): f.gen_latlon,
         ('lon', float): f.gen_latlon,
         ('longitude', float): f.gen_latlon,
+        ('url', t.URL): f.gen_url,
     }
 
     types = {}

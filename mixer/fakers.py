@@ -357,13 +357,9 @@ def get_url(hostname=None, **kwargs):
 
     """
     if hostname is None:
-        hostname = g.get_choice((True, False))
+        hostname = get_hostname()
 
-    if hostname:
-        parts = [get_hostname()]
-
-    else:
-        parts = ['']
+    parts = [hostname]
 
     parts += g.get_choices(LOREM_CHOICES, g.get_integer(1, 3))
 

@@ -165,6 +165,9 @@ class MixerTestDjango(TestCase):
         ))
         self.assertTrue(user.username in ('mixer', 'is', 'fun'))
 
+        rabbit = mixer.blend(Rabbit, url=mixer.random)
+        self.assertTrue('/' in rabbit.url)
+
     @staticmethod
     def test_invalid_scheme():
         from mixer.backend.django import mixer
