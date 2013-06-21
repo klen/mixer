@@ -35,6 +35,7 @@ class GenFactory(BaseFactory):
         models.FloatField: float,
         models.EmailField: t.EmailString,
         models.IPAddressField: t.IP4String,
+        models.URLField: t.URL,
     }
 
 
