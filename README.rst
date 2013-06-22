@@ -193,7 +193,7 @@ Quick example: ::
             male = bool
             prop = Test
 
-        scheme = mixer.blend(Sheme, prop__one=1)
+        scheme = mixer.blend(Scheme, prop__one=1)
 
 
 .. _bagtracker:

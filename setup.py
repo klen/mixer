@@ -42,7 +42,7 @@ setup(
     description=read('DESCRIPTION'),
     long_description=read('README.rst'),
     platforms=('Any'),
-    keywords = "django flask sqlalchemy testing mock stub mongoengine".split(),
+    keywords = "django flask sqlalchemy testing mock stub mongoengine data".split(), # noqa
 
     author='Kirill Klenov',
     author_email='horneds@gmail.com',

@@ -1,11 +1,13 @@
 """ Test mixer base functionality. """
+import datetime
+
+from mixer.main import Mixer
+
 
 try:
     from unittest2 import TestCase
 except ImportError:
     from unittest import TestCase
-
-from mixer.main import Mixer
 
 
 class Test:
@@ -33,13 +35,30 @@ class MixerBaseTests(TestCase):
         test = next(g.gen_choice((1, 2, 3)))
         self.assertTrue(test in (1, 2, 3))
 
-        self.assertTrue(g.get_date())
+        test = next(g.gen_date())
+        self.assertTrue(isinstance(test, datetime.date))
+
+        min_date, max_date = (2010, 1, 1), (2011, 1, 1)
+        test = next(g.gen_date(min_date, max_date))
+        self.assertTrue(2010 <= test.year <= 2011)
+
+        test = next(g.gen_date(
+            datetime.date(*min_date), datetime.date(*max_date)))
+        self.assertTrue(2010 <= test.year <= 2011)
 
         test = next(g.gen_time())
-        self.assertTrue(test)
+        self.assertTrue(isinstance(test, datetime.time))
+
+        min_time, max_time = (14, 30), (15, 30)
+        test = next(g.gen_time(min_time, max_time))
+        self.assertTrue(14 <= test.hour <= 15)
+
+        test = next(g.gen_time(
+            datetime.time(*min_time), datetime.time(*max_time)))
+        self.assertTrue(14 <= test.hour <= 15)
 
         test = next(g.gen_datetime())
-        self.assertTrue(test)
+        self.assertTrue(isinstance(test, datetime.datetime))
 
         test = next(g.gen_integer())
         self.assertTrue(-2147483647 <= test < 2147483647)

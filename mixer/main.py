@@ -810,6 +810,22 @@ class Mixer(object):
     # generator's controller class
     type_mixer_cls = TypeMixer
 
+    #: Shortcut to :mod:`mixer.fakers`
+    #:
+    #: ::
+    #:
+    #:     mixer.f.get_name()  # -> Pier Lombardin
+    #:
+    f = f
+
+    #: Shortcut to :mod:`mixer.generators`
+    #:
+    #: ::
+    #:
+    #:     mixer.g.get_date()  # -> datetime.date(1984, 12, 12)
+    #:
+    g = g
+
     def __init__(self, fake=True, factory=None, **params):
         """Initialize Mixer instance.
 
