@@ -10,6 +10,12 @@ Functions for generation some kind of random datas. You can use
     price = g.get_positive_integer()
     date = g.get_date()
 
+Or you can using shortcut from :class:`mixer.main.Mixer` like this:
+
+::
+
+    mixer.g.get_integer()  # -> 143
+
 """
 import datetime
 import sys
@@ -18,7 +24,8 @@ import decimal
 from functools import wraps
 
 DEFAULT_STRING_LENGTH = 8
-DEFAULT_CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'  # nolint
+DEFAULT_CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'  # noqa
+DEFAULT_DATE = datetime.date.today()
 
 
 def loop(get_func):
@@ -91,11 +98,11 @@ def get_choices(choices=None, length=None, **kwargs):
 gen_choices = loop(get_choices)
 
 
-def get_date(low=(1900, 1, 1), high=(2020, 12, 31), **kwargs):
+def get_date(min_date=(1900, 1, 1), max_date=(2020, 12, 31), **kwargs):
     """ Get a random date.
 
-    :param low: date's tuple from
-    :param hight: date's tuple to
+    :param mix_date: date or date's tuple from
+    :param max_date: date or date's tuple to
 
     :return date:
 
@@ -103,23 +110,27 @@ def get_date(low=(1900, 1, 1), high=(2020, 12, 31), **kwargs):
 
         print get_date()  # -> date(1989, 06, 06)
 
+        print get_date((1979, 01, 01), (1981, 01, 01))  # -> date(1980, 04, 03)
+
     """
-    low = datetime.date(*low)
-    high = datetime.date(*high)
-    delta = high - low
-    delta = datetime.timedelta(
-        seconds=random.randrange(delta.days * 24 * 60 * 60 + delta.seconds))
-    return low + delta
+    if isinstance(min_date, datetime.date):
+        min_date = datetime.datetime(*min_date.timetuple()[:-4])
+
+    if isinstance(max_date, datetime.date):
+        max_date = datetime.datetime(*max_date.timetuple()[:-4])
+
+    random_datetime = get_datetime(min_date, max_date)
+    return random_datetime.date()
 
 #: Generator's fabric for :meth:`mixer.generators.get_date`
 gen_date = loop(get_date)
 
 
-def get_time(low=(0, 0, 0), high=(23, 59, 59), **kwargs):
+def get_time(min_time=(0, 0, 0), max_time=(23, 59, 59), **kwargs):
     """ Get a random time.
 
-    :param low: time's tuple from
-    :param hight: time's tuple to
+    :param min_time: `datetime.time` or time's tuple from
+    :param max_time: `datetime.time` or time's tuple to
 
     :return time:
 
@@ -128,22 +139,28 @@ def get_time(low=(0, 0, 0), high=(23, 59, 59), **kwargs):
         print get_time()  # -> time(15, 00)
 
     """
-    h = random.randint(low[0], high[0])
-    m = random.randint(low[1], high[1])
-    s = random.randint(low[2], high[2])
+    if not isinstance(min_time, datetime.time):
+        min_time = datetime.time(*min_time)
 
-    return datetime.time(h, m, s)
+    if not isinstance(max_time, datetime.time):
+        max_time = datetime.time(*max_time)
+
+    random_datetime = get_datetime(
+        datetime.datetime.combine(DEFAULT_DATE, min_time),
+        datetime.datetime.combine(DEFAULT_DATE, max_time)
+    )
+    return random_datetime.time()
 
 #: Generator's fabric for :meth:`mixer.generators.get_time`
 gen_time = loop(get_time)
 
 
-def get_datetime(low=(1900, 1, 1, 0, 0, 0),
-                 high=(2020, 12, 31, 23, 59, 59), **kwargs):
+def get_datetime(min_datetime=(1900, 1, 1, 0, 0, 0),
+                 max_datetime=(2020, 12, 31, 23, 59, 59), **kwargs):
     """ Get a random datetime.
 
-    :param low: datetime's tuple from
-    :param hight: datetime's tuple to
+    :param low: datetime or datetime's tuple from
+    :param hight: datetime or datetime's tuple to
 
     :return datetime:
 
@@ -152,12 +169,17 @@ def get_datetime(low=(1900, 1, 1, 0, 0, 0),
         print get_datetime()  # -> datetime(1989, 06, 06, 15, 00)
 
     """
-    date = get_date(low[:3], high[:3])
-    h = random.randint(low[3], high[3])
-    ms = random.randint(low[4], high[4])
-    s = random.randint(low[5], high[5])
+    if not isinstance(min_datetime, datetime.datetime):
+        min_datetime = datetime.datetime(*min_datetime)
 
-    return datetime.datetime(date.year, date.month, date.day, h, ms, s)
+    if not isinstance(max_datetime, datetime.datetime):
+        max_datetime = datetime.datetime(*max_datetime)
+
+    delta = max_datetime - min_datetime
+    delta = (delta.days * 24 * 60 * 60 + delta.seconds)
+    delta = get_integer(0, delta)
+
+    return min_datetime + datetime.timedelta(seconds=delta)
 
 #: Generator's fabric for :meth:`mixer.generators.get_datetime`
 gen_datetime = loop(get_datetime)
@@ -354,3 +376,5 @@ def get_positive_decimal(**kwargs):
 
 #: Generator's fabric for :meth:`mixer.generators.get_positive_decimal`
 gen_positive_decimal = loop(get_positive_decimal)
+
+# lint_ignore=E1103

@@ -13,6 +13,13 @@ by manual, like this:
     url_gen = f.gen_url()(hostname=True)
     urls = [next(url_gen) for _ in range(10)]
 
+
+Or you can using shortcut from :class:`mixer.main.Mixer` like this:
+
+::
+
+    mixer.f.get_city()  # -> Moscow
+
 """
 
 from . import generators as g
@@ -153,6 +160,7 @@ def get_firstname(**kwargs):
     :return str:
 
     ::
+
         print get_firstname()  # -> Johnson
 
     """
@@ -168,6 +176,7 @@ def get_lastname(**kwargs):
     :return str:
 
     ::
+
         print get_lastname()  # -> Gaspar
 
     """
@@ -183,6 +192,7 @@ def get_name(mask=DEFAULT_NAME_MASK, length=100, **kwargs):
     :return str:
 
     ::
+
         print get_name()  # -> Barbara Clayworth
 
     """
@@ -199,6 +209,7 @@ def get_country(**kwargs):
     :return str:
 
     ::
+
         print get_country()  # -> Italy
 
     """
@@ -214,6 +225,7 @@ def get_city(**kwargs):
     :return str:
 
     ::
+
         print get_city()  # -> North Carter
 
     """
@@ -232,6 +244,7 @@ def get_lorem(length=None, **kwargs):
     :return str:
 
     ::
+
         print get_lorem()  # -> atque rerum et aut reiciendis...
 
     """
@@ -250,6 +263,7 @@ def get_numerify(template='', symbol='#', **kwargs):
     :return str:
 
     ::
+
         print get_numerify('####-##')  # -> 2345-23
 
     """
@@ -268,6 +282,7 @@ def get_username(length=100, **kwargs):
     :return str:
 
     ::
+
         print get_username()  # -> boss1985
 
     """
@@ -294,6 +309,7 @@ def get_hostname(host=None, zone=None, **kwargs):
     :return str:
 
     ::
+
         print get_hostname()  # -> twitter.az
 
     """
@@ -320,6 +336,7 @@ def get_email(username=None, host=None, zone=None, **kwargs):
     :return str:
 
     ::
+
         print get_email()  # -> team.cool@microsoft.de
 
     """
@@ -338,6 +355,7 @@ def get_ip4(**kwargs):
     :return str:
 
     ::
+
         print get_ip4()  # 192.168.1.1
 
     """
