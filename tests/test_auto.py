@@ -28,6 +28,9 @@ class MixerTestAuto(TestCase):
         rabbit = mixer.blend('tests.django_app.models.Rabbit')
         self.assertTrue(rabbit)
 
+        rabbits = mixer.cycle(2).blend(Rabbit)
+        self.assertTrue(all(rabbits))
+
         call_command('flush', interactive=False)
 
     def test_sqlalchemy(self):
@@ -41,6 +44,9 @@ class MixerTestAuto(TestCase):
         user = mixer.blend('tests.test_sqlalchemy.User')
         self.assertTrue(user)
 
+        users = mixer.cycle(2).blend(User)
+        self.assertTrue(all(users))
+
     def test_mongoengine(self):
         from mixer.auto import mixer
 
@@ -51,3 +57,6 @@ class MixerTestAuto(TestCase):
 
         user = mixer.blend('tests.test_mongoengine.User')
         self.assertTrue(user)
+
+        users = mixer.cycle(2).blend(User)
+        self.assertTrue(all(users))
