@@ -267,6 +267,3 @@ class MixerBaseTests(TestCase):
         except ValueError:
             return False
         raise Exception('test.failed')
-
-
-# lint_ignore=F0401,C0110
