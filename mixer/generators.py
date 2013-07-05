@@ -18,7 +18,6 @@ Or you can using shortcut from :class:`mixer.main.Mixer` like this:
 
 """
 import datetime
-import sys
 import random
 import decimal
 from functools import wraps
@@ -274,7 +273,7 @@ def get_small_positive_integer(**kwargs):
 gen_small_positive_integer = loop(get_small_positive_integer)
 
 
-def get_float(low=sys.float_info.min, high=sys.float_info.max, **kwargs):
+def get_float(low=-99999, high=99999, **kwargs):
     """ Get a random float.
 
     :return float:

@@ -1,0 +1,8 @@
+[report]
+omit=mixer/six.py
+source=mixer
+
+[run]
+omit=mixer/six.py
+source=mixer
+
