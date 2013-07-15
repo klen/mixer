@@ -17,6 +17,8 @@ class Test:
     one = int
     two = int
     name = str
+    title = str
+    body = str
 
 
 class MixerBaseTests(TestCase):
@@ -178,17 +180,17 @@ class MixerBaseTests(TestCase):
         test = mixer.blend(name='John')
         self.assertEqual(test.name, 'John')
 
-    def test_typemixer_fake(self):
-        from mixer.main import TypeMixer
+    def test_fake(self):
+        from mixer.main import mixer
 
-        mixer = TypeMixer(Test)
-        test = mixer.blend(name=mixer.fake)
+        test = mixer.blend(Test, name=mixer.fake, title=mixer.fake)
         self.assertTrue(' ' in test.name)
+        self.assertTrue(' ' in test.title)
 
-        test = mixer.blend(name=mixer.fake(bool))
+        test = mixer.blend(Test, name=mixer.fake(bool))
         self.assertTrue(test.name in (True, False))
 
-    def test_typemixer_random(self):
+    def test_random(self):
         from mixer.main import TypeMixer
         from mixer.six import string_types
 

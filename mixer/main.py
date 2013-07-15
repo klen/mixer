@@ -834,12 +834,12 @@ class Mixer(object):
                           generation values for types
 
         """
-        self.params = params
-        self.factory = factory
-        self.fake = fake
+        self.__params = params
+        self.__factory = factory
+        self.__fake = fake
 
     def __repr__(self):
-        return "<Mixer [{0}]>".format('fake' if self.fake else 'rand')
+        return "<Mixer [{0}]>".format('fake' if self.__fake else 'rand')
 
     def blend(self, scheme, **values):
         """Generate instance of `scheme`.
@@ -860,7 +860,7 @@ class Mixer(object):
 
         """
         type_mixer = self.type_mixer_cls(
-            scheme, mixer=self, fake=self.fake, factory=self.factory)
+            scheme, mixer=self, fake=self.__fake, factory=self.__factory)
         return type_mixer.blend(**values)
 
     @staticmethod
