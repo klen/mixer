@@ -267,3 +267,23 @@ class MixerBaseTests(TestCase):
         except ValueError:
             return False
         raise Exception('test.failed')
+
+    def test_sequence(self):
+        from mixer.main import mixer
+
+        gen = mixer.sequence()
+        self.assertEqual(next(gen), 0)
+        self.assertEqual(next(gen), 1)
+
+        gen = mixer.sequence('test - {0}')
+        self.assertEqual(next(gen), 'test - 0')
+        self.assertEqual(next(gen), 'test - 1')
+
+        gen = mixer.sequence(lambda c: c + 2)
+        self.assertEqual(next(gen), 2)
+        self.assertEqual(next(gen), 3)
+
+        gen = mixer.sequence(4, 3)
+        self.assertEqual(next(gen), 4)
+        self.assertEqual(next(gen), 3)
+        self.assertEqual(next(gen), 4)

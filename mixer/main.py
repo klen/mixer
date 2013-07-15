@@ -873,18 +873,20 @@ class Mixer(object):
         return target
 
     @staticmethod
-    def sequence(func=None):
+    def sequence(*args):
         """ Create sequence for predefined values.
 
         It makes a infinity loop with given function where does increment the
         counter on each iteration.
 
-        :param func: If func is equal string it should be using as format
-                        string.
+        :param *args: If method get more one arguments, them make generator
+                      from arguments (loop on arguments). If that get one
+                      argument and this equal a function, method makes
+                      a generator from them. If argument is equal string it
+                      should be using as format string.
 
-                        By default function is equal 'lambda x: x'.
+                      By default function is equal 'lambda x: x'.
 
-        :type func: Function from one argument or format string.
         :return generator:
 
         Mixer can uses a generators.
@@ -894,7 +896,16 @@ class Mixer(object):
             for counter in range(3):
                 mixer.blend(Scheme, name=gen)
 
-        Mixer.sequence is a helper for create generators from functions.
+        Mixer.sequence is a helper for create generators more easy.
+
+        Generate values from sequence:
+        ::
+
+            for _ in range(3):
+                mixer.blend(Scheme, name=mixer.sequence('john', 'mike'))
+
+
+        Make a generator from function:
         ::
 
             for counter in range(3):
@@ -902,14 +913,22 @@ class Mixer(object):
                     lambda c: 'test%s' % c
                 ))
 
-        Short format is a python formating string
 
+        Short format is a python formating string
         ::
 
             for counter in range(3):
                 mixer.blend(Scheme, name=mixer.sequence('test{0}'))
 
         """
+        if len(args) > 1:
+            def gen():
+                while True:
+                    for o in args:
+                        yield o
+            return gen()
+
+        func = args and args[0] or None
         if isinstance(func, six.string_types):
             func = func.format
 
@@ -946,4 +965,4 @@ class Mixer(object):
 # Default mixer
 mixer = Mixer()
 
-# lint_ignore=C901,W0622,F0401,W0621,W0231,E1002
+# lint_ignore=W0621,C901,W0231,E0102
