@@ -1,7 +1,8 @@
 2013-07-15  horneds
 
-	* Version 0.9.0
+	* Version 0.9.1
 	* Allow mixer.sequence to get a few argument and make generators from them
+	* Fix bug with 'mixer.fake' attribute;
 
 2013-07-05  horneds
 

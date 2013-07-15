@@ -125,6 +125,23 @@ class MixerTestDjango(TestCase):
         hole = mixer.blend(Hole, owner=mixer.select(email=rabbit.email))
         self.assertEqual(hole.owner, rabbit)
 
+    def test_fake(self):
+        from mixer.backend.django import mixer
+
+        user = mixer.blend('auth.User', username=mixer.fake)
+        self.assertTrue('' in user.username)
+
+    def test_random(self):
+        from mixer.backend.django import mixer
+
+        user = mixer.blend('auth.User', username=mixer.random(
+            'mixer', 'is', 'fun'
+        ))
+        self.assertTrue(user.username in ('mixer', 'is', 'fun'))
+
+        rabbit = mixer.blend(Rabbit, url=mixer.random)
+        self.assertTrue('/' in rabbit.url)
+
     def test_mix(self):
         from mixer.backend.django import mixer
 
@@ -156,17 +173,6 @@ class MixerTestDjango(TestCase):
         with self.assertNumQueries(3):
             customer = mixer.blend(Customer)
         self.assertTrue(customer)
-
-    def test_random(self):
-        from mixer.backend.django import mixer
-
-        user = mixer.blend('auth.User', username=mixer.random(
-            'mixer', 'is', 'fun'
-        ))
-        self.assertTrue(user.username in ('mixer', 'is', 'fun'))
-
-        rabbit = mixer.blend(Rabbit, url=mixer.random)
-        self.assertTrue('/' in rabbit.url)
 
     @staticmethod
     def test_invalid_scheme():
