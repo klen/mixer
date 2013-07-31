@@ -1,8 +1,12 @@
 from django.conf import settings
+import tempfile
+
+TMPDIR = tempfile.mkdtemp()
 
 settings.configure(
     ROOT_URLCONF='tests.django_app.urls',
     DEBUG=True,
+    MEDIA_ROOT=TMPDIR,
     DATABASES={
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -40,6 +44,7 @@ class Rabbit(models.Model):
     percent = models.FloatField()
     money = models.IntegerField()
     ip = models.IPAddressField()
+    picture = models.FileField(upload_to=TMPDIR)
 
     some_field = models.CommaSeparatedIntegerField(max_length=12)
     funny = models.NullBooleanField(null=False, blank=False)

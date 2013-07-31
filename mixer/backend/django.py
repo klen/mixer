@@ -3,8 +3,11 @@ from __future__ import absolute_import
 
 import datetime
 import decimal
+from os import path
 
 from django.db import models
+from django import VERSION
+from django.core.files.base import ContentFile
 
 from .. import generators as g, mix_types as t, six
 from ..main import (
@@ -15,27 +18,67 @@ from ..main import (
     Mixer as BaseMixer)
 
 
+if VERSION < (1, 4):
+    get_contentfile = lambda content, name: ContentFile(content)
+
+else:
+    get_contentfile = ContentFile
+
+
+MOCK_FILE = path.abspath(path.join(
+    path.dirname(path.dirname(__file__)), 'resources', 'file.txt'
+))
+MOCK_IMAGE = path.abspath(path.join(
+    path.dirname(path.dirname(__file__)), 'resources', 'image.jpg'
+))
+
+
+def get_file(filepath=MOCK_FILE, **kwargs):
+    """ Generate a content file.
+
+    :return ContentFile:
+
+    """
+    with open(filepath, 'rb') as f:
+        name = path.basename(filepath)
+        return get_contentfile(f.read(), name)
+
+
+def get_image(filepath=MOCK_IMAGE):
+    """ Generate a content image.
+
+    :return ContentFile:
+
+    """
+    return get_file(filepath)
+
+
 class GenFactory(BaseFactory):
 
     """ Map a django classes to simple types. """
 
     types = {
-        (models.CharField, models.SlugField): str,
-        models.TextField: t.Text,
-        models.BooleanField: bool,
-        models.BigIntegerField: t.BigInteger,
         (models.AutoField, models.IntegerField): int,
+        (models.CharField, models.SlugField): str,
+        models.BigIntegerField: t.BigInteger,
+        models.BooleanField: bool,
+        models.DateField: datetime.date,
+        models.DateTimeField: datetime.datetime,
+        models.DecimalField: decimal.Decimal,
+        models.EmailField: t.EmailString,
+        models.FloatField: float,
+        models.IPAddressField: t.IP4String,
         models.PositiveIntegerField: t.PositiveInteger,
         models.PositiveSmallIntegerField: t.PositiveSmallInteger,
         models.SmallIntegerField: t.SmallInteger,
-        models.DateField: datetime.date,
-        models.DateTimeField: datetime.datetime,
+        models.TextField: t.Text,
         models.TimeField: datetime.time,
-        models.DecimalField: decimal.Decimal,
-        models.FloatField: float,
-        models.EmailField: t.EmailString,
-        models.IPAddressField: t.IP4String,
         models.URLField: t.URL,
+    }
+
+    generators = {
+        models.FileField: g.loop(get_file),
+        models.ImageField: g.loop(get_image),
     }
 
 

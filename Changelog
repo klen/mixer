@@ -1,3 +1,8 @@
+2013-07-31  horneds
+
+	* Added FileField and ImageField support to django backend;
+	* Supports Flask-SQLAlchemy for python 3;
+
 2013-07-15  horneds
 
 	* Version 0.9.1

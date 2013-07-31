@@ -13,8 +13,9 @@ from sqlalchemy import (
     ForeignKey,
     Enum,
 )
-from sqlalchemy.orm import relation, sessionmaker, relationship
+from sqlalchemy.orm import relation, sessionmaker, relationship, scoped_session
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.event import _registrars
 try:
     from unittest2 import TestCase
 except ImportError:
@@ -23,7 +24,7 @@ except ImportError:
 
 ENGINE = create_engine('sqlite:///:memory:')
 BASE = declarative_base()
-SESSION = sessionmaker(bind=ENGINE)
+SESSION = scoped_session(sessionmaker(bind=ENGINE))
 
 
 class Profile(BASE):
