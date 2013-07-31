@@ -1,6 +1,6 @@
 2013-07-31  horneds
 
-	* Version 0.11.0
+	* Version 0.11.1
 	* Added FileField and ImageField support to django backend;
 	* Supports Flask-SQLAlchemy for python 3;
 	* [Django] Supports model creation only by model name. For now you can
