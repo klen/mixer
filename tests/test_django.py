@@ -39,6 +39,9 @@ class MixerTestDjango(TestCase):
         self.assertTrue(rabbit.description)
         self.assertEqual(rabbit.picture.read(), b'pylama\n')
 
+        rabbit = mixer.blend('rabbit')
+        self.assertTrue(rabbit)
+
     def test_random_fields(self):
         from .django_app.models import Rabbit
 

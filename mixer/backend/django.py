@@ -6,6 +6,7 @@ import decimal
 from os import path
 
 from django.db import models
+from django.contrib.contenttypes.models import ContentType
 from django import VERSION
 from django.core.files.base import ContentFile
 
@@ -53,6 +54,17 @@ def get_image(filepath=MOCK_IMAGE):
     return get_file(filepath)
 
 
+def get_contenttype(**kwargs):
+    """ Generate a content type value.
+
+    :return ContentType:
+
+    """
+    return ContentType.objects.get_for_model(g.get_choice(
+        models.get_models()
+    ))
+
+
 class GenFactory(BaseFactory):
 
     """ Map a django classes to simple types. """
@@ -79,6 +91,7 @@ class GenFactory(BaseFactory):
     generators = {
         models.FileField: g.loop(get_file),
         models.ImageField: g.loop(get_image),
+        ContentType: g.loop(get_contenttype),
     }
 
 
@@ -86,13 +99,29 @@ class TypeMixerMeta(BaseTypeMixerMeta):
 
     """ Load django models from strings. """
 
+    def __new__(mcs, name, bases, params):
+        params['models_cache'] = dict()
+        cls = super(TypeMixerMeta, mcs).__new__(mcs, name, bases, params)
+
+        for app_models in models.loading.cache.app_models.values():
+            for name, model in app_models.items():
+                cls.models_cache[name] = model
+
+        return cls
+
     def __load_cls(cls, cls_type):
+
         if isinstance(cls_type, six.string_types):
-            assert '.' in cls_type, ("'model_class' must be either a model"
-                                     " or a model name in the format"
-                                     " app_label.model_name")
-            app_label, model_name = cls_type.split(".")
-            cls_type = models.get_model(app_label, model_name)
+            if '.' in cls_type:
+                app_label, model_name = cls_type.split(".")
+                return models.get_model(app_label, model_name)
+
+            else:
+                try:
+                    return cls.models_cache[cls_type]
+                except KeyError:
+                    raise ValueError('Model "%s" not found.' % cls_type)
+
         return cls_type
 
 

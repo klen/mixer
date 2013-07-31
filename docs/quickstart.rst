@@ -41,6 +41,13 @@ Somewhere in 'someapp/models.py':
 Base Usage
 ^^^^^^^^^^
 
+You can use class or string with model name.
+
+.. [1] Model name supports two formats. Use 'app_name.model_name' for prevent conflicts.
+       Or you can use just 'model_name' for models with unique names.
+
+.. [2] `model_name` is case insensitive.
+
 .. code-block:: python
 
     from mixer.backend.django import mixer
