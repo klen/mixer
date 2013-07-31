@@ -1,8 +1,14 @@
 2013-07-31  horneds
 
-	* Version 0.10.0
+	* Version 0.11.0
 	* Added FileField and ImageField support to django backend;
 	* Supports Flask-SQLAlchemy for python 3;
+	* [Django] Supports model creation only by model name. For now you can
+	  use three methods:
+
+	    1) mixer.blend(SomeModel) # by class
+	    2) mixer.blend('someapp.somemodel') # by 'app.model' string
+	    3) mixer.blend('somemodel') # short form for unique model names
 
 2013-07-15  horneds
 

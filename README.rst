@@ -107,7 +107,7 @@ Quick example: ::
     some = mixer.blend('someapp.somemodel', money=mixer.random)
 
     # Generate 5 SomeModel instances and get a field values from custom generator
-    some_models = mixer.cycle(5).blend('someapp.somemodel', company=(company for company in companies))
+    some_models = mixer.cycle(5).blend('somemodel', company=(company for company in companies))
 
 
 Flask, Flask-SQLAlchemy
