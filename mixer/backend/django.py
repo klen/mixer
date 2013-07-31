@@ -102,11 +102,7 @@ class TypeMixerMeta(BaseTypeMixerMeta):
     def __new__(mcs, name, bases, params):
         params['models_cache'] = dict()
         cls = super(TypeMixerMeta, mcs).__new__(mcs, name, bases, params)
-
-        for app_models in models.loading.cache.app_models.values():
-            for name, model in app_models.items():
-                cls.models_cache[name] = model
-
+        cls.__update_cache()
         return cls
 
     def __load_cls(cls, cls_type):
@@ -118,11 +114,19 @@ class TypeMixerMeta(BaseTypeMixerMeta):
 
             else:
                 try:
+                    if not cls_type in cls.models_cache:
+                        cls.__update_cache()
+
                     return cls.models_cache[cls_type]
                 except KeyError:
                     raise ValueError('Model "%s" not found.' % cls_type)
 
         return cls_type
+
+    def __update_cache(cls):
+        for app_models in models.loading.cache.app_models.values():
+            for name, model in app_models.items():
+                cls.models_cache[name] = model
 
 
 class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
