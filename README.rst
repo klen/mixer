@@ -11,8 +11,8 @@ Mixer supports:
 
     - Django_;
     - SQLAlchemy_;
+    - Flask-SqlAlchemy;
     - Mongoengine_;
-    - Flask-SqlAlchemy (only for python 2.6, 2.7);
     - Custom schemes;
 
 .. _badges:

@@ -3,6 +3,8 @@ include MANIFEST.in
 include README.rst
 include requirements.txt
 include requirements-tests.txt
+include mixer/resources/file.txt
+include mixer/resources/image.jpg
 
 recursive-include mixer *
 

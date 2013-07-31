@@ -37,6 +37,7 @@ class MixerTestDjango(TestCase):
         self.assertTrue('@' in rabbit.email)
         self.assertTrue(rabbit.speed)
         self.assertTrue(rabbit.description)
+        self.assertEqual(rabbit.picture.read(), b'pylama\n')
 
     def test_random_fields(self):
         from .django_app.models import Rabbit
