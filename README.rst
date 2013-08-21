@@ -39,7 +39,7 @@ Mixer supports:
 
 
 .. _documentation:
-.
+
 
 **Docs are available at https://mixer.readthedocs.org/. Pull requests with documentation enhancements and/or fixes are awesome and most welcome.**
 

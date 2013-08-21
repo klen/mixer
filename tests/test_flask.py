@@ -10,7 +10,7 @@ try:
 except ImportError:
     from unittest import TestCase
 
-# Monkey patching for flask (disable events)
+# Monkey patching for flask-sqlalchemy <= 1.0 (disable events)
 _SessionSignalEvents.session_signal_before_commit = staticmethod(lambda s: s)
 _SessionSignalEvents.session_signal_after_commit = staticmethod(lambda s: s)
 

@@ -273,7 +273,7 @@ def get_small_positive_integer(**kwargs):
 gen_small_positive_integer = loop(get_small_positive_integer)
 
 
-def get_float(low=-99999, high=99999, **kwargs):
+def get_float(low=-1e10, high=1e10, **kwargs):
     """ Get a random float.
 
     :return float:

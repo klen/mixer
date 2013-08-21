@@ -31,9 +31,6 @@ tests_require = [l for l in read('requirements-tests.txt').split('\n')
 if sys.version_info < (2, 7):
     install_requires.append('importlib')
 
-elif sys.version_info > (3, 0):
-    tests_require.remove('flask-sqlalchemy')
-
 
 setup(
     name=__project__,
