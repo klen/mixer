@@ -107,3 +107,17 @@ class Tag(models.Model):
     title = models.CharField(max_length=20)
     customer = models.ForeignKey(Customer, blank=True, null=True)
     messages = models.ManyToManyField(Message, null=True, blank=True)
+
+
+class PointB(models.Model):
+    pass
+
+
+class PointA(models.Model):
+    other = models.ManyToManyField("django_app.PointB",
+                                   through="django_app.Through")
+
+
+class Through(models.Model):
+    pointas = models.ForeignKey(PointA)
+    pointbs = models.ForeignKey(PointB)
