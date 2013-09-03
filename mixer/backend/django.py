@@ -145,9 +145,26 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
         """
         field = self.__fields.get(field_name)
         if field and field.scheme in self.__scheme._meta.local_many_to_many:
+
+            if not target.pk:
+                return field_name, field_value
+
+            # If the ManyToMany relation has an intermediary model,
+            # the add and remove methods do not exist.
+            if not field.scheme.rel.through._meta.auto_created:
+                return self.__mixer.blend(
+                    field.scheme.rel.through,
+                    **{
+                        field.scheme.m2m_field_name(): target,
+                        field.scheme.m2m_reverse_field_name(): field_value,
+                    }
+                )
             if not isinstance(field_value, (list, tuple)):
                 field_value = [field_value]
-            return field_name, field_value
+
+            setattr(target, field_name, field_value)
+
+            return True
 
         return super(TypeMixer, self).set_value(
             target, field_name, field_value, finaly

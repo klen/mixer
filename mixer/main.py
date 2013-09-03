@@ -1,11 +1,13 @@
-"""
-    mixer.main
-    ~~~~~~~~~~
+""" Base for custom backends.
 
-    This module implements the objects generation.
+mixer.main
+~~~~~~~~~~
 
-    :copyright: 2013 by Kirill Klenov.
-    :license: BSD, see LICENSE for more details.
+This module implements the objects generation.
+
+:copyright: 2013 by Kirill Klenov.
+:license: BSD, see LICENSE for more details.
+
 """
 from __future__ import absolute_import, unicode_literals
 
@@ -524,7 +526,7 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
             target = self.__mixer.post_generate(target)
 
         for fname, fvalue in post_values:
-            setattr(target, fname, fvalue)
+            self.set_value(target, fname, fvalue)
 
         return target
 
@@ -965,4 +967,4 @@ class Mixer(object):
 # Default mixer
 mixer = Mixer()
 
-# lint_ignore=W0621,C901,W0231,E0102
+# lint_ignore=W0621,C901,W0231,E0102,C1001

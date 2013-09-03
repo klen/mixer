@@ -108,6 +108,15 @@ class MixerTestDjango(TestCase):
         tag = mixer.blend('django_app.tag', customer=mixer.random)
         self.assertTrue(tag.customer)
 
+    def test_many_to_many_through(self):
+        mixer = Mixer()
+        pointa = mixer.blend('django_app.pointa')
+        self.assertTrue(pointa.other.all())
+
+        pointb = mixer.blend('pointb')
+        pointa = mixer.blend('pointa', other=pointb)
+        self.assertEqual(list(pointa.other.all()), [pointb])
+
     def test_default_mixer(self):
         from mixer.backend.django import mixer
 
