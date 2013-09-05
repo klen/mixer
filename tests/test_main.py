@@ -166,6 +166,7 @@ class MixerBaseTests(TestCase):
         from mixer.main import TypeMixer
 
         class Scheme:
+            id = int
             name = str
             money = int
             male = bool
@@ -179,6 +180,10 @@ class MixerBaseTests(TestCase):
 
         test = mixer.blend(name='John')
         self.assertEqual(test.name, 'John')
+
+        mixer.register('name', lambda: 'Piter')
+        test = mixer.blend()
+        self.assertEqual(test.name, 'Piter')
 
     def test_fake(self):
         from mixer.main import mixer
@@ -244,6 +249,11 @@ class MixerBaseTests(TestCase):
         test = mixer.blend(Test, name=name_gen)
         test = mixer.blend(Test, name=name_gen)
         self.assertEqual(test.name, 1)
+
+        mixer.register('tests.test_main.Test', dict(
+            one=lambda: 'ID'))
+        test = mixer.blend(Test)
+        self.assertEqual(test.one, 'ID')
 
     def test_mixer_cycle(self):
         mixer = Mixer()
