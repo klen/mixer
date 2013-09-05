@@ -181,7 +181,7 @@ Common usage
 ------------
 Quick example: ::
 
-        from mixer.main import Mixer
+        from mixer.main import mixer
 
         class Test:
             one = int
@@ -195,6 +195,28 @@ Quick example: ::
             prop = Test
 
         scheme = mixer.blend(Scheme, prop__one=1)
+
+Custom fields
+-------------
+
+Mixer allows you to define generators for fields by manualy.
+
+Quick example: ::
+
+        from mixer.main import mixer
+
+        class Test:
+            id = int
+            name = str
+
+        mixer.register(Test, {
+            'name': lambda: 'John',
+            'id': lambda: str(mixer.g.get_positive_integer())
+        })
+
+        test = mixer.blend(Test)
+        test.name == 'John'
+        isinstance(test.id, str)
 
 
 .. _bagtracker:

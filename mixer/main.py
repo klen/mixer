@@ -426,12 +426,13 @@ class GenFactory(six.with_metaclass(GenFactoryMeta)):
 
         """
         fcls = cls.cls_to_simple(fcls)
-        fname = cls.name_to_simple(fname)
-
-        gen_maker = cls.generators.get(fcls)
 
         if fname and fake and (fname, fcls) in cls.fakers:
-            gen_maker = cls.fakers.get((fname, fcls)) or gen_maker
+            fname = cls.name_to_simple(fname)
+            gen_maker = cls.fakers.get((fname, fcls)) \
+                or cls.generators.get(fcls)
+        else:
+            gen_maker = cls.generators.get(fcls)
 
         return gen_maker
 
@@ -707,6 +708,35 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
         """
         return self.__factory.gen_maker(field_class, field_name, fake)()
 
+    def register(self, field_name, func, fake=None):
+        """ Register function as generator for field.
+
+        :param field_name: Name of field for generation
+        :param func: Function for data generation
+        :param fake: Generate fake data instead of random data.
+
+        ::
+
+            class Scheme:
+                id = str
+
+            def func():
+                return 'ID'
+
+            mixer = TypeMixer(Scheme)
+            mixer.register('id', func)
+
+            test = mixer.blend()
+            test.id == 'id'
+
+        """
+        if fake is None:
+            fake = self.__fake
+
+        field_class = self.__fields.get(field_name)
+        key = (field_class.scheme, field_name, fake)
+        self.__generators[key] = g.loop(func)()
+
     @staticmethod
     def is_unique(field):
         """ Return True is field's value should be a unique.
@@ -963,8 +993,39 @@ class Mixer(object):
         """
         return MetaMixer(self, count)
 
+    def register(self, scheme, params, fake=None):
+        """ Manualy register a function as value's generator for class.field.
+
+        :param scheme: Scheme class for generation or string with class path.
+        :param fake: Register as fake generator
+        :param params: dict of generators for fields
+
+        ::
+
+            class Scheme:
+                id = str
+
+            def func():
+                return 'ID'
+
+            mixer.register(Scheme, { 'id': func })
+
+            test = mixer.blend(Scheme)
+            test.id == 'ID'
+
+        """
+
+        if fake is None:
+            fake = self.__fake
+
+        type_mixer = self.type_mixer_cls(
+            scheme, mixer=self, fake=self.__fake, factory=self.__factory)
+
+        for field_name, func in params.items():
+            type_mixer.register(field_name, func, fake=fake)
+
 
 # Default mixer
 mixer = Mixer()
 
-# lint_ignore=W0621,C901,W0231,E0102,C1001
+# lint_ignore=W0621,C901,W0231,E0102,C1001,C0302

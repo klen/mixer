@@ -19,9 +19,16 @@ class MixerTestDjango(TestCase):
     def tearDownClass(cls):
         call_command('flush', interactive=False)
 
-    def test_fields(self):
-        from .django_app.models import Rabbit
+    def test_register(self):
+        mixer = Mixer()
+        mixer.register(Rabbit, {
+            'title': lambda: 'Mr. Rabbit'
+        })
 
+        rabbit = mixer.blend(Rabbit)
+        self.assertEqual(rabbit.title, 'Mr. Rabbit')
+
+    def test_fields(self):
         mixer = Mixer()
         rabbit = mixer.blend('django_app.rabbit')
 
@@ -43,8 +50,6 @@ class MixerTestDjango(TestCase):
         self.assertTrue(rabbit)
 
     def test_random_fields(self):
-        from .django_app.models import Rabbit
-
         mixer = Mixer(fake=False)
         rabbit = mixer.blend('django_app.rabbit')
 
