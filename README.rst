@@ -218,6 +218,12 @@ Quick example: ::
         test.name == 'John'
         isinstance(test.id, str)
 
+        # You could pinned just a value to field
+        mixer.register(Test, {
+            'name': 'Just John'
+        })
+        test = mixer.blend(Test)
+        test.name == 'Just John'
 
 .. _bagtracker:
 

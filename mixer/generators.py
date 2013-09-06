@@ -46,6 +46,10 @@ def loop(get_func):
         print [next(g), next(g)]  # -> [3, 3]
 
     """
+    if not hasattr(get_func, '__call__'):
+        r = get_func
+        get_func = lambda: r
+
     @wraps(get_func)
     def wrapper(*args, **kwargs):
         while True:
