@@ -1,3 +1,8 @@
+2013-09-06  horneds
+
+	* Version 1.1.0
+	* `mixer.register` could pinned just a values to field
+
 2013-09-05  horneds
 
 	* Version 1.0.0
