@@ -20,6 +20,7 @@ Or you can using shortcut from :class:`mixer.main.Mixer` like this:
 import datetime
 import random
 import decimal
+from types import FunctionType, MethodType
 from functools import wraps
 
 DEFAULT_STRING_LENGTH = 8
@@ -46,7 +47,7 @@ def loop(get_func):
         print [next(g), next(g)]  # -> [3, 3]
 
     """
-    if not hasattr(get_func, '__call__'):
+    if not isinstance(get_func, (FunctionType, MethodType)):
         r = get_func
         get_func = lambda: r
 

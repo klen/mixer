@@ -253,6 +253,7 @@ class MixerBaseTests(TestCase):
         mixer.register('tests.test_main.Test', dict(
             name='Michel',
             one=lambda: 'ID',
+            unknown="No error here"
         ))
         test = mixer.blend(Test)
         self.assertEqual(test.one, 'ID')
