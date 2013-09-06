@@ -17,7 +17,7 @@ from copy import deepcopy
 import decimal
 from importlib import import_module
 from collections import defaultdict
-from types import GeneratorType
+from types import GeneratorType, FunctionType
 
 from . import generators as g, fakers as f, mix_types as t
 from . import six
@@ -998,20 +998,26 @@ class Mixer(object):
 
         :param scheme: Scheme class for generation or string with class path.
         :param fake: Register as fake generator
-        :param params: dict of generators for fields
+        :param params: dict of generators for fields. Keys are field's names.
+                        Values is function without argument or objects.
 
         ::
 
             class Scheme:
                 id = str
+                title = str
 
             def func():
                 return 'ID'
 
-            mixer.register(Scheme, { 'id': func })
+            mixer.register(Scheme, {
+                'id': func
+                'title': 'Always same'
+            })
 
             test = mixer.blend(Scheme)
             test.id == 'ID'
+            test.title == 'Always same'
 
         """
 
