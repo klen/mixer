@@ -734,8 +734,9 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
             fake = self.__fake
 
         field_class = self.__fields.get(field_name)
-        key = (field_class.scheme, field_name, fake)
-        self.__generators[key] = g.loop(func)()
+        if field_class:
+            key = (field_class.scheme, field_name, fake)
+            self.__generators[key] = g.loop(func)()
 
     @staticmethod
     def is_unique(field):
