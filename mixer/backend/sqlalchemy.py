@@ -166,9 +166,10 @@ class TypeMixer(BaseTypeMixer):
         mapper = self.__scheme._sa_class_manager.mapper
         relations = set()
 
-        for rel in mapper.relationships:
-            relations |= rel.local_columns
-            yield rel.key, Relation(rel, rel.key)
+        if hasattr(mapper, 'relationships'):
+            for rel in mapper.relationships:
+                relations |= rel.local_columns
+                yield rel.key, Relation(rel, rel.key)
 
         for column in mapper.columns:
             if not column in relations:
