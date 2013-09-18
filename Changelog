@@ -1,7 +1,8 @@
 2013-09-18  horneds
 
-	* Version 1.1.3
+	* Version 1.1.4
 	* Fix MongoEngine backend (c) Kirill Pavlov
+	* By default mongoengine save models in database
 
 2013-09-11  horneds
 
