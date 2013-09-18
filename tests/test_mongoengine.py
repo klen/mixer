@@ -44,7 +44,8 @@ class Bookmark(Document):
 class MixerTestMongoEngine(TestCase):
 
     def test_base(self):
-        from mixer.backend.mongoengine import mixer
+        from mixer.backend.mongoengine import Mixer
+        mixer = Mixer(commit=False)
 
         self.assertTrue(mixer)
 
@@ -86,7 +87,8 @@ class MixerTestMongoEngine(TestCase):
         self.assertTrue('coordinates' in post.place)
 
     def test_relation(self):
-        from mixer.backend.mongoengine import mixer
+        from mixer.backend.mongoengine import Mixer
+        mixer = Mixer(commit=False)
 
         post = mixer.blend(
             'tests.test_mongoengine.Post', author__username='foo')
