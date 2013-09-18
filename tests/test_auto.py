@@ -48,6 +48,9 @@ class MixerTestAuto(TestCase):
         self.assertTrue(all(users))
 
     def test_mongoengine(self):
+        from mixer.backend.mongoengine import mixer as m
+        m.commit = False
+
         from mixer.auto import mixer
 
         from .test_mongoengine import User

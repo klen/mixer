@@ -270,7 +270,7 @@ class Mixer(BaseMixer):
 
     type_mixer_cls = TypeMixer
 
-    def __init__(self, commit=False, **params):
+    def __init__(self, commit=True, **params):
         """ Initialize the Mongoengine Mixer.
 
         :param fake: (True) Generate fake data instead of random data.
