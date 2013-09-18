@@ -1,3 +1,8 @@
+2013-09-18  horneds
+
+	* Version 1.1.3
+	* Fix MongoEngine backend (c) Kirill Pavlov
+
 2013-09-11  horneds
 
 	* Version 1.1.2

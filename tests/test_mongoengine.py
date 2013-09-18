@@ -24,6 +24,8 @@ class Post(Document):
     author = ReferenceField(User)
     category = StringField(choices=(
         ('S', 'Super'), ('M', 'Medium')), required=True)
+    size = StringField(
+        max_length=3, choices=('S', 'M', 'L', 'XL', 'XXL'), required=True)
     tags = ListField(StringField(max_length=30))
     comments = ListField(EmbeddedDocumentField(Comment))
     rating = DecimalField(precision=4, required=True)
