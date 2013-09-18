@@ -152,7 +152,11 @@ class TypeMixer(BaseTypeMixer):
         kwargs = dict()
 
         if field.choices:
-            choices, _ = list(zip(*field.choices))
+            if isinstance(field.choices[0], tuple):
+                choices, _ = list(zip(*field.choices))
+            else:
+                choices = list(field.choices)
+
             return g.gen_choice(choices)
 
         if stype is str:
