@@ -93,7 +93,7 @@ class MixerBaseTests(TestCase):
         self.assertTrue(test)
 
     def test_faker(self):
-        """ Tests default fakers. """
+        """ Test default fakers. """
         from mixer import fakers as f
 
         test = next(f.gen_name())
@@ -303,3 +303,26 @@ class MixerBaseTests(TestCase):
         self.assertEqual(next(gen), 4)
         self.assertEqual(next(gen), 3)
         self.assertEqual(next(gen), 4)
+
+    def test_custom(self):
+        mixer = Mixer()
+
+        mixer.register(Test, {
+            'name': 'Mike',
+            'one': mixer.g.get_float,
+            'body': lambda: mixer.g.get_datetime((1980, 1, 1))
+        })
+        test = mixer.blend(Test)
+        self.assertEqual(test.name, 'Mike')
+        self.assertTrue(isinstance(test.one, float))
+        self.assertTrue(test.body >= datetime.datetime(1980, 1, 1))
+
+        from mixer.main import GenFactory
+
+        class MyFactory(GenFactory):
+            generators = {str: lambda: "Always same"}
+
+        mixer = Mixer(factory=MyFactory, fake=False)
+        for _ in xrange(10):
+            test = mixer.blend(Test)
+            self.assertEqual(test.name, "Always same")

@@ -272,8 +272,8 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
             kwargs['i'] = field.max_digits - field.decimal_places
             kwargs['d'] = field.decimal_places
 
-        gen_maker = self.__factory.gen_maker(fcls, fname, fake)
-        return gen_maker(**kwargs)
+        return super(TypeMixer, self).make_generator(
+            fcls, field_name=fname, fake=fake, args=[], kwargs=kwargs)
 
     @staticmethod
     def is_unique(field):

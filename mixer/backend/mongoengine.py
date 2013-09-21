@@ -175,7 +175,8 @@ class TypeMixer(BaseTypeMixer):
             kwargs['positive'] = not sign
             kwargs['i'] = ii + 1
 
-        return self.factory.gen_maker(stype, field_name, fake)(**kwargs)
+        return super(TypeMixer, self).make_generator(
+            stype, field_name=field_name, fake=fake, args=[], kwargs=kwargs)
 
     @staticmethod
     def get_default(field, target):

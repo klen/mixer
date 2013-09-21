@@ -19,7 +19,7 @@ class MixerTestDjango(TestCase):
     def tearDownClass(cls):
         call_command('flush', interactive=False)
 
-    def test_register(self):
+    def test_custom(self):
         mixer = Mixer()
         mixer.register(Rabbit, {
             'title': lambda: 'Mr. Rabbit'
@@ -27,6 +27,23 @@ class MixerTestDjango(TestCase):
 
         rabbit = mixer.blend(Rabbit)
         self.assertEqual(rabbit.title, 'Mr. Rabbit')
+
+        from mixer.backend.django import GenFactory
+
+        def getter(*args, **kwargs):
+            return "Always same"
+
+        class MyFactory(GenFactory):
+            generators = {models.CharField: getter}
+
+        gen = MyFactory.gen_maker(models.CharField)
+        self.assertEqual(gen(), "Always same")
+
+        mixer = Mixer(factory=MyFactory, fake=False)
+        self.assertEqual(mixer._Mixer__factory, MyFactory)
+
+        test = mixer.blend(Rabbit)
+        self.assertEqual(test.title, "Always same")
 
     def test_fields(self):
         mixer = Mixer()

@@ -17,7 +17,7 @@ from copy import deepcopy
 import decimal
 from importlib import import_module
 from collections import defaultdict
-from types import GeneratorType, FunctionType
+from types import GeneratorType
 
 from . import generators as g, fakers as f, mix_types as t
 from . import six
@@ -319,12 +319,19 @@ class GenFactoryMeta(type):
                 fakers.update(cls.fakers)
                 types.update(cls.types)
 
-        generators.update(params.get('generators', dict()))
         fakers.update(params.get('fakers', dict()))
         types.update(params.get('types', dict()))
 
-        generators = dict(mcs.__flat_keys(generators))
         types = dict(mcs.__flat_keys(types))
+
+        if types:
+            for atype, btype in types.items():
+                factory = generators.get(btype)
+                if factory:
+                    generators[atype] = factory
+
+        generators.update(params.get('generators', dict()))
+        generators = dict(mcs.__flat_keys(generators))
 
         params['generators'] = generators
         params['fakers'] = fakers
@@ -425,14 +432,12 @@ class GenFactory(six.with_metaclass(GenFactoryMeta)):
         :return generator:
 
         """
-        fcls = cls.cls_to_simple(fcls)
+        simple = cls.cls_to_simple(fcls)
+        gen_maker = cls.generators.get(fcls)
 
-        if fname and fake and (fname, fcls) in cls.fakers:
+        if fname and fake and (fname, simple) in cls.fakers:
             fname = cls.name_to_simple(fname)
-            gen_maker = cls.fakers.get((fname, fcls)) \
-                or cls.generators.get(fcls)
-        else:
-            gen_maker = cls.generators.get(fcls)
+            gen_maker = cls.fakers.get((fname, simple)) or gen_maker
 
         return gen_maker
 
@@ -481,10 +486,10 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
         self.__scheme = cls
         self.__mixer = mixer
         self.__fake = fake
-        self.__fields = dict(self.__load_fields())
         self.__factory = factory or self.factory
         self.__generators = dict()
         self.__gen_values = defaultdict(set)
+        self.__fields = dict(self.__load_fields())
 
     def __repr__(self):
         return "<TypeMixer {0}>".format(self.__scheme)
@@ -696,7 +701,7 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
 
         return self.__generators[key]
 
-    def make_generator(self, field_class, field_name=None, fake=None):
+    def make_generator(self, field_class, field_name=None, fake=None, args=[], kwargs={}): # noqa
         """ Make generator for class.
 
         :param field_class: Class for looking a generator
@@ -706,7 +711,15 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
         :return generator:
 
         """
-        return self.__factory.gen_maker(field_class, field_name, fake)()
+        fabric = self.__factory.gen_maker(field_class, field_name, fake)
+        if fabric:
+            gen = fabric(*args, **kwargs)
+        else:
+            gen = self.__factory.generators.get(None)
+        return (
+            gen if isinstance(gen, GeneratorType)
+            else g.loop(fabric)(*args, **kwargs)
+        )
 
     def register(self, field_name, func, fake=None):
         """ Register function as generator for field.
@@ -770,7 +783,11 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
         for fname in dir(self.__scheme):
             if fname.startswith('_'):
                 continue
-            yield fname, Field(getattr(self.__scheme, fname), fname)
+            prop = getattr(self.__scheme, fname)
+            if not self.__factory.generators.get(prop):
+                yield fname, Relation(prop, fname)
+            else:
+                yield fname, Field(prop, fname)
 
 
 class MetaMixer:
@@ -892,9 +909,17 @@ class Mixer(object):
             print scheme.active  # True
 
         """
-        type_mixer = self.type_mixer_cls(
-            scheme, mixer=self, fake=self.__fake, factory=self.__factory)
+        type_mixer = self.get_typemixer(scheme)
         return type_mixer.blend(**values)
+
+    def get_typemixer(self, scheme):
+        """ Return cached typemixer instance.
+
+        :return TypeMixer:
+
+        """
+        return self.type_mixer_cls(
+            scheme, mixer=self, fake=self.__fake, factory=self.__factory)
 
     @staticmethod
     def post_generate(target):
