@@ -196,6 +196,8 @@ Quick example: ::
 
         scheme = mixer.blend(Scheme, prop__one=1)
 
+.. _custom:
+
 Custom fields
 -------------
 
@@ -224,6 +226,21 @@ Quick example: ::
         })
         test = mixer.blend(Test)
         test.name == 'Just John'
+
+Also you can make your ow factory for field types: ::
+
+    from mixer.backend.django import Mixer, GenFactory
+
+    def get_func(*args, **kwargs):
+        return "Always same"
+
+    class MyFactory(GenFactory):
+        generators = {
+            models.CharField: get_func
+        }
+
+    mixer = Mixer(factory=MyFactory)
+
 
 .. _bagtracker:
 
