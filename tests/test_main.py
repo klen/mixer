@@ -323,6 +323,5 @@ class MixerBaseTests(TestCase):
             generators = {str: lambda: "Always same"}
 
         mixer = Mixer(factory=MyFactory, fake=False)
-        for _ in xrange(10):
-            test = mixer.blend(Test)
-            self.assertEqual(test.name, "Always same")
+        test = mixer.blend(Test)
+        self.assertEqual(test.name, "Always same")
