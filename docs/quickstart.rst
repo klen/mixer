@@ -103,6 +103,9 @@ Blend models with values
     message = mixer.blend(Message, client=mixer.select)
     assert message.client in Client.objects.all()
 
+.. include:: ../README.rst
+    :start-after: .. _custom:
+    :end-before: .. _bagtracker:
 
 SQLAlchemy ORM
 --------------
