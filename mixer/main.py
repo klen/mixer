@@ -459,7 +459,7 @@ class TypeMixerMeta(type):
         key = (mixer, cls_type, fake, factory)
         if not key in cls.mixers:
             cls.mixers[key] = super(TypeMixerMeta, cls).__call__(
-                cls_type, mixer=mixer, factory=factory, fake=fake,
+                cls_type, mixer=mixer, factory=factory, fake=fake
             )
         return cls.mixers[key]
 
@@ -482,7 +482,10 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
     select = Select()
     random = Random()
 
-    def __init__(self, cls, mixer=None, factory=None, fake=True):
+    def __init__(
+            self, cls, mixer=None, factory=None, fake=True):
+        self.postprocess = None
+
         self.__scheme = cls
         self.__mixer = mixer
         self.__fake = fake
@@ -533,6 +536,9 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
 
         for fname, fvalue in post_values:
             self.set_value(target, fname, fvalue)
+
+        if self.postprocess:
+            target = self.postprocess(target)  # noqa
 
         return target
 
@@ -1019,11 +1025,12 @@ class Mixer(object):
         """
         return MetaMixer(self, count)
 
-    def register(self, scheme, params, fake=None):
+    def register(self, scheme, params, fake=None, postprocess=None):
         """ Manualy register a function as value's generator for class.field.
 
         :param scheme: Scheme class for generation or string with class path.
         :param fake: Register as fake generator
+        :param postprocess: Callback for postprocessing value (lambda obj: ...)
         :param params: dict of generators for fields. Keys are field's names.
                         Values is function without argument or objects.
 
@@ -1052,6 +1059,9 @@ class Mixer(object):
 
         type_mixer = self.type_mixer_cls(
             scheme, mixer=self, fake=self.__fake, factory=self.__factory)
+
+        if postprocess:
+            type_mixer.postprocess = postprocess
 
         for field_name, func in params.items():
             type_mixer.register(field_name, func, fake=fake)
