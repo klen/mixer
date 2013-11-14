@@ -13,7 +13,7 @@ from __future__ import unicode_literals
 # Module information
 # ==================
 
-__version__ = '1.1.6'
+__version__ = '1.2.0'
 __project__ = 'mixer'
 __author__ = "horneds <horneds@gmail.com>"
 __license__ = "BSD"

@@ -307,13 +307,18 @@ class MixerBaseTests(TestCase):
     def test_custom(self):
         mixer = Mixer()
 
+        def postprocess(x):
+            x.name += ' Done'
+            return x
+
         mixer.register(Test, {
             'name': 'Mike',
             'one': mixer.g.get_float,
-            'body': lambda: mixer.g.get_datetime((1980, 1, 1))
-        })
+            'body': lambda: mixer.g.get_datetime((1980, 1, 1)),
+        }, postprocess=postprocess)
+
         test = mixer.blend(Test)
-        self.assertEqual(test.name, 'Mike')
+        self.assertEqual(test.name, 'Mike Done')
         self.assertTrue(isinstance(test.one, float))
         self.assertTrue(test.body >= datetime.datetime(1980, 1, 1))
 
