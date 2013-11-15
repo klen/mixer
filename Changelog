@@ -1,7 +1,8 @@
 2013-11-15  horneds
 
-	* Version 1.2.0
-	* Added posprocess param to mixer.register method
+	* Version 1.3.0
+	* Added postprocess param to mixer.register method
+	* Added gen_simple_username faker
 
 2013-09-22  horneds
 
