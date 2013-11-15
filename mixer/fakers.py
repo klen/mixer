@@ -28,19 +28,21 @@ import uuid
 import decimal
 
 DEFAULT_NAME_MASK = "{firstname} {lastname}"
+DEFAULT_USERNAME_MASK_CHOICES = (
+    '{one}{num}', '{one}_{two}', '{one}.{two}', '{two}{one}{num}')
 
 FIRSTNAME_CHOICES = (
-    "Adams", "Allen", "Anderson", "Baker", "Barbara", "Betty", "Brown",
-    "Campbell", "Carol", "Carter", "Clark", "Collins", "Davis", "Deborah",
-    "Donna", "Dorothy", "Edwards", "Elizabeth", "Evans", "Garcia", "Gonzalez",
-    "Green", "Hall", "Harris", "Helen", "Hernandez", "Hill", "Jackson",
-    "Jennifer", "Johnson", "Jones", "Karen", "Kimberly", "King", "Laura",
-    "Lee", "Lewis", "Linda", "Lisa", "Lopez", "Margaret", "Maria", "Martin",
-    "Martinez", "Mary", "Michelle", "Miller", "Mitchell", "Moore", "Nancy",
-    "Nelson", "Parker", "Patricia", "Perez", "Phillips", "Roberts", "Robinson",
-    "Rodriguez", "Ruth", "Sandra", "Sarah", "Scott", "Sharon", "Smith",
-    "Susan", "Taylor", "Thomas", "Thompson", "Turner", "Walker", "White",
-    "Williams", "Wilson", "Wright", "Young",
+    "Alice", "Adams", "Allen", "Anderson", "Baker", "Barbara", "Betty",
+    "Brown", "Bob", "Campbell", "Carol", "Carter", "Clark", "Collins", "Davis",
+    "Deborah", "Donna", "Dorothy", "Edwards", "Elizabeth", "Evans", "Garcia",
+    "Gonzalez", "Green", "Hall", "Harris", "Helen", "Hernandez", "Hill",
+    "Jackson", "Jennifer", "Johnson", "Jones", "Karen", "Kimberly", "King",
+    "Laura", "Lee", "Lewis", "Linda", "Lisa", "Lopez", "Margaret", "Maria",
+    "Martin", "Martinez", "Mary", "Michelle", "Miller", "Mitchell", "Moore",
+    "Nancy", "Nelson", "Parker", "Patricia", "Perez", "Phillips", "Roberts",
+    "Robinson", "Rodriguez", "Ruth", "Sandra", "Sarah", "Scott", "Sharon",
+    "Smith", "Susan", "Taylor", "Thomas", "Thompson", "Turner", "Walker",
+    "White", "Williams", "Wilson", "Wright", "Young",
 )
 
 LASTNAME_CHOICES = (
@@ -147,7 +149,7 @@ USERNAMES = (
     "raider", "raiser", "ride", "root", "scull", "shattered", "show", "sleep",
     "sneak", "spamalot", "star", "table", "test", "tips", "user", "ustink",
     "weak"
-)
+) + tuple([n.lower() for n in FIRSTNAME_CHOICES])
 
 COMPANY_SYFFIXES = ('LLC', 'Group', 'LTD', 'PLC', 'LLP', 'Corp', 'Inc', 'DBA')
 
@@ -276,7 +278,7 @@ def get_numerify(template='', symbol='#', **kwargs):
 gen_numerify = g.loop(get_numerify)
 
 
-def get_username(length=100, **kwargs):
+def get_username(length=100, choices=DEFAULT_USERNAME_MASK_CHOICES, **kwargs):
     """ Get a username.
 
     :return str:
@@ -292,15 +294,30 @@ def get_username(length=100, **kwargs):
         two=next(gen),
         num=g.get_integer(low=1900, high=2020),
     )
-    username = g.get_choice((
-        '{one}_{two}'.format(**params),
-        '{one}.{two}'.format(**params),
-        '{two}{one}{num}'.format(**params),
-    ))
+    mask = g.get_choice(choices)
+    username = mask.format(**params)
     return username[:length]
 
 #: Generator's fabric for :meth:`mixer.fakers.get_username`
 gen_username = g.loop(get_username)
+
+
+def get_simple_username(**kwargs):
+    """ Get a simplest username.
+
+    :return str:
+
+    ::
+
+        print get_username()  # -> boss1985
+
+    """
+    return get_username(choices=(
+        '{one}', '{one}{num}'
+    ))
+
+#: Generator's fabric for :meth:`mixer.fakers.get_simple_username`
+gen_simple_username = g.loop(get_simple_username)
 
 
 def get_hostname(host=None, zone=None, **kwargs):

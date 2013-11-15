@@ -111,6 +111,9 @@ class MixerBaseTests(TestCase):
         test = next(f.gen_username(length=50))
         self.assertTrue(test)
 
+        test = next(f.gen_simple_username(length=50))
+        self.assertTrue(test)
+
         test = next(f.gen_hostname())
         self.assertTrue(test)
 
