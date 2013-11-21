@@ -171,6 +171,8 @@ class MixerTestDjango(TestCase):
         user = mixer.blend('auth.User', username=mixer.fake, password='test')
         self.assertTrue('' in user.username)
         self.assertTrue(user.check_password('test'))
+        user = user.__class__.objects.get(pk=user.pk)
+        self.assertTrue(user.check_password('test'))
 
     def test_random(self):
         from mixer.backend.django import mixer
