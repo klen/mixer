@@ -1,13 +1,10 @@
 #!/usr/bin/env python
 
-"""
-mixer
------
+""" mixer -- Generate tests data.
 
 mixer -- Description
 
 """
-
 import sys
 from os import path as op
 

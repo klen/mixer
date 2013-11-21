@@ -14,10 +14,10 @@ from __future__ import absolute_import, unicode_literals
 import datetime
 from copy import deepcopy
 
-import decimal
-from importlib import import_module
 from collections import defaultdict
+from importlib import import_module
 from types import GeneratorType
+import decimal
 
 from . import generators as g, fakers as f, mix_types as t
 from . import six
@@ -531,14 +531,14 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
             ] if item
         ]
 
+        if self.postprocess:
+            target = self.postprocess(target)  # noqa
+
         if self.__mixer:
             target = self.__mixer.post_generate(target)
 
         for fname, fvalue in post_values:
             self.set_value(target, fname, fvalue)
-
-        if self.postprocess:
-            target = self.postprocess(target)  # noqa
 
         return target
 
