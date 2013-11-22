@@ -7,6 +7,7 @@ from os import path
 
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.generic import GenericForeignKey
 from django import VERSION
 from django.core.files.base import ContentFile
 
@@ -19,11 +20,10 @@ from ..main import (
     Mixer as BaseMixer)
 
 
+get_contentfile = ContentFile
+
 if VERSION < (1, 4):
     get_contentfile = lambda content, name: ContentFile(content)
-
-else:
-    get_contentfile = ContentFile
 
 
 MOCK_FILE = path.abspath(path.join(
@@ -60,9 +60,8 @@ def get_contenttype(**kwargs):
     :return ContentType:
 
     """
-    return ContentType.objects.get_for_model(g.get_choice(
-        models.get_models()
-    ))
+    choices = [m for m in models.get_models() if not m is ContentType]
+    return ContentType.objects.get_for_model(g.get_choice(choices))
 
 
 class GenFactory(BaseFactory):
@@ -100,6 +99,13 @@ class TypeMixerMeta(BaseTypeMixerMeta):
     """ Load django models from strings. """
 
     def __new__(mcs, name, bases, params):
+        """ Associate Scheme with Django models.
+
+        Cache Django models.
+
+        :return mixer.backend.django.TypeMixer: A generated class.
+
+        """
         params['models_cache'] = dict()
         cls = super(TypeMixerMeta, mcs).__new__(mcs, name, bases, params)
         cls.__update_cache()
@@ -144,6 +150,9 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
         """
         field = self.__fields.get(field_name)
+        if field and isinstance(field.scheme, GenericForeignKey) and not finaly: # noqa
+            return field_name, field_value
+
         if field and field.scheme in self.__scheme._meta.local_many_to_many:
 
             if not target.pk:
@@ -218,6 +227,10 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
         :return : None or (name, value) for later use
 
         """
+
+        if isinstance(relation.scheme, GenericForeignKey):
+            return None
+
         if (
                 not relation.scheme
                 or relation.scheme.null
@@ -294,6 +307,10 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
         return not (field.scheme.null and field.scheme.blank)
 
     def __load_fields(self):
+
+        for field in self.__scheme._meta.virtual_fields:
+            yield field.name, Relation(field, field.name)
+
         for field in self.__scheme._meta.fields:
 
             if isinstance(field, models.AutoField)\
