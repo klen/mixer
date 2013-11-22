@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import datetime
+
 from .django_app.models import *
 
 from django.core.management import call_command
@@ -235,6 +236,14 @@ class MixerTestDjango(TestCase):
         except ValueError:
             return False
         raise Exception('test.failed')
+
+    def test_generic(self):
+        from mixer.backend.django import mixer
+
+        hole = mixer.blend(Hole)
+        rabbit = mixer.blend(Rabbit, content_object=hole)
+        self.assertEqual(rabbit.object_id, hole.pk)
+        self.assertEqual(rabbit.content_type.model_class(), Hole)
 
 
 # lint_ignore=F0401,W0401,E0602,W0212,C

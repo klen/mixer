@@ -1,26 +1,9 @@
+import os
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'tests.django_app.settings')
+
 from django.conf import settings
-import tempfile
-
-TMPDIR = tempfile.mkdtemp()
-
-settings.configure(
-    ROOT_URLCONF='tests.django_app.urls',
-    DEBUG=True,
-    MEDIA_ROOT=TMPDIR,
-    DATABASES={
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': ':memory:',
-            'USER': '',
-            'PASSWORD': '',
-            'TEST_CHARSET': 'utf8',
-        }
-    },
-    INSTALLED_APPS=(
-        'django.contrib.contenttypes',
-        'django.contrib.auth',
-        'tests.django_app',)
-)
+from django.contrib.contenttypes import generic, models as ct_models
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -44,7 +27,7 @@ class Rabbit(models.Model):
     percent = models.FloatField()
     money = models.IntegerField()
     ip = models.IPAddressField()
-    picture = models.FileField(upload_to=TMPDIR)
+    picture = models.FileField(upload_to=settings.TMPDIR)
 
     some_field = models.CommaSeparatedIntegerField(max_length=12)
     funny = models.NullBooleanField(null=False, blank=False)
@@ -52,6 +35,10 @@ class Rabbit(models.Model):
     speed = models.DecimalField(max_digits=3, decimal_places=1)
 
     url = models.URLField(null=True, blank=True, default='')
+
+    content_type = models.ForeignKey(ct_models.ContentType)
+    object_id = models.PositiveIntegerField()
+    content_object = generic.GenericForeignKey('content_type', 'object_id')
 
 
 class Hole(models.Model):
