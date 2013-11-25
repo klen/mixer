@@ -262,7 +262,7 @@ def get_positive_integer(high=4294967294, **kwargs):
 gen_positive_integer = loop(get_positive_integer)
 
 
-def get_small_positive_integer(**kwargs):
+def get_small_positive_integer(high=65536, **kwargs):
     """ Get a small positive integer.
 
     :return int:
@@ -272,7 +272,7 @@ def get_small_positive_integer(**kwargs):
         print get_small_positive_integer()  # -> 42
 
     """
-    return get_integer(low=0, high=65536)
+    return get_integer(low=0, high=high)
 
 #: Generator's fabric for :meth:`mixer.generators.get_small_positive_integer`
 gen_small_positive_integer = loop(get_small_positive_integer)
@@ -380,5 +380,36 @@ def get_positive_decimal(**kwargs):
 
 #: Generator's fabric for :meth:`mixer.generators.get_positive_decimal`
 gen_positive_decimal = loop(get_positive_decimal)
+
+
+def get_object(**kwargs):
+    """ Generate random object.
+
+    :return:
+
+    """
+
+    getter = get_choice(
+        (get_integer, get_datetime, get_boolean, get_string))
+    return getter()
+
+
+def get_list(**kwargs):
+    """ Generate list of objects.
+
+    :return list:
+
+    ::
+
+        print get_list()  # -> [1, 'sdff', True]
+
+    """
+
+    length = get_small_positive_integer(10)
+    return [get_object() for _ in range(length)]
+
+#: Generator's fabric for :meth:`mixer.generators.get_list`
+gen_list = loop(get_list)
+
 
 # lint_ignore=E1103

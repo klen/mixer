@@ -2,6 +2,7 @@
 import datetime
 
 from mixer.main import Mixer
+from decimal import Decimal
 
 
 try:
@@ -19,6 +20,10 @@ class Test:
     name = str
     title = str
     body = str
+    price = Decimal
+    choices = list
+    parts = set
+    scheme = dict
 
 
 class MixerBaseTests(TestCase):

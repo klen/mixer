@@ -38,7 +38,9 @@ upload: docs
 .PHONY: t
 # target: t - Runs tests
 t: clean
-	@python setup.py test
+	$(VIRTUALENV)/bin/pip install -r requirements-tests.txt
+	$(VIRTUALENV)/bin/py.test $(TEST) -s
+	# @python setup.py test
 
 .PHONY: audit
 # target: audit - Audit code
