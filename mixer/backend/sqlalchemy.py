@@ -14,7 +14,7 @@ from sqlalchemy.types import (
 
 from .. import mix_types as t, generators as g
 from ..main import (
-    Relation, Field, NO_VALUE,
+    Relation, Field, NO_VALUE, LOGGER,
     TypeMixer as BaseTypeMixer,
     GenFactory as BaseFactory,
     Mixer as BaseMixer)
@@ -76,11 +76,12 @@ class TypeMixer(BaseTypeMixer):
         :return : None or (name, value) for later use
 
         """
-        if not self.__mixer or not self.__mixer.session:
+        if not self.__mixer or not self.__mixer.params.get('session'):
             return False
 
         relation = self.mapper.get_property(field_name)
-        value = self.__mixer.session.query(
+        session = self.__mixer.params.get('session')
+        value = session.query(
             relation.mapper.class_
         ).filter(*field_value.args).order_by(func.random()).first()
         self.set_value(target, field_name, value)
@@ -188,12 +189,12 @@ class Mixer(BaseMixer):
 
         :param fake: (True) Generate fake data instead of random data.
         :param session: SQLAlchemy session. Using for commits.
-        :param commit: (False) Commit instance to session after creation.
+        :param commit: (True) Commit instance to session after creation.
 
         """
         super(Mixer, self).__init__(**params)
-        self.session = session
-        self.commit = bool(session) and commit
+        self.params['session'] = session
+        self.params['commit'] = bool(session) and commit
 
     def post_generate(self, result):
         """ Save objects in db.
@@ -201,9 +202,13 @@ class Mixer(BaseMixer):
         :return value: A generated value
 
         """
-        if self.commit:
-            self.session.add(result)
-            self.session.commit()
+        if self.params.get('commit'):
+            session = self.params.get('session')
+            if not session:
+                LOGGER.warn("'commit' set true but session not initialized.")
+            else:
+                session.add(result)
+                session.commit()
 
         return result
 

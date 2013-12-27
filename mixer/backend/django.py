@@ -314,7 +314,7 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
         for field in self.__scheme._meta.fields:
 
             if isinstance(field, models.AutoField)\
-                    and self.__mixer and self.__mixer.commit:
+                    and self.__mixer and self.__mixer.params.get('commit'):
                 continue
 
             if isinstance(field, models.ForeignKey):
@@ -334,8 +334,13 @@ class Mixer(BaseMixer):
     type_mixer_cls = TypeMixer
 
     def __init__(self, commit=True, **params):
+        """Initialize Mixer instance.
+
+        :param commit: (True) Save object to database.
+
+        """
         super(Mixer, self).__init__(**params)
-        self.commit = commit
+        self.params['commit'] = commit
 
     def post_generate(self, result):
         """ Save objects in db.
@@ -343,7 +348,7 @@ class Mixer(BaseMixer):
         :return value: A generated value
 
         """
-        if self.commit:
+        if self.params.get('commit'):
             result.save()
 
         return result

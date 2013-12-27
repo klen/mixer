@@ -49,7 +49,7 @@ class MixerTestAuto(TestCase):
 
     def test_mongoengine(self):
         from mixer.backend.mongoengine import mixer as m
-        m.commit = False
+        m.params['commit'] = False
 
         from mixer.auto import mixer
 
