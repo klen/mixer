@@ -196,6 +196,30 @@ Quick example: ::
 
         scheme = mixer.blend(Scheme, prop__one=1)
 
+
+DB commits
+----------
+
+By default 'django', 'flask', 'mongoengine' backends tries to save objects
+to database. For prevent this behaviour init `mixer` manually: ::
+
+    from mixer.backend.django import Mixer
+
+    mixer = Mixer(commit=False)
+
+
+Or you can use mixer with custom params as context: ::
+
+    from mixer.backend.django import mixer
+
+    # Will be save to db
+    user1 = mixer.blend('auth.user')
+
+    # Will not be save to db
+    with mixer.ctx(commit=False):
+        user2 = mixer.blend('auth.user')
+        
+
 .. _custom:
 
 Custom fields

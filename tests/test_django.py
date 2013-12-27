@@ -240,10 +240,24 @@ class MixerTestDjango(TestCase):
     def test_generic(self):
         from mixer.backend.django import mixer
 
-        hole = mixer.blend(Hole)
-        rabbit = mixer.blend(Rabbit, content_object=hole)
+        with mixer.ctx(loglevel='INFO'):
+            hole = mixer.blend(Hole)
+            rabbit = mixer.blend(Rabbit, content_object=hole)
         self.assertEqual(rabbit.object_id, hole.pk)
         self.assertEqual(rabbit.content_type.model_class(), Hole)
+
+    def test_ctx(self):
+        from mixer.backend.django import mixer
+
+        with mixer.ctx(commit=False):
+            hole = mixer.blend(Hole)
+            self.assertTrue(hole)
+            self.assertFalse(Hole.objects.count())
+
+        with mixer.ctx(commit=True):
+            hole = mixer.blend(Hole)
+            self.assertTrue(hole)
+            self.assertTrue(Hole.objects.count())
 
 
 # lint_ignore=F0401,W0401,E0602,W0212,C

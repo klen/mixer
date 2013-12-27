@@ -338,3 +338,14 @@ class MixerBaseTests(TestCase):
         mixer = Mixer(factory=MyFactory, fake=False)
         test = mixer.blend(Test)
         self.assertEqual(test.name, "Always same")
+
+    def test_ctx(self):
+        from mixer.main import LOGGER
+        mixer = Mixer()
+        level = LOGGER.level
+
+        with mixer.ctx(loglevel='INFO'):
+            mixer.blend(Test)
+            self.assertNotEqual(LOGGER.level, level)
+
+        self.assertEqual(LOGGER.level, level)

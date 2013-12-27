@@ -137,7 +137,7 @@ class TypeMixer(BaseTypeMixer):
 
     factory = GenFactory
 
-    def make_generator(self, field, field_name=None, fake=None):
+    def make_generator(self, field, field_name=None, fake=None): # noqa
         """ Make values generator for field.
 
         :param field: Mongoengine field's instance
@@ -275,11 +275,11 @@ class Mixer(BaseMixer):
         """ Initialize the Mongoengine Mixer.
 
         :param fake: (True) Generate fake data instead of random data.
-        :param commit: (False) Save object to Mongo DB.
+        :param commit: (True) Save object to Mongo DB.
 
         """
         super(Mixer, self).__init__(**params)
-        self.commit = commit
+        self.params['commit'] = commit
 
     def post_generate(self, result):
         """ Save instance to DB.
@@ -288,7 +288,7 @@ class Mixer(BaseMixer):
 
         """
 
-        if self.commit and isinstance(result, Document):
+        if self.params.get('commit') and isinstance(result, Document):
             result.save()
 
         return result

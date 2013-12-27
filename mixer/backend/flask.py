@@ -25,11 +25,11 @@ class Mixer(BaseMixer):
 
         :param fake: (True) Generate fake data instead of random data.
         :param app: Flask application
-        :param commit: (False) Commit instance to session after creation.
+        :param commit: (True) Commit instance to session after creation.
 
         """
         super(Mixer, self).__init__(**kwargs)
-        self.commit = commit
+        self.params['commit'] = commit
         if app:
             self.init_app(app)
 
@@ -44,14 +44,14 @@ class Mixer(BaseMixer):
         """
         assert app.extensions and app.extensions[
             'sqlalchemy'], "Flask-SQLAlchemy must be inialized before Mixer."
-        self.db = app.extensions['sqlalchemy'].db
-        self.session = self.db.session
+        db = app.extensions['sqlalchemy'].db
+        self.params['session'] = db.session
 
         # register extension with app
         app.extensions['mixer'] = self
 
 
 # Default mixer
-mixer = Mixer(commit=False)
+mixer = Mixer(commit=True)
 
 # lint_ignore=W0201

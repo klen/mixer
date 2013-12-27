@@ -12,18 +12,23 @@ This module implements the objects generation.
 from __future__ import absolute_import, unicode_literals
 
 import datetime
-from copy import deepcopy
-
-from collections import defaultdict
-from importlib import import_module
 from types import GeneratorType
-import decimal
 
-from . import generators as g, fakers as f, mix_types as t
-from . import six
+import decimal
+import logging
+from collections import defaultdict
+from contextlib import contextmanager
+from copy import deepcopy
+from importlib import import_module
+
+from . import generators as g, fakers as f, mix_types as t, six
 
 
 NO_VALUE = object()
+LOGLEVEL = logging.WARN
+LOGGER = logging.getLogger('mixer')
+if not LOGGER.handlers and not LOGGER.root.handlers:
+    LOGGER.addHandler(logging.StreamHandler())
 
 
 class Mix(object):
@@ -489,7 +494,6 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
     def __init__(
             self, cls, mixer=None, factory=None, fake=True):
         self.postprocess = None
-
         self.__scheme = cls
         self.__mixer = mixer
         self.__fake = fake
@@ -544,6 +548,7 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
         for fname, fvalue in post_values:
             self.set_value(target, fname, fvalue)
 
+        LOGGER.info('Blended: %s [%s]', target, self.__scheme) # noqa
         return target
 
     def fill_fields(self, target, defaults):
@@ -886,20 +891,26 @@ class Mixer(object):
     #:
     g = g
 
-    def __init__(self, fake=True, factory=None, **params):
+    def __init__(self, fake=True, factory=None, loglevel=LOGLEVEL, **params):
         """Initialize Mixer instance.
 
         :param fake: (True) Generate fake data instead of random data.
+        :param loglevel: ('WARN') Set level for logging
         :param factory: (:class:`~mixer.main.GenFactory`) A class for
                           generation values for types
 
         """
-        self.__params = params
+        self.params = params
+        self.__init_params__(fake=fake, loglevel=loglevel)
         self.__factory = factory
-        self.__fake = fake
+
+    def __init_params__(self, **params):
+        self.params.update(params)
+        LOGGER.setLevel(self.params.get('loglevel'))
 
     def __repr__(self):
-        return "<Mixer [{0}]>".format('fake' if self.__fake else 'rand')
+        return "<Mixer [{0}]>".format(
+            'fake' if self.params.get('fake') else 'rand')
 
     def blend(self, scheme, **values):
         """Generate instance of `scheme`.
@@ -929,7 +940,8 @@ class Mixer(object):
 
         """
         return self.type_mixer_cls(
-            scheme, mixer=self, fake=self.__fake, factory=self.__factory)
+            scheme, mixer=self,
+            fake=self.params.get('fake'), factory=self.__factory)
 
     @staticmethod
     def post_generate(target):
@@ -1059,16 +1071,37 @@ class Mixer(object):
         """
 
         if fake is None:
-            fake = self.__fake
+            fake = self.params.get('fake')
 
         type_mixer = self.type_mixer_cls(
-            scheme, mixer=self, fake=self.__fake, factory=self.__factory)
+            scheme, mixer=self, fake=self.params.get('fake'),
+            factory=self.__factory)
 
         if postprocess:
             type_mixer.postprocess = postprocess
 
         for field_name, func in params.items():
             type_mixer.register(field_name, func, fake=fake)
+
+    @contextmanager
+    def ctx(self, **params):
+        """ Redifine params for current mixer on context.
+
+        ::
+
+            with mixer.ctx(commit=False):
+                hole = mixer.blend(Hole)
+                self.assertTrue(hole)
+                self.assertFalse(Hole.objects.count())
+
+        """
+
+        _params = deepcopy(self.params)
+        try:
+            self.__init_params__(**params)
+            yield self
+        finally:
+            self.__init_params__(**_params)
 
 
 # Default mixer
