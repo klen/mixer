@@ -612,7 +612,7 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
         gen = self.get_generator(field_class, field_name, fake=fake)
         value = next(gen)
 
-        if unique:
+        if unique and not value is SKIP_VALUE:
             counter = 0
             while value in self.__gen_values[field_class]:
                 value = next(gen)
