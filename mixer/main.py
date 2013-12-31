@@ -579,6 +579,9 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
         :return : None or (name, value) for later use
 
         """
+        if field_value is SKIP_VALUE:
+            return
+
         if isinstance(field_value, GeneratorType):
             return self.set_value(
                 target, field_name, next(field_value), finaly=finaly)
@@ -892,7 +895,7 @@ class Mixer(six.with_metaclass(_MetaMixer)):
         raise AttributeError("Attribute %s not found." % name)
 
     @property
-    def SKIP(self):
+    def SKIP(self, *args, **kwargs):
         """ Skip field generation.
 
         ::
@@ -905,7 +908,7 @@ class Mixer(six.with_metaclass(_MetaMixer)):
         return SKIP_VALUE
 
     @property
-    def FAKE(self):
+    def FAKE(self, *args, **kwargs):
         """ Force a fake values. See :class:`~mixer.main.Fake`.
 
         :returns: Fake object
@@ -914,7 +917,7 @@ class Mixer(six.with_metaclass(_MetaMixer)):
         return self.__class__.FAKE
 
     @property
-    def RANDOM(self):
+    def RANDOM(self, *args, **kwargs):
         """ Force a random values. See :class:`~mixer.main.Random`.
 
         :returns: Random object
@@ -923,7 +926,7 @@ class Mixer(six.with_metaclass(_MetaMixer)):
         return self.__class__.RANDOM
 
     @property
-    def SELECT(self):
+    def SELECT(self, *args, **kwargs):
         """ Select a data from databases. See :class:`~mixer.main.Select`.
 
         :returns: Select object
@@ -932,7 +935,7 @@ class Mixer(six.with_metaclass(_MetaMixer)):
         return self.__class__.SELECT
 
     @property
-    def MIX(self):
+    def MIX(self, *args, **kwargs):
         """ Point to a mixed object from future. See :class:`~mixer.main.Mix`.
 
         :returns: Mix object
@@ -1045,7 +1048,7 @@ class Mixer(six.with_metaclass(_MetaMixer)):
 
                       By default function is equal 'lambda x: x'.
 
-        :return generator:
+        :returns: A generator
 
         Mixer can uses a generators.
         ::

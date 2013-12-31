@@ -259,5 +259,11 @@ class MixerTestDjango(TestCase):
             self.assertTrue(hole)
             self.assertTrue(Hole.objects.count())
 
+    def test_skip(self):
+        from mixer.backend.django import mixer
+
+        rabbit = mixer.blend(Rabbit, created_at=mixer.SKIP)
+        self.assertTrue(rabbit.created_at)
+
 
 # lint_ignore=F0401,W0401,E0602,W0212,C

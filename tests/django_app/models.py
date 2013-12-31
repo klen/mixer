@@ -40,6 +40,15 @@ class Rabbit(models.Model):
     object_id = models.PositiveIntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
+    def save(self, **kwargs):
+        """ Custom save. """
+
+        if not self.created_at:
+            import datetime
+            self.created_at = datetime.datetime.now()
+
+        return super(Rabbit, self).save(**kwargs)
+
 
 class Hole(models.Model):
     title = models.CharField(max_length=16)
