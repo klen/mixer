@@ -1,6 +1,6 @@
 """ Automatic backend selection. """
 
-from .main import MetaMixer
+from .main import ProxyMixer
 from . import six
 from importlib import import_module
 
@@ -28,7 +28,7 @@ class MixerProxy(object):
         :return MetaMixer:
 
         """
-        return MetaMixer(cls, count)
+        return ProxyMixer(cls, count)
 
     @classmethod
     def blend(cls, model, **params):

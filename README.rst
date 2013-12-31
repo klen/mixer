@@ -101,10 +101,10 @@ Quick example: ::
     message = mixer.blend(UserMessage, user__username='testname')
 
     # Generate SomeModel from SomeApp and select FK or M2M values from db
-    some = mixer.blend('someapp.somemodel', somerelation=mixer.select)
+    some = mixer.blend('someapp.somemodel', somerelation=mixer.SELECT)
 
     # Generate SomeModel from SomeApp and force a value of field with default to random
-    some = mixer.blend('someapp.somemodel', money=mixer.random)
+    some = mixer.blend('someapp.somemodel', money=mixer.RANDOM)
 
     # Generate 5 SomeModel instances and get a field values from custom generator
     some_models = mixer.cycle(5).blend('somemodel', company=(company for company in companies))
@@ -129,10 +129,10 @@ Quick example: ::
     message = mixer.blend(UserMessage, user__username='testname')
 
     # Generate SomeModel and select FK or M2M values from db
-    some = mixer.blend('project.models.SomeModel', somerelation=mixer.select)
+    some = mixer.blend('project.models.SomeModel', somerelation=mixer.SELECT)
 
     # Generate SomeModel from SomeApp and force a value of field with default to random
-    some = mixer.blend('project.models.SomeModel', money=mixer.random)
+    some = mixer.blend('project.models.SomeModel', money=mixer.RANDOM)
 
     # Generate 5 SomeModel instances and get a field values from custom generator
     some_models = mixer.cycle(5).blend('project.models.SomeModel', company=(company for company in companies))

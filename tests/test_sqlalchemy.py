@@ -15,7 +15,6 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relation, sessionmaker, relationship, scoped_session
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.event import _registrars
 try:
     from unittest2 import TestCase
 except ImportError:
@@ -84,7 +83,7 @@ class MixerTestSQLAlchemy(TestCase):
         self.assertEqual(user.profile.user, user)
         self.assertTrue(user.enum in ('one', 'two'))
 
-        user = mixer.blend(name='John', updated_at=mixer.random)
+        user = mixer.blend(name='John', updated_at=mixer.RANDOM)
         self.assertEqual(user.name, 'John')
         self.assertTrue(user.updated_at in (True, False))
 
@@ -111,7 +110,7 @@ class MixerTestSQLAlchemy(TestCase):
         user = mixer.blend(User, profile=profile)
         self.assertEqual(user.profile, profile)
 
-        user = mixer.blend(User, score=mixer.random)
+        user = mixer.blend(User, score=mixer.RANDOM)
         self.assertNotEqual(user.score, 50)
 
         user = mixer.blend(User, username=lambda: 'callable_value')
@@ -123,18 +122,18 @@ class MixerTestSQLAlchemy(TestCase):
         mixer = Mixer(session=self.session, commit=True)
 
         users = self.session.query(User).all()
-        role = mixer.blend(Role, user=mixer.select)
+        role = mixer.blend(Role, user=mixer.SELECT)
         self.assertTrue(role.user in users)
 
         user = users.pop()
-        role = mixer.blend(Role, user=mixer.select(User.id == user.id))
+        role = mixer.blend(Role, user=mixer.SELECT(User.id == user.id))
         self.assertEqual(user, role.user)
 
     def test_random(self):
         from mixer.backend.sqlalchemy import mixer
 
         values = ('mixer', 'is', 'fun')
-        user = mixer.blend(User, name=mixer.random(*values))
+        user = mixer.blend(User, name=mixer.RANDOM(*values))
         self.assertTrue(user.name in values)
 
     def test_default_mixer(self):

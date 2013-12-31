@@ -234,7 +234,7 @@ class TypeMixer(BaseTypeMixer):
             value = self.__mixer and self.__mixer.blend(
                 new_scheme, **relation.params
             ) or TypeMixer(
-                new_scheme, factory=self.__factory, fake=self.fake
+                new_scheme, factory=self.__factory, fake=self.__fake
             ).blend(**relation.params)
 
         return self.set_value(target, field_name, value)

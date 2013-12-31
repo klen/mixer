@@ -196,11 +196,11 @@ class MixerBaseTests(TestCase):
     def test_fake(self):
         from mixer.main import mixer
 
-        test = mixer.blend(Test, name=mixer.fake, title=mixer.fake)
+        test = mixer.blend(Test, name=mixer.FAKE, title=mixer.FAKE)
         self.assertTrue(' ' in test.name)
         self.assertTrue(' ' in test.title)
 
-        test = mixer.blend(Test, name=mixer.fake(bool))
+        test = mixer.blend(Test, name=mixer.FAKE(bool))
         self.assertTrue(test.name in (True, False))
 
     def test_random(self):
@@ -208,15 +208,15 @@ class MixerBaseTests(TestCase):
         from mixer.six import string_types
 
         mixer = TypeMixer(Test)
-        test = mixer.blend(name=mixer.random)
+        test = mixer.blend(name=mixer.RANDOM)
         self.assertTrue(isinstance(test.name, string_types))
         self.assertFalse(' ' in test.name)
 
-        test = mixer.blend(name=mixer.random(int))
+        test = mixer.blend(name=mixer.RANDOM(int))
         self.assertTrue(isinstance(test.name, int))
 
         names = ['john_', 'kenn_', 'lenny_']
-        test = mixer.blend(name=mixer.random(*names))
+        test = mixer.blend(name=mixer.RANDOM(*names))
         self.assertTrue(test.name in names)
 
     def test_mix(self):
@@ -225,18 +225,30 @@ class MixerBaseTests(TestCase):
             two=int,
             one=type('Two', tuple(), dict(two=2.1))
         ))
-        mix = mixer.mix.one.two
+        mix = mixer.MIX.one.two
         self.assertEqual(mix & lama, 2.1)
 
         test = mixer.blend(lama, one__two=2.1)
         self.assertEqual(test.one.two, 2.1)
         self.assertNotEqual(test.two, test.one.two)
 
-        test = mixer.blend(lama, one__two=2.1, two=mixer.mix.one.two)
+        test = mixer.blend(lama, one__two=2.1, two=mixer.MIX.one.two)
         self.assertEqual(test.two, test.one.two)
 
     def test_mixer(self):
         mixer = Mixer()
+
+        self.assertEqual(Mixer.SKIP, mixer.SKIP)
+        try:
+            Mixer.SKIP = 111
+            raise AssertionError('test are failed')
+        except AttributeError:
+            pass
+        try:
+            mixer.SKIP = 111
+            raise AssertionError('test are failed')
+        except AttributeError:
+            pass
 
         gen = ('test{0}'.format(i) for i in range(500))
         test = mixer.blend('tests.test_main.Test', name=gen)
@@ -321,8 +333,8 @@ class MixerBaseTests(TestCase):
 
         mixer.register(Test, {
             'name': 'Mike',
-            'one': mixer.g.get_float,
-            'body': lambda: mixer.g.get_datetime((1980, 1, 1)),
+            'one': mixer.G.get_float,
+            'body': lambda: mixer.G.get_datetime((1980, 1, 1)),
         }, postprocess=postprocess)
 
         test = mixer.blend(Test)
