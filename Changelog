@@ -1,3 +1,10 @@
+2013-12-31  horneds
+
+	* Version 2.0.0
+	* 'mixer.random', 'mixer.fake', 'mixer.select', 'mixer.mix',
+	'mixer.f', 'mixer.g' -- are depricated use them in UPPERCASE ('mixer.RANDOM' and etc)
+	* Added 'mixer.SKIP' attribute for skipping a value generation
+
 2013-12-27  horneds
 
 	* Support context (redefine mixer params as context)

@@ -20,15 +20,25 @@ from collections import defaultdict
 from contextlib import contextmanager
 from copy import deepcopy
 from importlib import import_module
+import warnings
 
 from . import generators as g, fakers as f, mix_types as t, six
 
 
 NO_VALUE = object()
+SKIP_VALUE = object()
 LOGLEVEL = logging.WARN
 LOGGER = logging.getLogger('mixer')
 if not LOGGER.handlers and not LOGGER.root.handlers:
     LOGGER.addHandler(logging.StreamHandler())
+
+
+class classproperty(property):
+
+    """ Class property decorator. """
+
+    def __get__(self, cls, owner):
+        return classmethod(self.fget).__get__(None, owner)()
 
 
 class Mix(object):
@@ -39,14 +49,14 @@ class Mix(object):
 
         mixer = Mixer()
 
-        # here `mixer.mix` points on a generated `User` instance
-        user = mixer.blend(User, username=mixer.mix.first_name)
+        # here `mixer.MIX` points on a generated `User` instance
+        user = mixer.blend(User, username=mixer.MIX.first_name)
 
-        # here `mixer.mix` points on a generated `Message.author` instance
-        message = mixer.blend(Message, author__name=mixer.mix.login)
+        # here `mixer.MIX` points on a generated `Message.author` instance
+        message = mixer.blend(Message, author__name=mixer.MIX.login)
 
         # Mixer mix can get a function
-        message = mixer.blend(Message, title=mixer.mix.author(
+        message = mixer.blend(Message, title=mixer.MIX.author(
             lambda author: 'Author: %s' % author.name
         ))
 
@@ -191,7 +201,7 @@ class Fake(ServiceValue):
     """ Force a `fake` value.
 
     If you initialized a :class:`~mixer.main.Mixer` with `fake=False` you can
-    force a `fake` value for field with this attribute (mixer.fake).
+    force a `fake` value for field with this attribute (mixer.FAKE).
 
     ::
 
@@ -199,12 +209,12 @@ class Fake(ServiceValue):
          user = mixer.blend(User)
          print user.name  # Some like: Fdjw4das
 
-         user = mixer.blend(User, name=mixer.fake)
+         user = mixer.blend(User, name=mixer.FAKE)
          print user.name  # Some like: Bob Marley
 
     You can setup a field type for generation of fake value: ::
 
-         user = mixer.blend(User, score=mixer.fake(str))
+         user = mixer.blend(User, score=mixer.FAKE(str))
          print user.score  # Some like: Bob Marley
 
     .. note:: This is also usefull on ORM model generation for filling a fields
@@ -214,7 +224,7 @@ class Fake(ServiceValue):
 
         from mixer.backend.django import mixer
 
-        user = mixer.blend('auth.User', first_name=mixer.fake)
+        user = mixer.blend('auth.User', first_name=mixer.FAKE)
         print user.first_name  # Some like: John
 
     """
@@ -233,7 +243,7 @@ class Random(ServiceValue):
     """ Force a `random` value.
 
     If you initialized a :class:`~mixer.main.Mixer` by default mixer try to
-    fill fields with `fake` data. You can user `mixer.random` for prevent this
+    fill fields with `fake` data. You can user `mixer.RANDOM` for prevent this
     behaviour for a custom fields.
 
     ::
@@ -242,17 +252,17 @@ class Random(ServiceValue):
          user = mixer.blend(User)
          print user.name  # Some like: Bob Marley
 
-         user = mixer.blend(User, name=mixer.random)
+         user = mixer.blend(User, name=mixer.RANDOM)
          print user.name  # Some like: Fdjw4das
 
     You can setup a field type for generation of fake value: ::
 
-         user = mixer.blend(User, score=mixer.random(str))
+         user = mixer.blend(User, score=mixer.RANDOM(str))
          print user.score  # Some like: Fdjw4das
 
     Or you can get random value from choices: ::
 
-        user = mixer.blend(User, name=mixer.random('john', 'mike'))
+        user = mixer.blend(User, name=mixer.RANDOM('john', 'mike'))
          print user.name  # mike or john
 
     .. note:: This is also usefull on ORM model generation for randomize fields
@@ -262,7 +272,7 @@ class Random(ServiceValue):
 
         from mixer.backend.django import mixer
 
-        mixer.blend('auth.User', first_name=mixer.random)
+        mixer.blend('auth.User', first_name=mixer.RANDOM)
         print user.first_name  # Some like: Fdjw4das
 
     """
@@ -287,14 +297,14 @@ class Select(ServiceValue):
 
         from mixer.backend.django import mixer
 
-        mixer.generate(Role, user=mixer.select)
+        mixer.generate(Role, user=mixer.SELECT)
 
 
-    You can setup a Django or SQLAlchemy filters with `mixer.select`: ::
+    You can setup a Django or SQLAlchemy filters with `mixer.SELECT`: ::
 
         from mixer.backend.django import mixer
 
-        mixer.generate(Role, user=mixer.select(
+        mixer.generate(Role, user=mixer.SELECT(
             username='test'
         ))
 
@@ -487,9 +497,11 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
 
     factory = GenFactory
 
-    fake = Fake()
-    select = Select()
-    random = Random()
+    FAKE = property(lambda s: Mixer.FAKE)
+    MIX = property(lambda s: Mixer.MIX)
+    RANDOM = property(lambda s: Mixer.RANDOM)
+    SELECT = property(lambda s: Mixer.SELECT)
+    SKIP = property(lambda s: Mixer.SKIP)
 
     def __init__(
             self, cls, mixer=None, factory=None, fake=True):
@@ -567,6 +579,13 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
         :return : None or (name, value) for later use
 
         """
+        if field_value is SKIP_VALUE:
+            return
+
+        if isinstance(field_value, GeneratorType):
+            return self.set_value(
+                target, field_name, next(field_value), finaly=finaly)
+
         if isinstance(field_value, Mix):
             if not finaly:
                 return field_name, field_value
@@ -577,10 +596,6 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
         if callable(field_value):
             return self.set_value(
                 target, field_name, field_value(), finaly=finaly)
-
-        if isinstance(field_value, GeneratorType):
-            return self.set_value(
-                target, field_name, next(field_value), finaly=finaly)
 
         setattr(target, field_name, field_value)
 
@@ -805,7 +820,7 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
                 yield fname, Field(prop, fname)
 
 
-class MetaMixer:
+class ProxyMixer:
 
     """ A Mixer proxy. Using for generate a few objects.
 
@@ -836,7 +851,18 @@ class MetaMixer:
         raise AttributeError('Use "cycle" only for "blend"')
 
 
-class Mixer(object):
+class _MetaMixer(type):
+
+    F = property(lambda cls: f)
+    FAKE = property(lambda cls: Fake())
+    G = property(lambda cls: g)
+    MIX = property(lambda cls: Mix())
+    RANDOM = property(lambda cls: Random())
+    SELECT = property(lambda cls: Select())
+    SKIP = property(lambda cls: SKIP_VALUE)
+
+
+class Mixer(six.with_metaclass(_MetaMixer)):
 
     """ This class is used for integration to one or more applications.
 
@@ -860,36 +886,91 @@ class Mixer(object):
 
     """
 
-    #: Force a fake values. See :class:`~mixer.main.Fake`
-    fake = Fake()
+    def __getattr__(self, name):
+        if name in ['f', 'g', 'fake', 'random', 'mix', 'select']:
+            warnings.warn('"mixer.%s" is depricated, use "mixer.%s" instead.'
+                          % (name, name.upper()), stacklevel=2)
+            name = name.upper()
+            return getattr(self, name)
+        raise AttributeError("Attribute %s not found." % name)
 
-    #: Force a random values. See :class:`~mixer.main.Random`
-    random = Random()
+    @property
+    def SKIP(self, *args, **kwargs):
+        """ Skip field generation.
 
-    #: Select a data from databases. See :class:`~mixer.main.Select`
-    select = Select()
+        ::
+            # Don't generate field 'somefield'
+            mixer.blend(SomeScheme, somefield=mixer.skip)
 
-    #: Points to a mixed object from future. See :class:`~mixer.main.Mix`
-    mix = Mix()
+        :returns: SKIP_VALUE
+
+        """
+        return SKIP_VALUE
+
+    @property
+    def FAKE(self, *args, **kwargs):
+        """ Force a fake values. See :class:`~mixer.main.Fake`.
+
+        :returns: Fake object
+
+        """
+        return self.__class__.FAKE
+
+    @property
+    def RANDOM(self, *args, **kwargs):
+        """ Force a random values. See :class:`~mixer.main.Random`.
+
+        :returns: Random object
+
+        """
+        return self.__class__.RANDOM
+
+    @property
+    def SELECT(self, *args, **kwargs):
+        """ Select a data from databases. See :class:`~mixer.main.Select`.
+
+        :returns: Select object
+
+        """
+        return self.__class__.SELECT
+
+    @property
+    def MIX(self, *args, **kwargs):
+        """ Point to a mixed object from future. See :class:`~mixer.main.Mix`.
+
+        :returns: Mix object
+
+        """
+        return self.__class__.MIX
+
+    @property
+    def F(self):
+        """ Shortcut to :mod:`mixer.fakers`.
+
+        ::
+
+            mixer.F.get_name()  # -> Pier Lombardin
+
+        :returns: fakers module
+
+        """
+        return self.__class__.F
+
+    @property
+    def G(self):
+        """ Shortcut to :mod:`mixer.generators`.
+
+        ::
+
+            mixer.G.get_date()  # -> datetime.date(1984, 12, 12)
+
+        :returns: generators module
+
+        """
+        return self.__class__.G
 
     # generator's controller class
     type_mixer_cls = TypeMixer
-
-    #: Shortcut to :mod:`mixer.fakers`
-    #:
-    #: ::
-    #:
-    #:     mixer.f.get_name()  # -> Pier Lombardin
-    #:
-    f = f
-
-    #: Shortcut to :mod:`mixer.generators`
-    #:
-    #: ::
-    #:
-    #:     mixer.g.get_date()  # -> datetime.date(1984, 12, 12)
-    #:
-    g = g
 
     def __init__(self, fake=True, factory=None, loglevel=LOGLEVEL, **params):
         """Initialize Mixer instance.
@@ -967,7 +1048,7 @@ class Mixer(object):
 
                       By default function is equal 'lambda x: x'.
 
-        :return generator:
+        :returns: A generator
 
         Mixer can uses a generators.
         ::
@@ -1026,7 +1107,7 @@ class Mixer(object):
         """ Generate a few objects. Syntastic sugar for cycles.
 
         :param count: List of objects or integer.
-        :return MetaMixer:
+        :returns: ProxyMixer
 
         ::
 
@@ -1039,7 +1120,7 @@ class Mixer(object):
                 Apple, title=mixer.sequence('apple_{0}')
 
         """
-        return MetaMixer(self, count)
+        return ProxyMixer(self, count)
 
     def register(self, scheme, params, fake=None, postprocess=None):
         """ Manualy register a function as value's generator for class.field.

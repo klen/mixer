@@ -96,11 +96,11 @@ Blend models with values
     print clients[2].username  # --> 'test_2'
 
     # Force to generation of a default (or null) values
-    client = mixer.blend(Client, score=mixer.random)
+    client = mixer.blend(Client, score=mixer.RANDOM)
     print client.score  # Some like: --> 456
 
     # Set related values from db by random
-    message = mixer.blend(Message, client=mixer.select)
+    message = mixer.blend(Message, client=mixer.SELECT)
     assert message.client in Client.objects.all()
 
 .. include:: ../README.rst

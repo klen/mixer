@@ -111,17 +111,17 @@ class MixerTestFlask(TestCase):
             self.assertEqual(role.user.username, 'test2')
 
             users = User.query.all()
-            role = mixer.blend('tests.test_flask.Role', user=mixer.select)
+            role = mixer.blend('tests.test_flask.Role', user=mixer.SELECT)
             self.assertTrue(role.user in users)
 
-            role = mixer.blend('tests.test_flask.Role', user=mixer.random)
+            role = mixer.blend('tests.test_flask.Role', user=mixer.RANDOM)
             self.assertTrue(role.user)
 
             profile = mixer.blend('tests.test_flask.Profile')
             user = mixer.blend(User, profile=profile)
             self.assertEqual(user.profile, profile)
 
-            user = mixer.blend(User, score=mixer.random)
+            user = mixer.blend(User, score=mixer.RANDOM)
             self.assertNotEqual(user.score, 50)
 
             user = mixer.blend(User, username=lambda: 'callable_value')

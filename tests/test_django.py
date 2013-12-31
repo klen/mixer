@@ -85,7 +85,7 @@ class MixerTestDjango(TestCase):
         self.assertTrue(rabbit.some_field)
         self.assertTrue(rabbit.money)
 
-        hat = mixer.blend('django_app.hat', color=mixer.random)
+        hat = mixer.blend('django_app.hat', color=mixer.RANDOM)
         self.assertTrue(hat.color in ('RD', 'GRN', 'BL'))
 
     def test_relation(self):
@@ -100,7 +100,7 @@ class MixerTestDjango(TestCase):
         self.assertEqual(hat.brend, 'wood')
         self.assertTrue(hat.color in ('RD', 'GRN', 'BL'))
 
-        hat = mixer.blend('django_app.hat', owner=mixer.select)
+        hat = mixer.blend('django_app.hat', owner=mixer.SELECT)
         self.assertTrue(hat.owner)
 
         silk = mixer.blend('django_app.silk')
@@ -128,7 +128,7 @@ class MixerTestDjango(TestCase):
         num = mixer.blend('django_app.number', doors__size=42)
         self.assertEqual(num.doors.all()[0].size, 42)
 
-        tag = mixer.blend('django_app.tag', customer=mixer.random)
+        tag = mixer.blend('django_app.tag', customer=mixer.RANDOM)
         self.assertTrue(tag.customer)
 
     def test_many_to_many_through(self):
@@ -150,15 +150,15 @@ class MixerTestDjango(TestCase):
         from mixer.backend.django import mixer
 
         mixer.cycle(3).blend(Rabbit)
-        hole = mixer.blend(Hole, rabbit=mixer.select)
+        hole = mixer.blend(Hole, rabbit=mixer.SELECT)
         self.assertFalse(hole.rabbit)
 
         rabbits = Rabbit.objects.all()
-        hole = mixer.blend(Hole, owner=mixer.select)
+        hole = mixer.blend(Hole, owner=mixer.SELECT)
         self.assertTrue(hole.owner in rabbits)
 
         rabbit = rabbits[0]
-        hole = mixer.blend(Hole, owner=mixer.select(email=rabbit.email))
+        hole = mixer.blend(Hole, owner=mixer.SELECT(email=rabbit.email))
         self.assertEqual(hole.owner, rabbit)
 
     def test_fake(self):
@@ -169,7 +169,7 @@ class MixerTestDjango(TestCase):
             return user
 
         mixer.register('auth.User', {}, postprocess=postprocess)
-        user = mixer.blend('auth.User', username=mixer.fake, password='test')
+        user = mixer.blend('auth.User', username=mixer.FAKE, password='test')
         self.assertTrue('' in user.username)
         self.assertTrue(user.check_password('test'))
         user = user.__class__.objects.get(pk=user.pk)
@@ -178,30 +178,30 @@ class MixerTestDjango(TestCase):
     def test_random(self):
         from mixer.backend.django import mixer
 
-        user = mixer.blend('auth.User', username=mixer.random(
+        user = mixer.blend('auth.User', username=mixer.RANDOM(
             'mixer', 'is', 'fun'
         ))
         self.assertTrue(user.username in ('mixer', 'is', 'fun'))
 
-        rabbit = mixer.blend(Rabbit, url=mixer.random)
+        rabbit = mixer.blend(Rabbit, url=mixer.RANDOM)
         self.assertTrue('/' in rabbit.url)
 
     def test_mix(self):
         from mixer.backend.django import mixer
 
-        test = mixer.blend(Rabbit, title=mixer.mix.username)
+        test = mixer.blend(Rabbit, title=mixer.MIX.username)
         self.assertEqual(test.title, test.username)
 
         test = Rabbit.objects.get(pk=test.pk)
         self.assertEqual(test.title, test.username)
 
-        test = mixer.blend(Hole, title=mixer.mix.owner.title)
+        test = mixer.blend(Hole, title=mixer.MIX.owner.title)
         self.assertEqual(test.title, test.owner.title)
 
-        test = mixer.blend(Door, hole__title=mixer.mix.owner.title)
+        test = mixer.blend(Door, hole__title=mixer.MIX.owner.title)
         self.assertEqual(test.hole.title, test.hole.owner.title)
 
-        test = mixer.blend(Door, hole__title=mixer.mix.owner.username(
+        test = mixer.blend(Door, hole__title=mixer.MIX.owner.username(
             lambda t: t + 's hole'
         ))
         self.assertTrue(test.hole.owner.username in test.hole.title)
@@ -258,6 +258,12 @@ class MixerTestDjango(TestCase):
             hole = mixer.blend(Hole)
             self.assertTrue(hole)
             self.assertTrue(Hole.objects.count())
+
+    def test_skip(self):
+        from mixer.backend.django import mixer
+
+        rabbit = mixer.blend(Rabbit, created_at=mixer.SKIP)
+        self.assertTrue(rabbit.created_at)
 
 
 # lint_ignore=F0401,W0401,E0602,W0212,C

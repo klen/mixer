@@ -71,7 +71,7 @@ class MixerTestMongoEngine(TestCase):
         self.assertTrue(user.created_at >= now)
 
         tm = TypeMixer(Post)
-        post = tm.blend(comments=tm.random, place=tm.random)
+        post = tm.blend(comments=tm.RANDOM, place=tm.RANDOM)
         self.assertTrue(post.id)
         self.assertTrue(post.title)
         self.assertEqual(post.tags, [])
