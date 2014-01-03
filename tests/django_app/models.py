@@ -117,3 +117,7 @@ class PointA(models.Model):
 class Through(models.Model):
     pointas = models.ForeignKey(PointA)
     pointbs = models.ForeignKey(PointB)
+
+
+class Simple(models.Model):
+    value = models.IntegerField()

@@ -27,6 +27,7 @@ tests_require = [l for l in read('requirements-tests.txt').split('\n')
 
 if sys.version_info < (2, 7):
     install_requires.append('importlib')
+    install_requires.append('ordereddict')
 
 
 setup(

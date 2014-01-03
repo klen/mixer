@@ -24,6 +24,11 @@ import warnings
 
 from . import generators as g, fakers as f, mix_types as t, six
 
+try:
+    from collections import OrderedDict
+except ImportError:
+    from ordereddict import OrderedDict # noqa
+
 
 NO_VALUE = object()
 SKIP_VALUE = object()
@@ -512,7 +517,7 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
         self.__factory = factory or self.factory
         self.__generators = dict()
         self.__gen_values = defaultdict(set)
-        self.__fields = dict(self.__load_fields())
+        self.__fields = OrderedDict(self.__load_fields())
 
     def __repr__(self):
         return "<TypeMixer {0}>".format(self.__scheme)
@@ -541,13 +546,13 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
                 continue
             defaults[key] = params
 
+        deferred_values = list(self.fill_fields(target, defaults))
+
         # Fill fields in 2 steps
         post_values = [
             item for item in [
                 self.set_value(target, fname, fvalue, finaly=True)
-                for (fname, fvalue) in [
-                    item for item in self.fill_fields(target, defaults) if item
-                ]
+                for (fname, fvalue) in deferred_values
             ] if item
         ]
 
@@ -568,10 +573,13 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
         for fname, fvalue in defaults.items():
 
             if isinstance(fvalue, ServiceValue):
-                yield fvalue.gen_value(self, target, fname, fvalue)
+                deferred = fvalue.gen_value(self, target, fname, fvalue)
 
             else:
-                yield self.set_value(target, fname, fvalue)
+                deferred = self.set_value(target, fname, fvalue)
+
+            if deferred:
+                yield deferred
 
     def set_value(self, target, field_name, field_value, finaly=False):
         """ Set `value` to `target` as `field_name`.
