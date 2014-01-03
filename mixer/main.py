@@ -16,13 +16,18 @@ from types import GeneratorType
 
 import decimal
 import logging
-from collections import defaultdict, OrderedDict
+from collections import defaultdict
 from contextlib import contextmanager
 from copy import deepcopy
 from importlib import import_module
 import warnings
 
 from . import generators as g, fakers as f, mix_types as t, six
+
+try:
+    from collections import OrderedDict
+except ImportError:
+    from ordereddict import OrderedDict # noqa
 
 
 NO_VALUE = object()
