@@ -150,9 +150,6 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
         """
         field = self.__fields.get(field_name)
-        if field and isinstance(field.scheme, GenericForeignKey) and not finaly: # noqa
-            return field_name, field_value
-
         if field and field.scheme in self.__scheme._meta.local_many_to_many:
 
             if not target.pk:
@@ -243,6 +240,9 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
         if not rel:
             raise ValueError('Unknown relation: %s' % field_name)
 
+        if isinstance(rel, models.ForeignKey) and rel.value_from_object(target): # noqa
+            return None
+
         new_scheme = rel.related.parent_model
 
         value = target
@@ -254,6 +254,21 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
             ).blend(**relation.params)
 
         return self.set_value(target, rel.name, value)
+
+    def gen_field(self, target, field_name, field):
+        """ Generate value by field.
+
+        :param target: Target for generate value.
+        :param field_name: Name of field for generation.
+        :param relation: Instance of :class:`Field`
+
+        :return : None or (name, value) for later use
+
+        """
+        if field.scheme.value_from_object(target):
+            return None
+
+        return super(TypeMixer, self).gen_field(target, field_name, field)
 
     def make_generator(self, field, fname=None, fake=False):
         """ Make values generator for field.

@@ -240,11 +240,15 @@ class MixerTestDjango(TestCase):
     def test_generic(self):
         from mixer.backend.django import mixer
 
-        with mixer.ctx(loglevel='INFO'):
-            hole = mixer.blend(Hole)
-            rabbit = mixer.blend(Rabbit, content_object=hole)
-        self.assertEqual(rabbit.object_id, hole.pk)
-        self.assertEqual(rabbit.content_type.model_class(), Hole)
+        obj = mixer.blend(Simple)
+        with mixer.ctx(loglevel='DEBUG'):
+            rabbit = mixer.blend(Rabbit, content_object=obj)
+        self.assertEqual(rabbit.content_object, obj)
+        self.assertEqual(rabbit.object_id, obj.pk)
+        self.assertEqual(rabbit.content_type.model_class(), type(obj))
+
+        rabbit = mixer.blend(Rabbit)
+        self.assertTrue(rabbit.content_type)
 
     def test_ctx(self):
         from mixer.backend.django import mixer
