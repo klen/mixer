@@ -1,3 +1,13 @@
+2014-02-09  horneds
+
+	* Version 2.2.0
+	* Added 'silence' param to mixer initialization
+	    with mixer.ctx(silence=True):
+	        # No errors will be raised
+		user = mixer.blend('auth.User', username='mike')
+		null = mixer.blend('auth.User', username='mike')
+		
+
 2014-01-03  horneds
 
 	* Version 2.1.0

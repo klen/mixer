@@ -361,3 +361,19 @@ class MixerBaseTests(TestCase):
             self.assertNotEqual(LOGGER.level, level)
 
         self.assertEqual(LOGGER.level, level)
+
+    def test_silence(self):
+        mixer = Mixer()
+
+        def falsed(test):
+            raise Exception('Unhandled')
+
+        mixer.register(Test, postprocess=falsed)
+        try:
+            mixer.blend(Test)
+            raise AssertionError("Test should be failed.")
+        except Exception: # noqa
+            pass
+
+        with mixer.ctx(silence=True):
+            mixer.blend(Test)
