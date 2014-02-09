@@ -20,10 +20,9 @@ help:
 # target: clean - Clean repo
 clean:
 	@rm -rf build dist docs/_build
-	@rm -f *.py[co]
-	@rm -f *.orig
-	@rm -f */*.py[co]
-	@rm -f */*.orig
+	find $(CURDIR) -name "*.pyc" -delete
+	find $(CURDIR) -name "*.orig" -delete
+	find $(CURDIR) -name "__pycache__" -delete
 
 .PHONY: register
 # target: register - Register module on PyPi

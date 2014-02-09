@@ -859,6 +859,7 @@ class ProxyMixer:
         raise AttributeError('Use "cycle" only for "blend"')
 
 
+# Support depricated attributes
 class _MetaMixer(type):
 
     F = property(lambda cls: f)
@@ -980,17 +981,19 @@ class Mixer(six.with_metaclass(_MetaMixer)):
     # generator's controller class
     type_mixer_cls = TypeMixer
 
-    def __init__(self, fake=True, factory=None, loglevel=LOGLEVEL, **params):
+    def __init__(self, fake=True, factory=None, loglevel=LOGLEVEL,
+                 silence=False, **params):
         """Initialize Mixer instance.
 
         :param fake: (True) Generate fake data instead of random data.
         :param loglevel: ('WARN') Set level for logging
+        :param silence: (False) Don't raise any errors if creation was falsed
         :param factory: (:class:`~mixer.main.GenFactory`) A class for
                           generation values for types
 
         """
         self.params = params
-        self.__init_params__(fake=fake, loglevel=loglevel)
+        self.__init_params__(fake=fake, loglevel=loglevel, silence=silence)
         self.__factory = factory
 
     def __init_params__(self, **params):
@@ -1020,7 +1023,12 @@ class Mixer(six.with_metaclass(_MetaMixer)):
 
         """
         type_mixer = self.get_typemixer(scheme)
-        return type_mixer.blend(**values)
+        try:
+            return type_mixer.blend(**values)
+        except Exception:
+            if self.params.get('silence'):
+                return None
+            raise
 
     def get_typemixer(self, scheme):
         """ Return cached typemixer instance.
@@ -1130,7 +1138,7 @@ class Mixer(six.with_metaclass(_MetaMixer)):
         """
         return ProxyMixer(self, count)
 
-    def register(self, scheme, params, fake=None, postprocess=None):
+    def register(self, scheme, params=None, fake=None, postprocess=None):
         """ Manualy register a function as value's generator for class.field.
 
         :param scheme: Scheme class for generation or string with class path.
@@ -1169,8 +1177,9 @@ class Mixer(six.with_metaclass(_MetaMixer)):
         if postprocess:
             type_mixer.postprocess = postprocess
 
-        for field_name, func in params.items():
-            type_mixer.register(field_name, func, fake=fake)
+        if params:
+            for field_name, func in params.items():
+                type_mixer.register(field_name, func, fake=fake)
 
     @contextmanager
     def ctx(self, **params):

@@ -1,4 +1,6 @@
 django
 flask-sqlalchemy
-sqlalchemy
+ipdb
 mongoengine
+pytest
+sqlalchemy
