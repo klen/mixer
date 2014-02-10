@@ -269,5 +269,13 @@ class MixerTestDjango(TestCase):
         rabbit = mixer.blend(Rabbit, created_at=mixer.SKIP)
         self.assertTrue(rabbit.created_at)
 
+    def test_guard(self):
+        from mixer.backend.django import mixer
+
+        r1 = mixer.guard(username='maxi').blend(Rabbit)
+        r2 = mixer.guard(username='maxi').blend(Rabbit)
+        self.assertTrue(r1)
+        self.assertEqual(r1, r2)
+
 
 # lint_ignore=F0401,W0401,E0602,W0212,C

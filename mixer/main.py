@@ -816,6 +816,12 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
         """
         return NO_VALUE
 
+    @staticmethod
+    def guard(**filters):
+        """ Look objects in storage. """
+
+        return False
+
     def __load_fields(self):
         """ GenFactory of scheme's fields. """
         for fname in dir(self.__scheme):
@@ -838,17 +844,22 @@ class ProxyMixer:
 
     """
 
-    def __init__(self, mixer, count=5):
+    def __init__(self, mixer, count=5, guards=None):
         self.count = count
         self.mixer = mixer
+        self.guards = guards
 
     def blend(self, scheme, **values):
         """ Call :meth:`Mixer.blend` a few times. And stack results to list.
 
-        :return list: list of generated objects.
+        :returns: A list of generated objects.
 
         """
         result = []
+
+        if self.guards:
+            return self.mixer._guard(scheme, self.guards, **values)
+
         for _ in range(self.count):
             result.append(
                 self.mixer.blend(scheme, **values)
@@ -1200,6 +1211,24 @@ class Mixer(six.with_metaclass(_MetaMixer)):
             yield self
         finally:
             self.__init_params__(**_params)
+
+    def guard(self, **guards):
+        """ Abstract method. In some backends used for prevent object creation.
+
+        :returns: A Proxy to mixer
+
+        """
+
+        return ProxyMixer(self, count=1, guards=guards)
+
+    def _guard(self, scheme, guards, **values):
+        type_mixer = self.get_typemixer(scheme)
+        seek = type_mixer.guard(**guards)
+        if seek:
+            return seek
+
+        guards.update(values)
+        return self.blend(scheme, **guards)
 
 
 # Default mixer
