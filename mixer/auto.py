@@ -1,8 +1,9 @@
 """ Automatic backend selection. """
 
-from .main import ProxyMixer
-from . import six
 from importlib import import_module
+
+from . import six
+from .main import ProxyMixer
 
 
 class MixerProxy(object):

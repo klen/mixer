@@ -377,3 +377,8 @@ class MixerBaseTests(TestCase):
 
         with mixer.ctx(silence=True):
             mixer.blend(Test)
+
+    def test_guard(self):
+        mixer = Mixer()
+        test = mixer.guard().blend(Test)
+        self.assertTrue(test)

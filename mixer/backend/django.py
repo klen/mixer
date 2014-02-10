@@ -321,6 +321,22 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
         """
         return not (field.scheme.null and field.scheme.blank)
 
+    def guard(self, **filters):
+        """ Look objects in database.
+
+        :returns: A finded object or False
+
+        """
+
+        qs = self.__scheme.objects.filter(**filters)
+        count = qs.count()
+        if count == 1:
+            return qs.get()
+        elif count:
+            return list(qs)
+
+        return False
+
     def __load_fields(self):
 
         for field in self.__scheme._meta.virtual_fields:
