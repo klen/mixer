@@ -818,7 +818,11 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
 
     @staticmethod
     def guard(**filters):
-        """ Look objects in storage. """
+        """ Look objects in storage.
+
+        :returns: False
+
+        """
 
         return False
 
@@ -858,7 +862,7 @@ class ProxyMixer:
         result = []
 
         if self.guards:
-            return self.mixer._guard(scheme, self.guards, **values)
+            return self.mixer._guard(scheme, self.guards, **values) # noqa
 
         for _ in range(self.count):
             result.append(
@@ -1225,6 +1229,7 @@ class Mixer(six.with_metaclass(_MetaMixer)):
         type_mixer = self.get_typemixer(scheme)
         seek = type_mixer.guard(**guards)
         if seek:
+            LOGGER.info('Finded: %s [%s]', seek, type(seek)) # noqa
             return seek
 
         guards.update(values)
