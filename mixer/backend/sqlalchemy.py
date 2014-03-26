@@ -65,7 +65,7 @@ class TypeMixer(BaseTypeMixer):
         if column.default.is_callable:
             return column.default.arg(target)
 
-        return column.default.arg
+        return getattr(column.default, 'arg', NO_VALUE)
 
     def gen_select(self, target, field_name, field_value):
         """ Select exists value from database.
