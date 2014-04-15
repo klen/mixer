@@ -104,6 +104,21 @@ def get_polygon(length=5, **kwargs):
     return dict(type='Poligon', coordinates=lines)
 
 
+def get_generic_reference(_pylama_typemixer=None, **params):
+    """ Choose a GenericRelation. """
+    meta = type(_pylama_typemixer)
+    scheme = g.get_choice([
+        m for (_, m, _, _) in meta.mixers.keys()
+        if issubclass(m, Document) and m is not _pylama_typemixer._TypeMixer__scheme # noqa
+    ])
+    return TypeMixer(
+        scheme,
+        mixer=_pylama_typemixer._TypeMixer__mixer,
+        factory=_pylama_typemixer._TypeMixer__factory,
+        fake=_pylama_typemixer._TypeMixer__fake,
+    ).blend(**params)
+
+
 class GenFactory(BaseFactory):
 
     """ Map a mongoengine classes to simple types. """
@@ -121,11 +136,12 @@ class GenFactory(BaseFactory):
     }
 
     generators = {
-        ObjectIdField: g.loop(get_objectid),
-        LineStringField: g.loop(get_linestring),
-        GeoPointField: g.loop(f.get_coordinates),
-        PointField: g.loop(get_pointfield),
-        PolygonField: g.loop(get_polygon),
+        GenericReferenceField: get_generic_reference,
+        GeoPointField: f.get_coordinates,
+        LineStringField: get_linestring,
+        ObjectIdField: get_objectid,
+        PointField: get_pointfield,
+        PolygonField: get_polygon,
     }
 
 
@@ -135,46 +151,49 @@ class TypeMixer(BaseTypeMixer):
 
     factory = GenFactory
 
-    def make_generator(self, field, field_name=None, fake=None): # noqa
+    def make_generator(self, me_field, field_name=None, fake=None, args=None, kwargs=None): # noqa
         """ Make values generator for field.
 
-        :param field: Mongoengine field's instance
+        :param me_field: Mongoengine field's instance
         :param field_name: Field name
         :param fake: Force fake data
 
         :return generator:
 
         """
-        ftype = type(field)
-        stype = self.factory.cls_to_simple(ftype)
-        kwargs = dict()
+        ftype = type(me_field)
+        args = [] if args is None else args
+        kwargs = {} if kwargs is None else kwargs
 
-        if field.choices:
-            if isinstance(field.choices[0], tuple):
-                choices, _ = list(zip(*field.choices))
+        if me_field.choices:
+            if isinstance(me_field.choices[0], tuple):
+                choices, _ = list(zip(*me_field.choices))
             else:
-                choices = list(field.choices)
+                choices = list(me_field.choices)
 
             return g.gen_choice(choices)
 
-        if stype is str:
-            kwargs['length'] = field.max_length
+        if ftype is StringField:
+            kwargs['length'] = me_field.max_length
 
         elif ftype is ListField:
-            gen = self.make_generator(field.field)
+            gen = self.make_generator(me_field.field, kwargs=kwargs)
             return g.loop(lambda: [next(gen) for _ in range(3)])()
 
-        elif ftype is EmbeddedDocumentField:
-            return g.loop(TypeMixer(field.document_type).blend)()
+        elif isinstance(me_field, (EmbeddedDocumentField, ReferenceField)):
+            ftype = me_field.document_type
+
+        elif ftype is GenericReferenceField:
+            kwargs.update({'_pylama_typemixer': self})
 
         elif ftype is DecimalField:
-            sign, (ii,), dd = field.precision.as_tuple()
+            sign, (ii,), dd = me_field.precision.as_tuple()
             kwargs['d'] = abs(dd)
             kwargs['positive'] = not sign
             kwargs['i'] = ii + 1
 
         return super(TypeMixer, self).make_generator(
-            stype, field_name=field_name, fake=fake, args=[], kwargs=kwargs)
+            ftype, field_name=field_name, fake=fake, args=args, kwargs=kwargs)
 
     @staticmethod
     def get_default(field, target):
@@ -207,42 +226,13 @@ class TypeMixer(BaseTypeMixer):
         :return bool:
 
         """
+        if isinstance(field.scheme, ReferenceField):
+            return True
+
         return field.scheme.required or isinstance(field.scheme, ObjectIdField)
-
-    def gen_relation(self, target, field_name, relation, force=False):
-        """ Generate a related relation by `relation`.
-
-        :param target: Target for generate value.
-        :param field_name: Name of relation for generation.
-        :param relation: Instance of :class:`Relation`
-
-        :return None:
-
-        """
-        if isinstance(relation.scheme, GenericReferenceField):
-            meta = type(self.__class__)
-            new_scheme = g.get_choice([
-                m for (_, m, _, _) in meta.mixers.keys()
-                if issubclass(m, Document) and m is not self.__scheme
-            ])
-        else:
-            new_scheme = relation.scheme.document_type
-
-        if new_scheme != self.__scheme:
-            value = self.__mixer and self.__mixer.blend(
-                new_scheme, **relation.params
-            ) or TypeMixer(
-                new_scheme, factory=self.__factory, fake=self.__fake
-            ).blend(**relation.params)
-
-        return self.set_value(target, field_name, value)
 
     def __load_fields(self):
         for fname, field in self.__scheme._fields.items():
-
-            if isinstance(field, (ReferenceField, GenericReferenceField)):
-                yield fname, t.Relation(field, fname)
-                continue
 
             yield fname, t.Field(field, fname)
 

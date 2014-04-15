@@ -139,15 +139,16 @@ class ServiceValue(object):
 
     """ Abstract class for mixer values. """
 
-    def __init__(self, *args, **kwargs):
-        self.args = args
-        self.kwargs = kwargs
+    def __init__(self, scheme=None, *choices, **params):
+        self.scheme = scheme
+        self.choices = choices
+        self.params = params
 
     @classmethod
     def __call__(cls, *args, **kwargs):
         return cls(*args, **kwargs)
 
-    def gen_value(self, type_mixer, *args, **kwargs):
+    def gen_value(self, type_mixer, target, name, field):
         """ Abstract method for value generation. """
         raise NotImplementedError
 
@@ -186,59 +187,20 @@ class Field(ServiceValue):
 
     """
 
-    is_relation = False
-
-    def __init__(self, scheme, name):
-        self.scheme = scheme
+    def __init__(self, scheme, name, **params):
         self.name = name
+        super(Field, self).__init__(scheme, **params)
 
     def __deepcopy__(self, memo):
-        return Field(self.scheme, self.name)
+        return Field(self.scheme, self.name, **deepcopy(self.params))
 
-    def gen_value(self, type_mixer, *args, **kwargs):
+    def gen_value(self, type_mixer, target, name, field):
         """ Call :meth:`TypeMixer.gen_field`.
 
         :return value: A generated value
 
         """
-        return type_mixer.gen_field(*args, **kwargs)
-
-
-class Relation(Field):
-
-    """ Generate a relation values.
-
-    Some fields from a model could be a relation on other models.
-    Mixer can generate this fields as well, but you can force some
-    values for generated models. Use `__` for relation values.
-
-    ::
-
-        message = mixer.blend(Message, client__username='test2')
-        assert message.client.username == 'test2'
-
-        # more hard relation
-        message = mixer.blend(Message, client__role__name='admin')
-        assert message.client.role.name == 'admin'
-
-    """
-
-    is_relation = True
-
-    def __init__(self, scheme, name, params=None):
-        super(Relation, self).__init__(scheme, name)
-        self.params = params or dict()
-
-    def __deepcopy__(self, memo):
-        return Relation(self.scheme, self.name, deepcopy(self.params))
-
-    def gen_value(self, type_mixer, *args, **kwargs):
-        """ Call :meth:`TypeMixer.gen_value`.
-
-        :return value: A generated value
-
-        """
-        return type_mixer.gen_relation(*args, **kwargs)
+        return type_mixer.gen_field(target, field)
 
 
 # Service classes
@@ -275,13 +237,13 @@ class Fake(ServiceValue):
 
     """
 
-    def gen_value(self, type_mixer, *args, **kwargs):
+    def gen_value(self, type_mixer, target, name, fake):
         """ Call :meth:`TypeMixer.gen_fake`.
 
         :return value: A generated value
 
         """
-        return type_mixer.gen_fake(*args, **kwargs)
+        return type_mixer.gen_fake(target, name, fake)
 
 
 class Random(ServiceValue):
@@ -323,16 +285,21 @@ class Random(ServiceValue):
 
     """
 
-    def gen_value(self, type_mixer, *args, **kwargs):
+    def __init__(self, scheme=None, *choices, **params):
+        super(Random, self).__init__(scheme, *choices, **params)
+        if scheme is not None:
+            self.choices += scheme,
+
+    def gen_value(self, type_mixer, target, name, random):
         """ Call :meth:`TypeMixer.gen_random`.
 
         :return value: A generated value
 
         """
-        return type_mixer.gen_random(*args, **kwargs)
+        return type_mixer.gen_random(target, name, random)
 
 
-class Select(ServiceValue):
+class Select(Random):
 
     """ Select values from database.
 
@@ -356,10 +323,10 @@ class Select(ServiceValue):
 
     """
 
-    def gen_value(self, type_mixer, *args, **kwargs):
+    def gen_value(self, type_mixer, target, name, field):
         """ Call :meth:`TypeMixer.gen_random`.
 
         :return value: A generated value
 
         """
-        return type_mixer.gen_select(*args, **kwargs)
+        return type_mixer.gen_select(target, name, field)

@@ -170,13 +170,15 @@ def test_typemixer():
         prop = Test
 
     mixer = TypeMixer(Scheme)
-    test = mixer.blend(prop__two=2, prop__one=1, prop__name='sigil')
+    test = mixer.blend(prop__two=2, prop__one=1, prop__name='sigil', name='RJ')
     assert test.male in (True, False)
+    assert test.name == 'RJ'
     assert test.prop.two == 2
     assert test.prop.name == 'sigil'
 
-    test = mixer.blend(name='John')
-    assert test.name == 'John'
+    test = mixer.blend(prop__two=4, unknown=lambda: '?')
+    assert test.prop.two == 4
+    assert test.unknown == '?'
 
 
 def test_fake():

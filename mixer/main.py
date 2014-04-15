@@ -41,7 +41,7 @@ if not LOGGER.handlers and not LOGGER.root.handlers:
 
 class TypeMixerMeta(type):
 
-    """ Cache mixers by class. """
+    """ Cache type mixers by scheme. """
 
     mixers = dict()
 
@@ -56,8 +56,8 @@ class TypeMixerMeta(type):
         key = (mixer, cls_type, fake, factory)
         if key not in cls.mixers:
             cls.mixers[key] = super(TypeMixerMeta, cls).__call__(
-                cls_type, mixer=mixer, factory=factory, fake=fake
-            )
+                cls_type, mixer=mixer, factory=factory, fake=fake)
+
         return cls.mixers[key]
 
     @staticmethod
@@ -83,12 +83,13 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
 
     def __init__(self, cls, mixer=None, factory=None, fake=True):
         self.postprocess = None
-        self.__scheme = cls
-        self.__mixer = mixer
-        self.__fake = fake
         self.__factory = factory or self.factory
-        self.__generators = dict()
+        self.__fake = fake
         self.__gen_values = defaultdict(set)
+        self.__generators = dict()
+        self.__mixer = mixer
+        self.__scheme = cls
+
         self.__fields = OrderedDict(self.__load_fields())
 
     def __repr__(self):
@@ -109,11 +110,8 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
         for key, params in values.items():
             if '__' in key:
                 rname, rvalue = key.split('__', 1)
-                field = defaults.get(rname)
-                if not field or not field.is_relation:
-                    defaults[rname] = t.Relation(
-                        field and field.scheme or field,
-                        field and field.name or rname)
+                if rname not in defaults:
+                    defaults[rname] = t.Field(None, rname)
                 defaults[rname].params.update({rvalue: params})
                 continue
             defaults[key] = params
@@ -142,13 +140,13 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
 
     def fill_fields(self, target, defaults):
         """ Fill all required fields. """
-        for fname, fvalue in defaults.items():
+        for fname, value in defaults.items():
 
-            if isinstance(fvalue, t.ServiceValue):
-                deferred = fvalue.gen_value(self, target, fname, fvalue)
+            if isinstance(value, t.ServiceValue):
+                deferred = value.gen_value(self, target, fname, value)
 
             else:
-                deferred = self.set_value(target, fname, fvalue)
+                deferred = self.set_value(target, fname, value)
 
             if deferred:
                 yield deferred
@@ -179,8 +177,64 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
 
         setattr(target, field_name, field_value)
 
-    def gen_value(self, target, field_name, field_class, fake=None,
-                  unique=False):
+    def gen_field(self, target, field):
+        """ Generate value by field.
+
+        :param target: Target for generate value.
+        :param field: Instance of :class:`Field`
+
+        :return : None or (name, value) for later use
+
+        """
+        default = self.get_default(field, target)
+
+        if default is not NO_VALUE:
+            return self.set_value(target, field.name, default)
+
+        if not self.is_required(field):
+            return False
+
+        unique = self.is_unique(field)
+        return self.gen_value(target, field.name, field, unique=unique)
+
+    def gen_random(self, target, field_name, random):
+        """ Generate random value of field with `field_name` for `target`.
+
+        :param target: Target for generate value.
+        :param field_name: Name of field for generation.
+        :param random: Instance of :class:`~mixer.main.Random`.
+
+        :return : None or (name, value) for later use
+
+        """
+        if not random.scheme:
+            random = deepcopy(self.__fields.get(field_name))
+
+        elif not isinstance(random.scheme, type):
+            return self.set_value(
+                target, field_name, g.get_choice(random.choices))
+
+        return self.gen_value(target, field_name, random, fake=False)
+
+    gen_select = gen_random
+
+    def gen_fake(self, target, field_name, fake):
+        """ Generate fake value of field with `field_name` for `target`.
+
+        :param target: Target for generate value.
+        :param field_name: Name of field for generation.
+        :param fake: Instance of :class:`~mixer.main.Fake`.
+
+        :return : None or (name, value) for later use
+
+        """
+        if not fake.scheme:
+            fake = deepcopy(self.__fields.get(field_name))
+
+        return self.gen_value(target, field_name, fake, fake=True)
+
+    def gen_value(
+            self, target, field_name, field, fake=None, unique=False):
         """ Generate values from basic types.
 
         Set value to target.
@@ -189,111 +243,33 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
 
         """
         fake = self.__fake if fake is None else fake
-        gen = self.get_generator(field_class, field_name, fake=fake)
-        value = next(gen)
+        if field:
+            gen = self.get_generator(field, field_name, fake=fake)
+        else:
+            gen = self.__factory.gen_maker(type(field))()
+
+        try:
+            value = next(gen)
+        except ValueError:
+            value = target
 
         if unique and value is not SKIP_VALUE:
             counter = 0
-            while value in self.__gen_values[field_class]:
+            while value in self.__gen_values[field]:
                 value = next(gen)
                 counter += 1
                 if counter > 100:
                     raise RuntimeError(
                         "Cannot generate a unique value for %s" % field_name
                     )
-            self.__gen_values[field_class].add(value)
+            self.__gen_values[field].add(value)
 
         return self.set_value(target, field_name, value)
 
-    def gen_field(self, target, field_name, field):
-        """ Generate value by field.
-
-        :param target: Target for generate value.
-        :param field_name: Name of field for generation.
-        :param relation: Instance of :class:`Field`
-
-        :return : None or (name, value) for later use
-
-        """
-        default = self.get_default(field, target)
-
-        if default is not NO_VALUE:
-            return self.set_value(target, field_name, default)
-
-        if not self.is_required(field):
-            return False
-
-        unique = self.is_unique(field)
-        return self.gen_value(target, field_name, field.scheme, unique=unique)
-
-    def gen_relation(self, target, field_name, relation, force=False):
-        """ Generate a related field by `relation`.
-
-        :param target: Target for generate value.
-        :param field_name: Name of field for generation.
-        :param relation: Instance of :class:`Relation`
-        :param force: Force a value generation
-
-        :return : None or (name, value) for later use
-
-        """
-        mixer = TypeMixer(relation.scheme, self.__mixer, self.__factory)
-        return self.set_value(
-            target, field_name, mixer.blend(**relation.params))
-
-    def gen_random(self, target, field_name, field_value):
-        """ Generate random value of field with `field_name` for `target`.
-
-        :param target: Target for generate value.
-        :param field_name: Name of field for generation.
-        :param field_value: Instance of :class:`~mixer.main.Random`.
-
-        :return : None or (name, value) for later use
-
-        """
-        if field_value.args:
-            scheme = field_value.args[0]
-
-            if not isinstance(scheme, type):
-                return self.set_value(
-                    target, field_name, g.get_choice(field_value.args))
-
-        else:
-            scheme = self.__fields.get(field_name)
-            if scheme:
-
-                if scheme.is_relation:
-                    return self.gen_relation(target, field_name, scheme, True)
-
-                scheme = scheme.scheme
-
-        return self.gen_value(target, field_name, scheme, fake=False)
-
-    gen_select = gen_random
-
-    def gen_fake(self, target, field_name, field_value):
-        """ Generate fake value of field with `field_name` for `target`.
-
-        :param target: Target for generate value.
-        :param field_name: Name of field for generation.
-        :param field_value: Instance of :class:`~mixer.main.Fake`.
-
-        :return : None or (name, value) for later use
-
-        """
-        if field_value.args:
-            scheme = field_value.args[0]
-
-        else:
-            field = self.__fields.get(field_name)
-            scheme = field and field.scheme or field
-
-        return self.gen_value(target, field_name, scheme, fake=True)
-
-    def get_generator(self, field_class, field_name=None, fake=None):
+    def get_generator(self, field, field_name=None, fake=None):
         """ Get generator for field and cache it.
 
-        :param field_class: Class for looking a generator
+        :param field: Field for looking a generator
         :param field_name: Name of field for generation
         :param fake: Generate fake data instead of random data.
 
@@ -303,33 +279,38 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
         if fake is None:
             fake = self.__fake
 
-        key = (field_class, field_name, fake)
+        if field.params:
+            return self.make_generator(
+                field.scheme, field_name, fake, kwargs=field.params)
+
+        key = (field.scheme, field_name, fake)
 
         if key not in self.__generators:
             self.__generators[key] = self.make_generator(
-                field_class, field_name, fake)
+                field.scheme, field_name, fake, kwargs=field.params)
 
         return self.__generators[key]
 
-    def make_generator(self, field_class, field_name=None, fake=None, args=[], kwargs={}): # noqa
+    def make_generator(self, scheme, field_name=None, fake=None, args=None, kwargs=None): # noqa
         """ Make generator for class.
 
         :param field_class: Class for looking a generator
-        :param field_name: Name of field for generation
+        :param scheme: Scheme for generation
         :param fake: Generate fake data instead of random data.
 
         :return generator:
 
         """
-        fabric = self.__factory.gen_maker(field_class, field_name, fake)
-        if fabric:
-            gen = fabric(*args, **kwargs)
-        else:
-            gen = self.__factory.generators.get(None)
-        return (
-            gen if isinstance(gen, GeneratorType)
-            else g.loop(fabric)(*args, **kwargs)
-        )
+        args = [] if args is None else args
+        kwargs = {} if kwargs is None else kwargs
+
+        fabric = self.__factory.gen_maker(scheme, field_name, fake)
+        if not fabric:
+            return g.loop(self.__class__(
+                scheme, mixer=self.__mixer, fake=self.__fake,
+                factory=self.__factory).blend)(**kwargs)
+
+        return fabric(*args, **kwargs)
 
     def register(self, field_name, func, fake=None):
         """ Register function as generator for field.
@@ -356,9 +337,9 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
         if fake is None:
             fake = self.__fake
 
-        field_class = self.__fields.get(field_name)
-        if field_class:
-            key = (field_class.scheme, field_name, fake)
+        field = self.__fields.get(field_name)
+        if field:
+            key = (field.scheme, field_name, fake)
             self.__generators[key] = g.loop(func)()
 
     @staticmethod
@@ -398,15 +379,12 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
         return False
 
     def __load_fields(self):
-        """ GenFactory of scheme's fields. """
+        """ Find scheme's fields. """
         for fname in dir(self.__scheme):
             if fname.startswith('_'):
                 continue
             prop = getattr(self.__scheme, fname)
-            if not self.__factory.generators.get(prop):
-                yield fname, t.Relation(prop, fname)
-            else:
-                yield fname, t.Field(prop, fname)
+            yield fname, t.Field(prop, fname)
 
 
 class ProxyMixer:

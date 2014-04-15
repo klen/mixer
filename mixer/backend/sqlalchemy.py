@@ -5,7 +5,8 @@ import datetime
 
 import decimal
 from sqlalchemy import func
-from sqlalchemy.orm.interfaces import MANYTOONE
+# from sqlalchemy.orm.interfaces import MANYTOONE
+from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.types import (
     BIGINT, BOOLEAN, BigInteger, Boolean, CHAR, DATE, DATETIME, DECIMAL, Date,
     DateTime, FLOAT, Float, INT, INTEGER, Integer, NCHAR, NVARCHAR, NUMERIC,
@@ -57,6 +58,9 @@ class TypeMixer(BaseTypeMixer):
         """
         column = field.scheme
 
+        if isinstance(column, RelationshipProperty):
+            column = column.local_remote_pairs[0][0]
+
         if not column.default:
             return NO_VALUE
 
@@ -65,7 +69,7 @@ class TypeMixer(BaseTypeMixer):
 
         return getattr(column.default, 'arg', NO_VALUE)
 
-    def gen_select(self, target, field_name, field_value):
+    def gen_select(self, target, field_name, select):
         """ Select exists value from database.
 
         :param target: Target for generate value.
@@ -81,39 +85,8 @@ class TypeMixer(BaseTypeMixer):
         session = self.__mixer.params.get('session')
         value = session.query(
             relation.mapper.class_
-        ).filter(*field_value.args).order_by(func.random()).first()
+        ).filter(*select.choices).order_by(func.random()).first()
         self.set_value(target, field_name, value)
-
-    def gen_relation(self, target, field_name, relation, force=False):
-        """ Generate a related relation by `relation`.
-
-        :param target: Target for generate value.
-        :param field_name: Name of relation for generation.
-        :param relation: Instance of :class:`Relation`
-        :param force: Force a value generation
-
-        :return : None or (name, value) for later use
-
-        """
-        rel = relation.scheme
-        if rel.direction == MANYTOONE:
-            col = rel.local_remote_pairs[0][0]
-            if col.nullable and not relation.params and not force:
-                return False
-
-            value = self.__mixer and self.__mixer.blend(
-                rel.mapper.class_,
-                **relation.params
-            ) or TypeMixer(
-                rel.mapper.class_,
-                mixer=self.__mixer,
-                factory=self.factory,
-                fake=self.__fake,
-            ).blend(**relation.params)
-
-            setattr(target, rel.key, value)
-            setattr(target, col.name,
-                    rel.mapper.identity_key_from_instance(value)[1][0])
 
     @staticmethod
     def is_unique(field):
@@ -122,7 +95,12 @@ class TypeMixer(BaseTypeMixer):
         :return bool:
 
         """
-        return field.scheme.unique
+        scheme = field.scheme
+
+        if isinstance(scheme, RelationshipProperty):
+            scheme = scheme.local_remote_pairs[0][0]
+
+        return scheme.unique
 
     @staticmethod
     def is_required(field):
@@ -131,10 +109,33 @@ class TypeMixer(BaseTypeMixer):
         :return bool:
 
         """
-        c = field.scheme
-        return not c.nullable and not (c.autoincrement and c.primary_key)
+        column = field.scheme
+        if isinstance(column, RelationshipProperty):
+            column = column.local_remote_pairs[0][0]
 
-    def make_generator(self, column, field_name=None, fake=False):
+        return (
+            bool(field.params)
+            or not column.nullable
+            and not (column.autoincrement and column.primary_key))
+
+    def set_value(self, target, field_name, field_value, finaly=False):
+        """ Set `value` to `target` as `field_name`.
+
+        :return : None or (name, value) for later use
+
+        """
+        field = self.__fields.get(field_name)
+        if field and isinstance(field.scheme, RelationshipProperty):
+            col = field.scheme.local_remote_pairs[0][0]
+            setattr(
+                target, col.name,
+                field.scheme.mapper.identity_key_from_instance(
+                    field_value)[1][0])
+
+        return super(TypeMixer, self).set_value(
+            target, field_name, field_value, finaly)
+
+    def make_generator(self, column, field_name=None, fake=False, args=None, kwargs=None): # noqa
         """ Make values generator for column.
 
         :param column: SqlAlchemy column
@@ -144,7 +145,15 @@ class TypeMixer(BaseTypeMixer):
         :return generator:
 
         """
-        kwargs = dict()
+        args = [] if args is None else args
+        kwargs = {} if kwargs is None else kwargs
+
+        if isinstance(column, RelationshipProperty):
+            gen = g.loop(TypeMixer(
+                column.mapper.class_, mixer=self.__mixer, fake=self.__fake,
+                factory=self.__factory).blend)(**kwargs)
+            return gen
+
         ftype = type(column.type)
         stype = self.factory.cls_to_simple(ftype)
 
@@ -155,7 +164,7 @@ class TypeMixer(BaseTypeMixer):
             return g.gen_choice(column.type.enums)
 
         return super(TypeMixer, self).make_generator(
-            stype, field_name=field_name, fake=fake, args=[], kwargs=kwargs)
+            stype, field_name=field_name, fake=fake, args=args, kwargs=kwargs)
 
     def __load_fields(self):
         """ Prepare SQLALchemyTypeMixer.
@@ -165,11 +174,10 @@ class TypeMixer(BaseTypeMixer):
         """
         mapper = self.__scheme._sa_class_manager.mapper
         relations = set()
-
         if hasattr(mapper, 'relationships'):
             for rel in mapper.relationships:
                 relations |= rel.local_columns
-                yield rel.key, t.Relation(rel, rel.key)
+                yield rel.key, t.Field(rel, rel.key)
 
         for column in mapper.columns:
             if column not in relations:
