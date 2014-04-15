@@ -60,7 +60,7 @@ def get_contenttype(**kwargs):
     :return ContentType:
 
     """
-    choices = [m for m in models.get_models() if not m is ContentType]
+    choices = [m for m in models.get_models() if m is not ContentType]
     return ContentType.objects.get_for_model(g.get_choice(choices))
 
 
@@ -120,7 +120,7 @@ class TypeMixerMeta(BaseTypeMixerMeta):
 
             else:
                 try:
-                    if not cls_type in cls.models_cache:
+                    if cls_type not in cls.models_cache:
                         cls.__update_cache()
 
                     return cls.models_cache[cls_type]
@@ -224,7 +224,6 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
         :return : None or (name, value) for later use
 
         """
-
         if isinstance(relation.scheme, GenericForeignKey):
             return None
 
@@ -327,12 +326,13 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
         :returns: A finded object or False
 
         """
-
         qs = self.__scheme.objects.filter(**filters)
         count = qs.count()
+
         if count == 1:
             return qs.get()
-        elif count:
+
+        if count:
             return list(qs)
 
         return False
@@ -387,5 +387,3 @@ class Mixer(BaseMixer):
 
 # Default mixer
 mixer = Mixer()
-
-# lint_ignore=W0212,W0201,E1002,F0401

@@ -481,7 +481,7 @@ class TypeMixerMeta(type):
             raise ValueError('Invalid scheme: %s' % backup)
 
         key = (mixer, cls_type, fake, factory)
-        if not key in cls.mixers:
+        if key not in cls.mixers:
             cls.mixers[key] = super(TypeMixerMeta, cls).__call__(
                 cls_type, mixer=mixer, factory=factory, fake=fake
             )
@@ -620,7 +620,7 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
         gen = self.get_generator(field_class, field_name, fake=fake)
         value = next(gen)
 
-        if unique and not value is SKIP_VALUE:
+        if unique and value is not SKIP_VALUE:
             counter = 0
             while value in self.__gen_values[field_class]:
                 value = next(gen)
@@ -644,11 +644,11 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
 
         """
         default = self.get_default(field, target)
-        if not default is NO_VALUE:
+
+        if default is not NO_VALUE:
             return self.set_value(target, field_name, default)
 
-        required = self.is_required(field)
-        if not required:
+        if not self.is_required(field):
             return False
 
         unique = self.is_unique(field)
@@ -733,7 +733,7 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
 
         key = (field_class, field_name, fake)
 
-        if not key in self.__generators:
+        if key not in self.__generators:
             self.__generators[key] = self.make_generator(
                 field_class, field_name, fake)
 
@@ -823,7 +823,6 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta)):
         :returns: False
 
         """
-
         return False
 
     def __load_fields(self):
@@ -1181,7 +1180,6 @@ class Mixer(six.with_metaclass(_MetaMixer)):
             test.title == 'Always same'
 
         """
-
         if fake is None:
             fake = self.params.get('fake')
 
@@ -1208,7 +1206,6 @@ class Mixer(six.with_metaclass(_MetaMixer)):
                 self.assertFalse(Hole.objects.count())
 
         """
-
         _params = deepcopy(self.params)
         try:
             self.__init_params__(**params)
@@ -1222,7 +1219,6 @@ class Mixer(six.with_metaclass(_MetaMixer)):
         :returns: A Proxy to mixer
 
         """
-
         return ProxyMixer(self, count=1, guards=guards)
 
     def _guard(self, scheme, guards, **values):
@@ -1238,5 +1234,3 @@ class Mixer(six.with_metaclass(_MetaMixer)):
 
 # Default mixer
 mixer = Mixer()
-
-# lint_ignore=W0621,C901,W0231,E0102,C1001,C0302

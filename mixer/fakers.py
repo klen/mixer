@@ -31,7 +31,7 @@ DEFAULT_NAME_MASK = "{firstname} {lastname}"
 DEFAULT_USERNAME_MASK_CHOICES = (
     '{one}{num}', '{one}_{two}', '{one}.{two}', '{two}{one}{num}')
 
-FIRSTNAME_CHOICES = (
+FIRSTNAMES = (
     "Alice", "Adams", "Allen", "Anderson", "Baker", "Barbara", "Betty",
     "Brown", "Bob", "Campbell", "Carol", "Carter", "Clark", "Collins", "Davis",
     "Deborah", "Donna", "Dorothy", "Edwards", "Elizabeth", "Evans", "Garcia",
@@ -45,7 +45,7 @@ FIRSTNAME_CHOICES = (
     "White", "Williams", "Wilson", "Wright", "Young",
 )
 
-LASTNAME_CHOICES = (
+LASTNAMES = (
     "Allen", "Anderson", "Angelo", "Baker", "Bell", "Boulstridge", "Bungard",
     "Bursnell", "Cabrera", "Carlisle", "Carlisle", "Cart", "Chaisty", "Clark",
     "Clayworth", "Colchester", "Cooper", "Darlington", "Davis", "Denial",
@@ -67,7 +67,7 @@ LASTNAME_CHOICES = (
     "Ward", "Watson", "Weild", "Wigan", "Witte", "Wolverhampton", "York",
 )
 
-COUNTRY_CHOICES = (
+COUNTRIES = (
     "Afghanistan", "Algeria", "Argentina", "Canada", "Colombia", "Ghana",
     "Iraq", "Kenya", "Malaysia", "Morocco", "Mozambique", "Nepal", "Peru",
     "Poland", "Sudan", "Uganda", "Ukraine", "Uzbekistan", "Venezuela", "Yemen",
@@ -78,9 +78,13 @@ COUNTRY_CHOICES = (
     'Vietnam',
 )
 
-CITY_PREFIX_CHOICES = ("North", "East", "West", "South", "New", "Lake", "Port")
+COUNTRY_CODES = (
+    'cn', 'in', 'id', 'de', 'el', 'en', 'es', 'fr', 'it', 'pt', 'ru', 'ua'
+)
 
-CITY_SUFFIX_CHOICES = (
+CITY_PREFIXIES = ("North", "East", "West", "South", "New", "Lake", "Port")
+
+CITY_SUFFIXIES = (
     "town", "ton", "land", "ville", "berg", "burgh", "borough", "bury", "view",
     "port", "mouth", "stad", "furt", "chester", "mouth", "fort", "haven",
     "side", "shire"
@@ -134,10 +138,9 @@ HOSTNAMES = (
 HOSTZONES = (
     "aero", "asia", "biz", "cat", "com", "coop", "info", "int", "jobs", "mobi",
     "museum", "name", "net", "org", "post", "pro", "tel", "travel", "xxx",
-    "edu", "gov", "mil", "eu", "ee", "dk", "de", "ch", "bg", "vn", "tw", "tr",
-    "tm", "su", "si", "sh", "se", "pt", "ar", "pl", "pe", "nz", "my", "it",
-    "gr", "fr", "pm", "re", "tf", "wf", "yt", "fi", "br", "ac", "ru", "cn"
-)
+    "edu", "gov", "mil", "eu", "ee", "dk", "ch", "bg", "vn", "tw", "tr", "tm",
+    "su", "si", "sh", "se", "pt", "ar", "pl", "pe", "nz", "my", "gr", "pm",
+    "re", "tf", "wf", "yt", "fi", "br", "ac") + COUNTRY_CODES
 
 USERNAMES = (
     "admin", "akholic", "ass", "bear", "bee", "beep", "blood", "bone", "boots",
@@ -149,7 +152,7 @@ USERNAMES = (
     "raider", "raiser", "ride", "root", "scull", "shattered", "show", "sleep",
     "sneak", "spamalot", "star", "table", "test", "tips", "user", "ustink",
     "weak"
-) + tuple([n.lower() for n in FIRSTNAME_CHOICES])
+) + tuple([n.lower() for n in FIRSTNAMES])
 
 COMPANY_SYFFIXES = ('LLC', 'Group', 'LTD', 'PLC', 'LLP', 'Corp', 'Inc', 'DBA')
 
@@ -166,7 +169,7 @@ def get_firstname(**kwargs):
         print get_firstname()  # -> Johnson
 
     """
-    return g.get_choice(FIRSTNAME_CHOICES)
+    return g.get_choice(FIRSTNAMES)
 
 #: Generator's fabric for :meth:`mixer.fakers.get_firstname`
 gen_firstname = g.loop(get_firstname)
@@ -182,7 +185,7 @@ def get_lastname(**kwargs):
         print get_lastname()  # -> Gaspar
 
     """
-    return g.get_choice(LASTNAME_CHOICES)
+    return g.get_choice(LASTNAMES)
 
 #: Generator's fabric for :meth:`mixer.fakers.get_lastname`
 gen_lastname = g.loop(get_lastname)
@@ -215,10 +218,25 @@ def get_country(**kwargs):
         print get_country()  # -> Italy
 
     """
-    return g.get_choice(COUNTRY_CHOICES)
+    return g.get_choice(COUNTRIES)
 
 #: Generator's fabric for :meth:`mixer.fakers.get_country`
 gen_country = g.loop(get_country)
+
+
+def get_country_code():
+    """ Get a country code.
+
+    :return str:
+
+    ::
+
+        print get_country_code()  # -> ru
+
+    """
+    return g.get_choice(COUNTRY_CODES)
+
+gen_country_code = g.loop(get_country_code)
 
 
 def get_city(**kwargs):
@@ -232,8 +250,8 @@ def get_city(**kwargs):
 
     """
     return g.get_choice((
-        "{0} {1}".format(g.get_choice(CITY_PREFIX_CHOICES), get_firstname()),
-        "{0} {1}".format(get_lastname(), g.get_choice(CITY_SUFFIX_CHOICES)),
+        "{0} {1}".format(g.get_choice(CITY_PREFIXIES), get_firstname()),
+        "{0} {1}".format(get_lastname(), g.get_choice(CITY_SUFFIXIES)),
     ))
 
 #: Generator's fabric for :meth:`mixer.fakers.get_city`
