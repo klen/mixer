@@ -205,7 +205,7 @@ class MixerBaseTests(TestCase):
 
     def test_random(self):
         from mixer.main import TypeMixer
-        from mixer.six import string_types
+        from mixer._compat import string_types
 
         mixer = TypeMixer(Test)
         test = mixer.blend(name=mixer.RANDOM)

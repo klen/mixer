@@ -11,7 +11,8 @@ from django.contrib.contenttypes.generic import GenericForeignKey
 from django import VERSION
 from django.core.files.base import ContentFile
 
-from .. import generators as g, mix_types as t, six
+from .. import generators as g, mix_types as t
+from .. import _compat as _
 from ..main import (
     NO_VALUE, TypeMixerMeta as BaseTypeMixerMeta, TypeMixer as BaseTypeMixer,
     GenFactory as BaseFactory, Mixer as BaseMixer)
@@ -110,7 +111,7 @@ class TypeMixerMeta(BaseTypeMixerMeta):
 
     def __load_cls(cls, cls_type):
 
-        if isinstance(cls_type, six.string_types):
+        if isinstance(cls_type, _.string_types):
             if '.' in cls_type:
                 app_label, model_name = cls_type.split(".")
                 return models.get_model(app_label, model_name)
@@ -132,7 +133,7 @@ class TypeMixerMeta(BaseTypeMixerMeta):
                 cls.models_cache[name] = model
 
 
-class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
+class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
     """ TypeMixer for Django. """
 

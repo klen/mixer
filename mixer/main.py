@@ -22,7 +22,7 @@ from copy import deepcopy
 from importlib import import_module
 import warnings
 
-from . import generators as g, fakers as f, mix_types as t, six
+from . import generators as g, fakers as f, mix_types as t, _compat as _
 
 try:
     from collections import OrderedDict
@@ -91,7 +91,7 @@ class GenFactoryMeta(type):
             yield key, value
 
 
-class GenFactory(six.with_metaclass(GenFactoryMeta)):
+class GenFactory(_.with_metaclass(GenFactoryMeta)):
 
     """ Make generators for types. """
 
@@ -211,14 +211,14 @@ class TypeMixerMeta(type):
 
     @staticmethod
     def __load_cls(cls_type):
-        if isinstance(cls_type, six.string_types):
+        if isinstance(cls_type, _.string_types):
             mod, cls_type = cls_type.rsplit('.', 1)
             mod = import_module(mod)
             cls_type = getattr(mod, cls_type)
         return cls_type
 
 
-class TypeMixer(six.with_metaclass(TypeMixerMeta)):
+class TypeMixer(_.with_metaclass(TypeMixerMeta)):
 
     """ Generate models. """
 
@@ -607,7 +607,7 @@ class _MetaMixer(type):
     SKIP = property(lambda cls: SKIP_VALUE)
 
 
-class Mixer(six.with_metaclass(_MetaMixer)):
+class Mixer(_.with_metaclass(_MetaMixer)):
 
     """ This class is used for integration to one or more applications.
 
@@ -842,7 +842,7 @@ class Mixer(six.with_metaclass(_MetaMixer)):
             return gen()
 
         func = args and args[0] or None
-        if isinstance(func, six.string_types):
+        if isinstance(func, _.string_types):
             func = func.format
 
         elif func is None:
