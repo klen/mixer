@@ -4,7 +4,7 @@ import datetime
 import pytest
 from decimal import Decimal
 
-from mixer.main import Mixer
+from mixer.main import Mixer, TypeMixer
 
 
 class Test:
@@ -20,12 +20,6 @@ class Test:
     choices = list
     parts = set
     scheme = dict
-
-
-def test_base():
-    """ Just import version. """
-    from mixer import __version__
-    assert __version__
 
 
 def test_generators():
@@ -91,7 +85,7 @@ def test_generators():
     assert test
 
 
-def test_faker():
+def test_fakers():
     """ Test default fakers. """
     from mixer import fakers as f
 
@@ -153,22 +147,20 @@ def test_factory():
     assert -2147483647 <= next(test) < 2147483647
 
     test = g.gen_maker(bool)()
-    assert next(test) in [True, False]
+    assert next(test) in (True, False)
 
 
 def test_typemixer_meta():
     """ Tests that typemixer is a singleton for current class. """
-    from mixer.main import TypeMixer
-
     mixer1 = TypeMixer(Test)
     mixer2 = TypeMixer(Test, fake=False)
     mixer3 = TypeMixer(Test, fake=False)
-    assert mixer1 != mixer2
-    assert mixer2 == mixer3
+
+    assert mixer1 is not mixer2
+    assert mixer2 is mixer3
 
 
 def test_typemixer():
-    from mixer.main import TypeMixer
 
     class Scheme:
         id = int
@@ -186,10 +178,6 @@ def test_typemixer():
     test = mixer.blend(name='John')
     assert test.name == 'John'
 
-    mixer.register('name', lambda: 'Piter')
-    test = mixer.blend()
-    assert test.name == 'Piter'
-
 
 def test_fake():
     from mixer.main import mixer
@@ -203,7 +191,6 @@ def test_fake():
 
 
 def test_random():
-    from mixer.main import TypeMixer
     from mixer._compat import string_types
 
     mixer = TypeMixer(Test)
