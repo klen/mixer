@@ -32,6 +32,7 @@ except ImportError:
 
 NO_VALUE = object()
 SKIP_VALUE = object()
+
 LOGLEVEL = logging.WARN
 LOGGER = logging.getLogger('mixer')
 if not LOGGER.handlers and not LOGGER.root.handlers:
