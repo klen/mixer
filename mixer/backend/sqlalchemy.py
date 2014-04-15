@@ -14,9 +14,7 @@ from sqlalchemy.types import (
 
 from .. import mix_types as t, generators as g
 from ..main import (
-    Relation, Field, NO_VALUE, LOGGER,
-    TypeMixer as BaseTypeMixer,
-    GenFactory as BaseFactory,
+    NO_VALUE, LOGGER, TypeMixer as BaseTypeMixer, GenFactory as BaseFactory,
     Mixer as BaseMixer)
 
 
@@ -171,11 +169,11 @@ class TypeMixer(BaseTypeMixer):
         if hasattr(mapper, 'relationships'):
             for rel in mapper.relationships:
                 relations |= rel.local_columns
-                yield rel.key, Relation(rel, rel.key)
+                yield rel.key, t.Relation(rel, rel.key)
 
         for column in mapper.columns:
-            if not column in relations:
-                yield column.name, Field(column, column.name)
+            if column not in relations:
+                yield column.name, t.Field(column, column.name)
 
 
 class Mixer(BaseMixer):

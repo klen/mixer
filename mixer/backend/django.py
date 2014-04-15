@@ -13,11 +13,8 @@ from django.core.files.base import ContentFile
 
 from .. import generators as g, mix_types as t, six
 from ..main import (
-    Field, Relation, NO_VALUE,
-    TypeMixerMeta as BaseTypeMixerMeta,
-    TypeMixer as BaseTypeMixer,
-    GenFactory as BaseFactory,
-    Mixer as BaseMixer)
+    NO_VALUE, TypeMixerMeta as BaseTypeMixerMeta, TypeMixer as BaseTypeMixer,
+    GenFactory as BaseFactory, Mixer as BaseMixer)
 
 
 get_contentfile = ContentFile
@@ -340,7 +337,7 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
     def __load_fields(self):
 
         for field in self.__scheme._meta.virtual_fields:
-            yield field.name, Relation(field, field.name)
+            yield field.name, t.Relation(field, field.name)
 
         for field in self.__scheme._meta.fields:
 
@@ -349,13 +346,13 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
                 continue
 
             if isinstance(field, models.ForeignKey):
-                yield field.name, Relation(field, field.name)
+                yield field.name, t.Relation(field, field.name)
                 continue
 
-            yield field.name, Field(field, field.name)
+            yield field.name, t.Field(field, field.name)
 
         for field in self.__scheme._meta.local_many_to_many:
-            yield field.name, Relation(field, field.name)
+            yield field.name, t.Relation(field, field.name)
 
 
 class Mixer(BaseMixer):

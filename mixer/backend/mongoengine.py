@@ -50,9 +50,7 @@ from mongoengine import (
 
 from .. import mix_types as t, generators as g, fakers as f
 from ..main import (
-    Field, Relation, NO_VALUE,
-    TypeMixer as BaseTypeMixer,
-    GenFactory as BaseFactory,
+    NO_VALUE, TypeMixer as BaseTypeMixer, GenFactory as BaseFactory,
     Mixer as BaseMixer,
 )
 
@@ -225,7 +223,7 @@ class TypeMixer(BaseTypeMixer):
             meta = type(self.__class__)
             new_scheme = g.get_choice([
                 m for (_, m, _, _) in meta.mixers.keys()
-                if issubclass(m, Document) and not m is self.__scheme
+                if issubclass(m, Document) and m is not self.__scheme
             ])
         else:
             new_scheme = relation.scheme.document_type
@@ -243,10 +241,10 @@ class TypeMixer(BaseTypeMixer):
         for fname, field in self.__scheme._fields.items():
 
             if isinstance(field, (ReferenceField, GenericReferenceField)):
-                yield fname, Relation(field, fname)
+                yield fname, t.Relation(field, fname)
                 continue
 
-            yield fname, Field(field, fname)
+            yield fname, t.Field(field, fname)
 
 
 class Mixer(BaseMixer):
@@ -287,7 +285,6 @@ class Mixer(BaseMixer):
         :return instance:
 
         """
-
         if self.params.get('commit') and isinstance(result, Document):
             result.save()
 
