@@ -2,8 +2,8 @@
 
 from importlib import import_module
 
-from . import six
 from .main import ProxyMixer
+from . import _compat as _
 
 
 class MixerProxy(object):
@@ -38,7 +38,6 @@ class MixerProxy(object):
         :return instance:
 
         """
-
         scheme = cls.__load_cls(model)
         backend = cls.__store__.get(scheme)
 
@@ -59,7 +58,7 @@ class MixerProxy(object):
 
     @staticmethod
     def __load_cls(cls_type):
-        if isinstance(cls_type, six.string_types):
+        if isinstance(cls_type, _.string_types):
             mod, cls_type = cls_type.rsplit('.', 1)
             mod = import_module(mod)
             cls_type = getattr(mod, cls_type)

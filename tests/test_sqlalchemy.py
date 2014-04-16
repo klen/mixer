@@ -15,10 +15,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relation, sessionmaker, relationship, scoped_session
 from sqlalchemy.ext.declarative import declarative_base
-try:
-    from unittest2 import TestCase
-except ImportError:
-    from unittest import TestCase
+import pytest
 
 
 ENGINE = create_engine('sqlite:///:memory:')
@@ -62,84 +59,85 @@ class Role(BASE):
 BASE.metadata.create_all(ENGINE)
 
 
-class MixerTestSQLAlchemy(TestCase):
+@pytest.fixture
+def session():
+    return SESSION()
 
-    def setUp(self):
-        self.session = SESSION()
 
-    def test_typemixer(self):
-        from mixer.backend.sqlalchemy import TypeMixer
+def test_typemixer():
+    from mixer.backend.sqlalchemy import TypeMixer
 
-        mixer = TypeMixer(User)
-        user = mixer.blend()
-        self.assertTrue(user)
-        self.assertFalse(user.id)
-        self.assertTrue(user.name)
-        self.assertEqual(user.score, 50)
-        self.assertTrue(2 < len(user.name) <= 10)
-        self.assertEqual(user.role, 'client')
-        self.assertTrue(user.updated_at is None)
-        self.assertTrue(user.profile)
-        self.assertEqual(user.profile.user, user)
-        self.assertTrue(user.enum in ('one', 'two'))
+    mixer = TypeMixer(User)
+    user = mixer.blend()
+    assert user
+    assert not user.id
+    assert user.name
+    assert user.score == 50
+    assert 2 < len(user.name) <= 10
+    assert user.role == 'client'
+    assert user.updated_at is None
+    assert user.profile
+    assert user.profile.user == user
+    assert user.enum in ('one', 'two')
 
-        user = mixer.blend(name='John', updated_at=mixer.RANDOM)
-        self.assertEqual(user.name, 'John')
-        self.assertTrue(user.updated_at in (True, False))
+    user = mixer.blend(name='John', updated_at=mixer.RANDOM)
+    assert user.name == 'John'
+    assert user.updated_at in (True, False)
 
-        mixer = TypeMixer('tests.test_sqlalchemy.Role')
-        role = mixer.blend()
-        self.assertTrue(role.user)
-        self.assertEqual(role.user_id, role.user.id)
+    mixer = TypeMixer('tests.test_sqlalchemy.Role')
+    role = mixer.blend()
+    assert role.user
+    assert role.user_id == role.user.id
 
-    def test_mixer(self):
-        from mixer.backend.sqlalchemy import Mixer
 
-        mixer = Mixer(session=self.session, commit=True)
-        role = mixer.blend('tests.test_sqlalchemy.Role')
-        self.assertTrue(role)
-        self.assertTrue(role.user)
+def test_mixer(session):
+    from mixer.backend.sqlalchemy import Mixer
 
-        role = mixer.blend(Role, user__name='test2')
-        self.assertEqual(role.user.name, 'test2')
+    mixer = Mixer(session=session, commit=True)
+    role = mixer.blend('tests.test_sqlalchemy.Role')
+    assert role and role.user
 
-        profile = mixer.blend('tests.test_sqlalchemy.Profile')
-        user = mixer.blend(User, profile__name='test')
-        self.assertEqual(user.profile.name, 'test')
+    role = mixer.blend(Role, user__name='test2')
+    assert role.user.name == 'test2'
 
-        user = mixer.blend(User, profile=profile)
-        self.assertEqual(user.profile, profile)
+    profile = mixer.blend('tests.test_sqlalchemy.Profile')
+    user = mixer.blend(User, profile__name='test')
+    assert user.profile.name == 'test'
 
-        user = mixer.blend(User, score=mixer.RANDOM)
-        self.assertNotEqual(user.score, 50)
+    user = mixer.blend(User, profile=profile)
+    assert user.profile == profile
 
-        user = mixer.blend(User, username=lambda: 'callable_value')
-        self.assertEqual(user.username, 'callable_value')
+    user = mixer.blend(User, score=mixer.RANDOM)
+    assert user.score != 50
 
-    def test_select(self):
-        from mixer.backend.sqlalchemy import Mixer
+    user = mixer.blend(User, username=lambda: 'callable_value')
+    assert user.username == 'callable_value'
 
-        mixer = Mixer(session=self.session, commit=True)
 
-        users = self.session.query(User).all()
-        role = mixer.blend(Role, user=mixer.SELECT)
-        self.assertTrue(role.user in users)
+def test_select(session):
+    from mixer.backend.sqlalchemy import Mixer
 
-        user = users.pop()
-        role = mixer.blend(Role, user=mixer.SELECT(User.id == user.id))
-        self.assertEqual(user, role.user)
+    mixer = Mixer(session=session, commit=True)
 
-    def test_random(self):
-        from mixer.backend.sqlalchemy import mixer
+    users = session.query(User).all()
+    role = mixer.blend(Role, user=mixer.SELECT)
+    assert role.user in users
 
-        values = ('mixer', 'is', 'fun')
-        user = mixer.blend(User, name=mixer.RANDOM(*values))
-        self.assertTrue(user.name in values)
+    user = users.pop()
+    role = mixer.blend(Role, user=mixer.SELECT(User.id == user.id))
+    assert user == role.user
 
-    def test_default_mixer(self):
-        from mixer.backend.sqlalchemy import mixer
 
-        test = mixer.blend(User)
-        self.assertTrue(test.name)
+def test_random():
+    from mixer.backend.sqlalchemy import mixer
 
-# lint_ignore=F0401,C0110
+    values = ('mixer', 'is', 'fun')
+    user = mixer.blend(User, name=mixer.RANDOM(*values))
+    assert user.name in values
+
+
+def test_default_mixer():
+    from mixer.backend.sqlalchemy import mixer
+
+    test = mixer.blend(User)
+    assert test.name
