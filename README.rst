@@ -25,13 +25,13 @@ Mixer supports:
     :target: https://coveralls.io/r/klen/mixer
     :alt: Coverals
 
-.. image:: https://pypip.in/v/mixer/badge.png
-    :target: https://crate.io/packages/mixer
-    :alt: Version
+.. .. image:: https://pypip.in/v/mixer/badge.png
+    .. :target: https://crate.io/packages/mixer
+    .. :alt: Version
 
-.. image:: https://pypip.in/d/mixer/badge.png
-    :target: https://crate.io/packages/mixer
-    :alt: Downloads
+.. .. image:: https://pypip.in/d/mixer/badge.png
+    .. :target: https://crate.io/packages/mixer
+    .. :alt: Downloads
 
 .. image:: https://dl.dropboxusercontent.com/u/487440/reformal/donate.png
     :target: https://www.gittip.com/klen/

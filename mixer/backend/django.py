@@ -221,45 +221,6 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
             raise Exception(
                 "Cannot find a value for the field: '{0}'".format(field_name))
 
-    def gen_relation(self, target, relation, force=False):
-        """ Generate a related relation by `relation`.
-
-        :param target: Target for generate value.
-        :param relation: Instance of :class:`Relation`
-
-        :return : None or (name, value) for later use
-
-        """
-        if isinstance(relation.scheme, GenericForeignKey):
-            return None
-
-        if (
-                not relation.scheme
-                or relation.scheme.null
-                or relation.scheme.blank
-                or relation.scheme.auto_created
-        ) and not relation.params and not force:
-            return None
-
-        rel = relation.scheme
-        if not rel:
-            raise ValueError('Unknown relation: %s' % relation.name)
-
-        if isinstance(rel, models.ForeignKey) and rel.value_from_object(target): # noqa
-            return None
-
-        new_scheme = rel.related.parent_model
-
-        value = target
-        if new_scheme != self.__scheme:
-            value = self.__mixer and self.__mixer.blend(
-                new_scheme, **relation.params
-            ) or TypeMixer(
-                new_scheme, factory=self.__factory, fake=self.fake,
-            ).blend(**relation.params)
-
-        return self.set_value(target, rel.name, value)
-
     def gen_field(self, target, field):
         """ Generate value by field.
 
