@@ -82,7 +82,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
     SKIP = property(lambda s: Mixer.SKIP)
 
     def __init__(self, cls, mixer=None, factory=None, fake=True):
-        self.postprocess = None
+        self.middlewares = []
         self.__factory = factory or self.factory
         self.__fake = fake
         self.__gen_values = defaultdict(set)
@@ -126,8 +126,8 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
             ] if item
         ]
 
-        if self.postprocess:
-            target = self.postprocess(target)  # noqa
+        for middleware in self.middlewares:
+            target = middleware(target)
 
         if self.__mixer:
             target = self.__mixer.post_generate(target)
@@ -702,12 +702,39 @@ class Mixer(_.with_metaclass(_MetaMixer)):
         """
         return ProxyMixer(self, count)
 
-    def register(self, scheme, params=None, fake=None, postprocess=None):
+    def middleware(self, scheme):
+        """ Middleware decorator.
+
+        You can add middleware layers to process generation: ::
+
+        ::
+
+            from mixer.backend.django import mixer
+
+            # Register middleware to model
+            @mixer.middleware('auth.user')
+            def encrypt_password(user):
+                user.set_password('test')
+                return user
+
+        You can add several middlewares.
+        Each middleware should get one argument (generated value) and return
+        them.
+
+        """
+        type_mixer = self.type_mixer_cls(
+            scheme, mixer=self, fake=self.params.get('fake'),
+            factory=self.__factory)
+
+        def wrapper(middleware):
+            type_mixer.middlewares.append(middleware)
+
+        return wrapper
+
+    def register(self, scheme, **params):
         """ Manualy register a function as value's generator for class.field.
 
         :param scheme: Scheme class for generation or string with class path.
-        :param fake: Register as fake generator
-        :param postprocess: Callback for postprocessing value (lambda obj: ...)
         :param params: dict of generators for fields. Keys are field's names.
                         Values is function without argument or objects.
 
@@ -730,19 +757,12 @@ class Mixer(_.with_metaclass(_MetaMixer)):
             test.title == 'Always same'
 
         """
-        if fake is None:
-            fake = self.params.get('fake')
-
+        fake = self.params.get('fake')
         type_mixer = self.type_mixer_cls(
-            scheme, mixer=self, fake=self.params.get('fake'),
-            factory=self.__factory)
+            scheme, mixer=self, fake=fake, factory=self.__factory)
 
-        if postprocess:
-            type_mixer.postprocess = postprocess
-
-        if params:
-            for field_name, func in params.items():
-                type_mixer.register(field_name, func, fake=fake)
+        for field_name, func in params.items():
+            type_mixer.register(field_name, func, fake=fake)
 
     @contextmanager
     def ctx(self, **params):

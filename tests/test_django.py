@@ -53,9 +53,7 @@ def test_random_fields():
 
 
 def test_custom(mixer):
-    mixer.register(Rabbit, {
-        'title': lambda: 'Mr. Rabbit'
-    })
+    mixer.register(Rabbit, title=lambda: 'Mr. Rabbit')
 
     rabbit = mixer.blend(Rabbit)
     assert rabbit.title == 'Mr. Rabbit'
@@ -77,11 +75,11 @@ def test_custom(mixer):
     test = mixer.blend(Rabbit)
     assert test.title == "Always same"
 
-    def postprocess(user):
+    @mixer.middleware('auth.user')
+    def encrypt_password(user): # noqa
         user.set_password(user.password)
         return user
 
-    mixer.register('auth.User', {}, postprocess=postprocess)
     user = mixer.blend('auth.User', password='test')
     assert user.check_password('test')
 

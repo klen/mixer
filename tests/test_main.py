@@ -261,11 +261,8 @@ def test_mixer():
     test = mixer.blend(Test, name=name_gen)
     assert test.name == 1
 
-    mixer.register('tests.test_main.Test', dict(
-        name='Michel',
-        one=lambda: 'ID',
-        unknown="No error here"
-    ))
+    mixer.register('tests.test_main.Test',
+                   name='Michel', one=lambda: 'ID', unknown="No error here")
     test = mixer.blend(Test)
     assert test.one == 'ID'
     assert test.name == 'Michel'
@@ -319,15 +316,17 @@ def test_sequence():
 def test_custom():
     mixer = Mixer()
 
-    def postprocess(x):
+    @mixer.middleware(Test)
+    def postprocess(x): # noqa
         x.name += ' Done'
         return x
 
-    mixer.register(Test, {
-        'name': 'Mike',
-        'one': mixer.G.get_float,
-        'body': lambda: mixer.G.get_datetime((1980, 1, 1)),
-    }, postprocess=postprocess)
+    mixer.register(
+        Test,
+        name='Mike',
+        one=mixer.G.get_float,
+        body=lambda: mixer.G.get_datetime((1980, 1, 1)),
+    )
 
     test = mixer.blend(Test)
     assert test.name == 'Mike Done'
@@ -360,10 +359,10 @@ def test_ctx():
 def test_silence():
     mixer = Mixer()
 
-    def falsed(test):
+    @mixer.middleware(Test)
+    def falsed(test): # noqa
         raise Exception('Unhandled')
 
-    mixer.register(Test, postprocess=falsed)
     with pytest.raises(Exception):
         mixer.blend(Test)
 
