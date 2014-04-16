@@ -20,29 +20,29 @@ Common interface
 
 Set values
 ----------
-.. autoclass:: mixer.main.Field
+.. autoclass:: mixer.types.Field
 
 
 Set values for related objects
 ------------------------------
-.. autoclass:: mixer.main.Relation
+.. autoclass:: mixer.types.Relation
 
 
 Force a random values
 ---------------------
-.. autoclass:: mixer.main.Random
+.. autoclass:: mixer.types.Random
 
 
 Force a fake values
 -------------------
-.. autoclass:: mixer.main.Fake
+.. autoclass:: mixer.types.Fake
 
 
 Select a relation from database
 -------------------------------
-.. autoclass:: mixer.main.Select
+.. autoclass:: mixer.types.Select
 
 
 Virtual mixed object
 --------------------
-.. autoclass:: mixer.main.Mix
+.. autoclass:: mixer.types.Mix

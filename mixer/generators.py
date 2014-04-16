@@ -49,7 +49,7 @@ def loop(get_func):
     """
     if not isinstance(get_func, (FunctionType, MethodType)):
         r = get_func
-        get_func = lambda: r
+        get_func = lambda **kwargs: r
 
     @wraps(get_func)
     def wrapper(*args, **kwargs):
@@ -388,7 +388,6 @@ def get_object(**kwargs):
     :return:
 
     """
-
     getter = get_choice(
         (get_integer, get_datetime, get_boolean, get_string))
     return getter()
@@ -404,12 +403,8 @@ def get_list(**kwargs):
         print get_list()  # -> [1, 'sdff', True]
 
     """
-
     length = get_small_positive_integer(10)
     return [get_object() for _ in range(length)]
 
 #: Generator's fabric for :meth:`mixer.generators.get_list`
 gen_list = loop(get_list)
-
-
-# lint_ignore=E1103

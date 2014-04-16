@@ -235,23 +235,21 @@ Quick example: ::
             id = int
             name = str
 
-        mixer.register(Test, {
-            'name': lambda: 'John',
-            'id': lambda: str(mixer.g.get_positive_integer())
-        })
+        mixer.register(Test,
+            name=lambda: 'John',
+            id=lambda: str(mixer.g.get_positive_integer())
+        )
 
         test = mixer.blend(Test)
         test.name == 'John'
         isinstance(test.id, str)
 
         # You could pinned just a value to field
-        mixer.register(Test, {
-            'name': 'Just John'
-        })
+        mixer.register(Test, name='Just John')
         test = mixer.blend(Test)
         test.name == 'Just John'
 
-Also you can make your ow factory for field types: ::
+Also you can make your own factory for field types: ::
 
     from mixer.backend.django import Mixer, GenFactory
 
@@ -264,6 +262,24 @@ Also you can make your ow factory for field types: ::
         }
 
     mixer = Mixer(factory=MyFactory)
+
+.. _middlewares:
+
+Middlewares
+-----------
+
+You can add middleware layers to process generation: ::
+
+    from mixer.backend.django import mixer
+
+    # Register middleware to model
+    @mixer.middleware('auth.user')
+    def encrypt_password(user):
+        user.set_password('test')
+        return user
+
+You can add several middlewares.
+Each middleware should get one argument (generated value) and return them.
 
 
 .. _bugtracker:

@@ -11,13 +11,11 @@ from django.contrib.contenttypes.generic import GenericForeignKey
 from django import VERSION
 from django.core.files.base import ContentFile
 
-from .. import generators as g, mix_types as t, six
+from .. import generators as g, mix_types as t
+from .. import _compat as _
 from ..main import (
-    Field, Relation, NO_VALUE,
-    TypeMixerMeta as BaseTypeMixerMeta,
-    TypeMixer as BaseTypeMixer,
-    GenFactory as BaseFactory,
-    Mixer as BaseMixer)
+    NO_VALUE, TypeMixerMeta as BaseTypeMixerMeta, TypeMixer as BaseTypeMixer,
+    GenFactory as BaseFactory, Mixer as BaseMixer)
 
 
 get_contentfile = ContentFile
@@ -60,8 +58,19 @@ def get_contenttype(**kwargs):
     :return ContentType:
 
     """
-    choices = [m for m in models.get_models() if not m is ContentType]
+    choices = [m for m in models.get_models() if m is not ContentType]
     return ContentType.objects.get_for_model(g.get_choice(choices))
+
+
+def get_relation(_pylama_scheme=None, _pylama_typemixer=None, **params):
+    """ Function description. """
+    scheme = _pylama_scheme.related.parent_model
+    return TypeMixer(
+        scheme,
+        mixer=_pylama_typemixer._TypeMixer__mixer,
+        factory=_pylama_typemixer._TypeMixer__factory,
+        fake=_pylama_typemixer._TypeMixer__fake,
+    ).blend(**params)
 
 
 class GenFactory(BaseFactory):
@@ -88,9 +97,11 @@ class GenFactory(BaseFactory):
     }
 
     generators = {
-        models.FileField: g.loop(get_file),
-        models.ImageField: g.loop(get_image),
-        ContentType: g.loop(get_contenttype),
+        models.FileField: get_file,
+        models.ImageField: get_image,
+        ContentType: get_contenttype,
+        models.ForeignKey: get_relation,
+        models.ManyToManyField: get_relation,
     }
 
 
@@ -113,14 +124,14 @@ class TypeMixerMeta(BaseTypeMixerMeta):
 
     def __load_cls(cls, cls_type):
 
-        if isinstance(cls_type, six.string_types):
+        if isinstance(cls_type, _.string_types):
             if '.' in cls_type:
                 app_label, model_name = cls_type.split(".")
                 return models.get_model(app_label, model_name)
 
             else:
                 try:
-                    if not cls_type in cls.models_cache:
+                    if cls_type not in cls.models_cache:
                         cls.__update_cache()
 
                     return cls.models_cache[cls_type]
@@ -135,7 +146,7 @@ class TypeMixerMeta(BaseTypeMixerMeta):
                 cls.models_cache[name] = model
 
 
-class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
+class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
     """ TypeMixer for Django. """
 
@@ -173,8 +184,7 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
             return True
 
         return super(TypeMixer, self).set_value(
-            target, field_name, field_value, finaly
-        )
+            target, field_name, field_value, finaly)
 
     @staticmethod
     def get_default(field, target):
@@ -188,7 +198,7 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
         return field.scheme.get_default()
 
-    def gen_select(self, target, field_name, field_value):
+    def gen_select(self, target, field_name, select):
         """ Select exists value from database.
 
         :param target: Target for generate value.
@@ -198,33 +208,28 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
         """
         field = self.__fields.get(field_name)
-        if field:
-            try:
-                return self.set_value(
-                    target, field_name,
-                    field.scheme.rel.to.objects
-                    .filter(**field_value.kwargs)
-                    .order_by('?')[0]
-                )
-            except Exception:
-                raise Exception(
-                    "Cannot find a value for the field: '{0}'".format(
-                        field_name
-                    ))
-        return super(TypeMixer, self).gen_select(
-            target, field_name, field_value)
+        if not field:
+            return super(TypeMixer, self).gen_select(
+                target, field_name, select)
 
-    def gen_relation(self, target, field_name, relation, force=False):
+        try:
+            return self.set_value(
+                target, field_name, field.scheme.rel.to.objects
+                .filter(**select.params).order_by('?')[0])
+
+        except Exception:
+            raise Exception(
+                "Cannot find a value for the field: '{0}'".format(field_name))
+
+    def gen_relation(self, target, relation, force=False):
         """ Generate a related relation by `relation`.
 
         :param target: Target for generate value.
-        :param field_name: Name of relation for generation.
         :param relation: Instance of :class:`Relation`
 
         :return : None or (name, value) for later use
 
         """
-
         if isinstance(relation.scheme, GenericForeignKey):
             return None
 
@@ -238,7 +243,7 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
         rel = relation.scheme
         if not rel:
-            raise ValueError('Unknown relation: %s' % field_name)
+            raise ValueError('Unknown relation: %s' % relation.name)
 
         if isinstance(rel, models.ForeignKey) and rel.value_from_object(target): # noqa
             return None
@@ -255,22 +260,27 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
         return self.set_value(target, rel.name, value)
 
-    def gen_field(self, target, field_name, field):
+    def gen_field(self, target, field):
         """ Generate value by field.
 
         :param target: Target for generate value.
-        :param field_name: Name of field for generation.
         :param relation: Instance of :class:`Field`
 
         :return : None or (name, value) for later use
 
         """
-        if field.scheme.value_from_object(target):
+        if isinstance(field.scheme, GenericForeignKey):
             return None
 
-        return super(TypeMixer, self).gen_field(target, field_name, field)
+        if field.params and not field.scheme:
+            raise ValueError('Invalid relation %s' % field.name)
 
-    def make_generator(self, field, fname=None, fake=False):
+        if not isinstance(field.scheme, models.ManyToManyField) and field.scheme.value_from_object(target): # noqa
+            return None
+
+        return super(TypeMixer, self).gen_field(target, field)
+
+    def make_generator(self, field, fname=None, fake=False, args=None, kwargs=None): # noqa
         """ Make values generator for field.
 
         :param field: A mixer field
@@ -280,10 +290,11 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
         :return generator:
 
         """
+        args = [] if args is None else args
+        kwargs = {} if kwargs is None else kwargs
+
         fcls = type(field)
         stype = self.__factory.cls_to_simple(fcls)
-
-        kwargs = dict()
 
         if fcls is models.CommaSeparatedIntegerField:
             return g.gen_choices(
@@ -299,6 +310,9 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
         elif stype is decimal.Decimal:
             kwargs['i'] = field.max_digits - field.decimal_places
             kwargs['d'] = field.decimal_places
+
+        elif isinstance(field, models.fields.related.RelatedField):
+            kwargs.update({'_pylama_typemixer': self, '_pylama_scheme': field})
 
         return super(TypeMixer, self).make_generator(
             fcls, field_name=fname, fake=fake, args=[], kwargs=kwargs)
@@ -319,7 +333,19 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
         :return bool:
 
         """
-        return not (field.scheme.null and field.scheme.blank)
+        if field.params:
+            return True
+
+        if field.scheme.null and field.scheme.blank:
+            return False
+
+        if field.scheme.auto_created:
+            return False
+
+        if isinstance(field.scheme, models.ManyToManyField):
+            return False
+
+        return True
 
     def guard(self, **filters):
         """ Look objects in database.
@@ -327,12 +353,13 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
         :returns: A finded object or False
 
         """
-
         qs = self.__scheme.objects.filter(**filters)
         count = qs.count()
+
         if count == 1:
             return qs.get()
-        elif count:
+
+        if count:
             return list(qs)
 
         return False
@@ -340,7 +367,7 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
     def __load_fields(self):
 
         for field in self.__scheme._meta.virtual_fields:
-            yield field.name, Relation(field, field.name)
+            yield field.name, t.Field(field, field.name)
 
         for field in self.__scheme._meta.fields:
 
@@ -349,13 +376,13 @@ class TypeMixer(six.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
                 continue
 
             if isinstance(field, models.ForeignKey):
-                yield field.name, Relation(field, field.name)
+                yield field.name, t.Field(field, field.name)
                 continue
 
-            yield field.name, Field(field, field.name)
+            yield field.name, t.Field(field, field.name)
 
         for field in self.__scheme._meta.local_many_to_many:
-            yield field.name, Relation(field, field.name)
+            yield field.name, t.Field(field, field.name)
 
 
 class Mixer(BaseMixer):
@@ -387,5 +414,3 @@ class Mixer(BaseMixer):
 
 # Default mixer
 mixer = Mixer()
-
-# lint_ignore=W0212,W0201,E1002,F0401

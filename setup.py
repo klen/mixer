@@ -5,25 +5,31 @@
 mixer -- Description
 
 """
+import re
 import sys
 from os import path as op
 
 from setuptools import setup
 
-from mixer import __version__, __project__, __license__
 
-
-def read(fname):
+def _read(fname):
     try:
         return open(op.join(op.dirname(__file__), fname)).read()
     except IOError:
         return ''
 
-install_requires = [l for l in read('requirements.txt').split('\n')
-                    if l and not l.startswith('#')]
+_meta = _read('mixer/__init__.py')
+_license = re.search(r'^__license__\s*=\s*"(.*)"', _meta, re.M).group(1)
+_project = re.search(r'^__project__\s*=\s*"(.*)"', _meta, re.M).group(1)
+_version = re.search(r'^__version__\s*=\s*"(.*)"', _meta, re.M).group(1)
 
-tests_require = [l for l in read('requirements-tests.txt').split('\n')
-                 if l and not l.startswith('#')]
+install_requires = [
+    l for l in _read('requirements.txt').split('\n')
+    if l and not l.startswith('#')]
+
+tests_require = [
+    l for l in _read('requirements-tests.txt').split('\n')
+    if l and not l.startswith('#')]
 
 if sys.version_info < (2, 7):
     install_requires.append('importlib')
@@ -31,11 +37,11 @@ if sys.version_info < (2, 7):
 
 
 setup(
-    name=__project__,
-    version=__version__,
-    license=__license__,
-    description=read('DESCRIPTION'),
-    long_description=read('README.rst'),
+    name=_project,
+    version=_version,
+    license=_license,
+    description=_read('DESCRIPTION'),
+    long_description=_read('README.rst'),
     platforms=('Any'),
     keywords = "django flask sqlalchemy testing mock stub mongoengine data".split(), # noqa
 

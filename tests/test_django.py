@@ -2,280 +2,231 @@ from __future__ import absolute_import
 
 import datetime
 
-from .django_app.models import *
-
+import pytest
 from django.core.management import call_command
-from django.test import TestCase
 
+from .django_app.models import Rabbit, models, Hole, Door, Customer, Simple
 from mixer.backend.django import Mixer
 
 
-class MixerTestDjango(TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        call_command('syncdb', interactive=False)
-
-    @classmethod
-    def tearDownClass(cls):
-        call_command('flush', interactive=False)
-
-    def test_custom(self):
-        mixer = Mixer()
-        mixer.register(Rabbit, {
-            'title': lambda: 'Mr. Rabbit'
-        })
-
-        rabbit = mixer.blend(Rabbit)
-        self.assertEqual(rabbit.title, 'Mr. Rabbit')
-
-        from mixer.backend.django import GenFactory
-
-        def getter(*args, **kwargs):
-            return "Always same"
-
-        class MyFactory(GenFactory):
-            generators = {models.CharField: getter}
-
-        gen = MyFactory.gen_maker(models.CharField)
-        self.assertEqual(gen(), "Always same")
-
-        mixer = Mixer(factory=MyFactory, fake=False)
-        self.assertEqual(mixer._Mixer__factory, MyFactory)
-
-        test = mixer.blend(Rabbit)
-        self.assertEqual(test.title, "Always same")
-
-    def test_fields(self):
-        mixer = Mixer()
-        rabbit = mixer.blend('django_app.rabbit')
-
-        self.assertTrue(isinstance(rabbit, Rabbit))
-        self.assertTrue(rabbit.id)
-        self.assertTrue(rabbit.pk)
-        self.assertEqual(rabbit.pk, 1)
-        self.assertEqual(len(rabbit.title), 16)
-        self.assertTrue(isinstance(rabbit.active, bool))
-        self.assertTrue(isinstance(rabbit.created_at, datetime.date))
-        self.assertTrue(isinstance(rabbit.updated_at, datetime.datetime))
-        self.assertTrue(isinstance(rabbit.opened_at, datetime.time))
-        self.assertTrue('@' in rabbit.email)
-        self.assertTrue(rabbit.speed)
-        self.assertTrue(rabbit.description)
-        self.assertEqual(rabbit.picture.read(), b'pylama\n')
-
-        rabbit = mixer.blend('rabbit')
-        self.assertTrue(rabbit)
-
-    def test_random_fields(self):
-        mixer = Mixer(fake=False)
-        rabbit = mixer.blend('django_app.rabbit')
-
-        self.assertTrue(isinstance(rabbit, Rabbit))
-        self.assertTrue(rabbit.id)
-        self.assertTrue(rabbit.pk)
-        self.assertEqual(rabbit.pk, 1)
-        self.assertEqual(len(rabbit.title), 16)
-        self.assertTrue(isinstance(rabbit.active, bool))
-        self.assertTrue(isinstance(rabbit.created_at, datetime.date))
-        self.assertTrue(isinstance(rabbit.updated_at, datetime.datetime))
-        self.assertTrue(isinstance(rabbit.opened_at, datetime.time))
-        self.assertTrue('@' in rabbit.email)
-        self.assertTrue(rabbit.description)
-        self.assertTrue(rabbit.some_field)
-        self.assertTrue(rabbit.money)
-
-        hat = mixer.blend('django_app.hat', color=mixer.RANDOM)
-        self.assertTrue(hat.color in ('RD', 'GRN', 'BL'))
-
-    def test_relation(self):
-        mixer = Mixer()
-
-        hole = mixer.blend('django_app.hole', title='hole4')
-        self.assertEqual(hole.owner.pk, 1)
-        self.assertEqual(hole.title, 'hole4')
-
-        hat = mixer.blend('django_app.hat')
-        self.assertFalse(hat.owner)
-        self.assertEqual(hat.brend, 'wood')
-        self.assertTrue(hat.color in ('RD', 'GRN', 'BL'))
-
-        hat = mixer.blend('django_app.hat', owner=mixer.SELECT)
-        self.assertTrue(hat.owner)
+@pytest.fixture(autouse=True)
+def mixer(request):
+    call_command('syncdb', interactive=False, verbosity=0)
+    request.addfinalizer(lambda: call_command(
+        'flush', interactive=False, verbosity=0))
+    return Mixer()
 
-        silk = mixer.blend('django_app.silk')
-        self.assertFalse(silk.hat.owner)
-
-        silk = mixer.blend('django_app.silk', hat__owner__title='booble')
-        self.assertTrue(silk.hat.owner)
-        self.assertEqual(silk.hat.owner.title, 'booble')
-
-        door = mixer.blend('django_app.door', hole__title='flash',
-                           hole__size=244)
-        self.assertTrue(door.hole.owner)
-        self.assertEqual(door.hole.title, 'flash')
-        self.assertEqual(door.hole.size, 244)
 
-        door = mixer.blend('django_app.door')
-        self.assertNotEqual(door.hole.title, 'flash')
+def test_base():
+    from mixer.backend.django import mixer
 
-        num = mixer.blend('django_app.number', doors=[door])
-        self.assertEqual(num.doors.get(), door)
+    simple = mixer.blend('django_app.simple')
+    assert isinstance(simple.value, int)
 
-        num = mixer.blend('django_app.number')
-        self.assertEqual(num.doors.count(), 1)
 
-        num = mixer.blend('django_app.number', doors__size=42)
-        self.assertEqual(num.doors.all()[0].size, 42)
+def test_fields(mixer):
+    rabbit = mixer.blend('django_app.rabbit')
 
-        tag = mixer.blend('django_app.tag', customer=mixer.RANDOM)
-        self.assertTrue(tag.customer)
+    assert isinstance(rabbit, Rabbit)
+    assert rabbit.id
+    assert rabbit.pk
+    assert rabbit.pk == 1
+    assert len(rabbit.title) == 16
+    assert isinstance(rabbit.active, bool)
+    assert isinstance(rabbit.created_at, datetime.date)
+    assert isinstance(rabbit.updated_at, datetime.datetime)
+    assert isinstance(rabbit.opened_at, datetime.time)
+    assert '@' in rabbit.email
+    assert rabbit.speed
+    assert rabbit.description
+    assert rabbit.picture.read() == b'pylama\n'
 
-    def test_many_to_many_through(self):
-        mixer = Mixer()
-        pointa = mixer.blend('django_app.pointa')
-        self.assertTrue(pointa.other.all())
-
-        pointb = mixer.blend('pointb')
-        pointa = mixer.blend('pointa', other=pointb)
-        self.assertEqual(list(pointa.other.all()), [pointb])
-
-    def test_default_mixer(self):
-        from mixer.backend.django import mixer
+    rabbit = mixer.blend('rabbit')
+    assert rabbit
 
-        test = mixer.blend(Rabbit)
-        self.assertTrue(test.username)
-
-    def test_select(self):
-        from mixer.backend.django import mixer
-
-        mixer.cycle(3).blend(Rabbit)
-        hole = mixer.blend(Hole, rabbit=mixer.SELECT)
-        self.assertFalse(hole.rabbit)
-
-        rabbits = Rabbit.objects.all()
-        hole = mixer.blend(Hole, owner=mixer.SELECT)
-        self.assertTrue(hole.owner in rabbits)
-
-        rabbit = rabbits[0]
-        hole = mixer.blend(Hole, owner=mixer.SELECT(email=rabbit.email))
-        self.assertEqual(hole.owner, rabbit)
-
-    def test_fake(self):
-        from mixer.backend.django import mixer
-
-        def postprocess(user):
-            user.set_password(user.password)
-            return user
-
-        mixer.register('auth.User', {}, postprocess=postprocess)
-        user = mixer.blend('auth.User', username=mixer.FAKE, password='test')
-        self.assertTrue('' in user.username)
-        self.assertTrue(user.check_password('test'))
-        user = user.__class__.objects.get(pk=user.pk)
-        self.assertTrue(user.check_password('test'))
 
-    def test_random(self):
-        from mixer.backend.django import mixer
+def test_random_fields():
+    mixer = Mixer(fake=False)
 
-        user = mixer.blend('auth.User', username=mixer.RANDOM(
-            'mixer', 'is', 'fun'
-        ))
-        self.assertTrue(user.username in ('mixer', 'is', 'fun'))
+    hat = mixer.blend('django_app.hat', color=mixer.RANDOM)
+    assert hat.color in ('RD', 'GRN', 'BL')
 
-        rabbit = mixer.blend(Rabbit, url=mixer.RANDOM)
-        self.assertTrue('/' in rabbit.url)
 
-    def test_mix(self):
-        from mixer.backend.django import mixer
+def test_custom(mixer):
+    mixer.register(Rabbit, title=lambda: 'Mr. Rabbit')
 
-        test = mixer.blend(Rabbit, title=mixer.MIX.username)
-        self.assertEqual(test.title, test.username)
+    rabbit = mixer.blend(Rabbit)
+    assert rabbit.title == 'Mr. Rabbit'
 
-        test = Rabbit.objects.get(pk=test.pk)
-        self.assertEqual(test.title, test.username)
+    from mixer.backend.django import GenFactory
 
-        test = mixer.blend(Hole, title=mixer.MIX.owner.title)
-        self.assertEqual(test.title, test.owner.title)
+    def getter(*args, **kwargs):
+        return "Always same"
 
-        test = mixer.blend(Door, hole__title=mixer.MIX.owner.title)
-        self.assertEqual(test.hole.title, test.hole.owner.title)
+    class MyFactory(GenFactory):
+        generators = {models.CharField: getter}
 
-        test = mixer.blend(Door, hole__title=mixer.MIX.owner.username(
-            lambda t: t + 's hole'
-        ))
-        self.assertTrue(test.hole.owner.username in test.hole.title)
-        self.assertTrue('s hole' in test.hole.title)
+    fabric = MyFactory.gen_maker(models.CharField)
+    assert next(fabric()) == "Always same"
 
-    def test_contrib(self):
-        from mixer.backend.django import mixer
+    mixer = Mixer(factory=MyFactory, fake=False)
+    assert mixer._Mixer__factory == MyFactory
 
-        with self.assertNumQueries(1):
-            user = mixer.blend('auth.User')
-        self.assertTrue(user)
+    test = mixer.blend(Rabbit)
+    assert test.title == "Always same"
 
-        with self.assertNumQueries(3):
-            customer = mixer.blend(Customer)
-        self.assertTrue(customer)
+    @mixer.middleware('auth.user')
+    def encrypt_password(user): # noqa
+        user.set_password(user.password)
+        return user
 
-    @staticmethod
-    def test_invalid_scheme():
-        from mixer.backend.django import mixer
-        try:
-            mixer.blend('django_app.Unknown')
-        except ValueError:
-            return False
-        raise Exception('test.failed')
+    user = mixer.blend('auth.User', password='test')
+    assert user.check_password('test')
 
-    @staticmethod
-    def test_invalid_relation():
-        from mixer.backend.django import mixer
+    user = user.__class__.objects.get(pk=user.pk)
+    assert user.check_password('test')
 
-        try:
-            mixer.blend('django_app.Hole', unknown__test=1)
-        except ValueError:
-            return False
-        raise Exception('test.failed')
 
-    def test_generic(self):
-        from mixer.backend.django import mixer
+def test_select(mixer):
+    mixer.cycle(3).blend(Rabbit)
+    hole = mixer.blend(Hole, rabbit=mixer.SELECT)
+    assert not hole.rabbit
 
-        obj = mixer.blend(Simple)
-        with mixer.ctx(loglevel='DEBUG'):
-            rabbit = mixer.blend(Rabbit, content_object=obj)
-        self.assertEqual(rabbit.content_object, obj)
-        self.assertEqual(rabbit.object_id, obj.pk)
-        self.assertEqual(rabbit.content_type.model_class(), type(obj))
+    rabbits = Rabbit.objects.all()
+    hole = mixer.blend(Hole, owner=mixer.SELECT)
+    assert hole.owner in rabbits
 
-        rabbit = mixer.blend(Rabbit)
-        self.assertTrue(rabbit.content_type)
+    rabbit = rabbits[0]
+    select = mixer.SELECT(email=rabbit.email)
+    hole = mixer.blend(Hole, owner=select)
+    assert hole.owner == rabbit
 
-    def test_ctx(self):
-        from mixer.backend.django import mixer
 
-        with mixer.ctx(commit=False):
-            hole = mixer.blend(Hole)
-            self.assertTrue(hole)
-            self.assertFalse(Hole.objects.count())
+def test_relation(mixer):
+    hat = mixer.blend('django_app.hat')
+    assert not hat.owner
 
-        with mixer.ctx(commit=True):
-            hole = mixer.blend(Hole)
-            self.assertTrue(hole)
-            self.assertTrue(Hole.objects.count())
+    silk = mixer.blend('django_app.silk')
+    assert not silk.hat.owner
 
-    def test_skip(self):
-        from mixer.backend.django import mixer
+    silk = mixer.blend('django_app.silk', hat__owner__title='booble')
+    assert silk.hat.owner
+    assert silk.hat.owner.title == 'booble'
 
-        rabbit = mixer.blend(Rabbit, created_at=mixer.SKIP)
-        self.assertTrue(rabbit.created_at)
+    door = mixer.blend('django_app.door', hole__title='flash', hole__size=244)
+    assert door.hole.owner
+    assert door.hole.title == 'flash'
+    assert door.hole.size == 244
 
-    def test_guard(self):
-        from mixer.backend.django import mixer
+    door = mixer.blend('django_app.door')
+    assert door.hole.title != 'flash'
 
-        r1 = mixer.guard(username='maxi').blend(Rabbit)
-        r2 = mixer.guard(username='maxi').blend(Rabbit)
-        self.assertTrue(r1)
-        self.assertEqual(r1, r2)
+    num = mixer.blend('django_app.number', doors=[door])
+    assert num.doors.get() == door
 
+    num = mixer.blend('django_app.number')
+    assert num.doors.count() == 0
 
-# lint_ignore=F0401,W0401,E0602,W0212,C
+    num = mixer.blend('django_app.number', doors__size=42)
+    assert num.doors.all()[0].size == 42
+
+    tag = mixer.blend('django_app.tag', customer=mixer.RANDOM)
+    assert tag.customer
+
+
+def test_many_to_many_through(mixer):
+    pointa = mixer.blend('django_app.pointa', other=mixer.RANDOM)
+    assert pointa.other.all()
+
+    pointb = mixer.blend('pointb')
+    pointa = mixer.blend('pointa', other=pointb)
+    assert list(pointa.other.all()) == [pointb]
+
+
+def test_random(mixer):
+    user = mixer.blend('auth.User', username=mixer.RANDOM(
+        'mixer', 'is', 'fun'
+    ))
+    assert user.username in ('mixer', 'is', 'fun')
+
+    rabbit = mixer.blend(Rabbit, url=mixer.RANDOM)
+    assert '/' in rabbit.url
+
+
+def test_mix(mixer):
+    test = mixer.blend(Rabbit, title=mixer.MIX.username)
+    assert test.title == test.username
+
+    test = Rabbit.objects.get(pk=test.pk)
+    assert test.title == test.username
+
+    test = mixer.blend(Hole, title=mixer.MIX.owner.title)
+    assert test.title == test.owner.title
+
+    test = mixer.blend(Door, hole__title=mixer.MIX.owner.title)
+    assert test.hole.title == test.hole.owner.title
+
+    test = mixer.blend(Door, hole__title=mixer.MIX.owner.username(
+        lambda t: t + 's hole'
+    ))
+    assert test.hole.owner.username in test.hole.title
+    assert 's hole' in test.hole.title
+
+
+def test_contrib(mixer):
+    from django.db import connection
+    _ = connection.connection.total_changes
+    assert mixer.blend('auth.user')
+    assert connection.connection.total_changes - _ == 1
+
+    _ = connection.connection.total_changes
+    assert mixer.blend(Customer)
+    assert connection.connection.total_changes - _ == 2
+
+
+def test_invalid_scheme(mixer):
+    with pytest.raises(ValueError):
+        mixer.blend('django_app.Unknown')
+
+
+def test_invalid_relation(mixer):
+    with pytest.raises(ValueError):
+        mixer.blend('django_app.Hole', unknown__test=1)
+
+
+def test_generic(mixer):
+    obj = mixer.blend(Simple)
+    with mixer.ctx(loglevel='DEBUG'):
+        rabbit = mixer.blend(Rabbit, content_object=obj)
+    assert rabbit.content_object == obj
+    assert rabbit.object_id == obj.pk
+    assert rabbit.content_type.model_class() == type(obj)
+
+    rabbit = mixer.blend(Rabbit)
+    assert rabbit.content_type
+
+
+def test_ctx(mixer):
+
+    with mixer.ctx(commit=False):
+        hole = mixer.blend(Hole)
+        assert hole
+        assert not Hole.objects.count()
+
+    with mixer.ctx(commit=True):
+        hole = mixer.blend(Hole)
+        assert hole
+        assert Hole.objects.count()
+
+
+def test_skip(mixer):
+    rabbit = mixer.blend(Rabbit, created_at=mixer.SKIP, title=mixer.SKIP)
+    assert rabbit.created_at
+    assert not rabbit.title
+
+
+def test_guard(mixer):
+    r1 = mixer.guard(username='maxi').blend(Rabbit)
+    r2 = mixer.guard(username='maxi').blend(Rabbit)
+    assert r1
+    assert r1 == r2
