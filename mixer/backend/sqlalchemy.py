@@ -214,7 +214,12 @@ class Mixer(BaseMixer):
                 LOGGER.warn("'commit' set true but session not initialized.")
             else:
                 session.add(result)
-                session.commit()
+                # Use transaction manager when needed
+                try:
+                    session.commit()
+                except AssertionError:
+                    import transaction as tm
+                    tm.commit()
 
         return result
 
