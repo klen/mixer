@@ -38,6 +38,15 @@ if not LOGGER.handlers and not LOGGER.root.handlers:
     LOGGER.addHandler(logging.StreamHandler())
 
 
+class _Deffered(object):
+
+    """ Post process value. """
+
+    def __init__(self, value, scheme=None):
+        self.value = value
+        self.scheme = scheme
+
+
 class TypeMixerMeta(type):
 
     """ Cache type mixers by scheme. """
@@ -121,11 +130,19 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
         )
 
         # Parse MIX and SKIP values
-        values = dict(
+        candidates = list(
             (name, value & values if isinstance(value, t.Mix) else value)
             for name, value in values.items()
             if value is not SKIP_VALUE
         )
+
+        values = list()
+        postprocess_values = list()
+        for name, value in candidates:
+            if isinstance(value, _Deffered):
+                postprocess_values.append((name, value))
+            else:
+                values.append((name, value))
 
         target = self.populate_target(values)
 
@@ -135,11 +152,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
 
         # Run mixer postprocess
         if self.__mixer:
-            target = self.__mixer.postprocess(target)
-
-        # Set post values
-        # for fname, fvalue in post_values:
-            # self.get_value(target, fname, fvalue)
+            target = self.__mixer.postprocess(target, postprocess_values)
 
         LOGGER.info('Blended: %s [%s]', target, self.__scheme) # noqa
         return target
@@ -147,7 +160,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
     def populate_target(self, values):
         """ Populate target with values. """
         target = self.__scheme()
-        for name, value in values.items():
+        for name, value in values:
             setattr(target, name, value)
         return target
 
@@ -588,12 +601,14 @@ class Mixer(_.with_metaclass(_MetaMixer)):
             fake=self.params.get('fake'), factory=self.__factory)
 
     @staticmethod
-    def postprocess(target):
+    def postprocess(target, postprocess_values):
         """ Post processing a generated value.
 
-        :return value:
+        :return target:
 
         """
+        for name, deffered in postprocess_values:
+            setattr(target, name, deffered.value)
         return target
 
     @staticmethod # noqa
