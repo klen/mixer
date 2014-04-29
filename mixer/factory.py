@@ -107,7 +107,10 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
         ('url', t.URL): f.get_url,
     }
 
-    types = {}
+    types = {
+        _.string_types: str,
+        _.integer_types: int,
+    }
 
     @classmethod
     def cls_to_simple(cls, fcls):
