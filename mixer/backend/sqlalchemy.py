@@ -202,7 +202,7 @@ class Mixer(BaseMixer):
         self.params['session'] = session
         self.params['commit'] = bool(session) and commit
 
-    def post_generate(self, result):
+    def postprocess(self, result):
         """ Save objects in db.
 
         :return value: A generated value

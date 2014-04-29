@@ -118,7 +118,6 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
 
         deferred_values = list(self.fill_fields(target, defaults))
 
-        # Fill fields in 2 steps
         post_values = [
             item for item in [
                 self.set_value(target, fname, fvalue, finaly=True)
@@ -126,11 +125,13 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
             ] if item
         ]
 
+        # Run registered middlewares
         for middleware in self.middlewares:
             target = middleware(target)
 
+        # Run mixer postprocess
         if self.__mixer:
-            target = self.__mixer.post_generate(target)
+            target = self.__mixer.postprocess(target)
 
         for fname, fvalue in post_values:
             self.set_value(target, fname, fvalue)
@@ -605,7 +606,7 @@ class Mixer(_.with_metaclass(_MetaMixer)):
             fake=self.params.get('fake'), factory=self.__factory)
 
     @staticmethod
-    def post_generate(target):
+    def postprocess(target):
         """ Post processing a generated value.
 
         :return value:

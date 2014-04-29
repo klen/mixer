@@ -361,7 +361,7 @@ class Mixer(BaseMixer):
         super(Mixer, self).__init__(**params)
         self.params['commit'] = commit
 
-    def post_generate(self, result):
+    def postprocess(self, result):
         """ Save objects in db.
 
         :return value: A generated value
