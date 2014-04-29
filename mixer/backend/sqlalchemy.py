@@ -50,7 +50,7 @@ class TypeMixer(BaseTypeMixer):
         self.mapper = self.__scheme._sa_class_manager.mapper
 
     @staticmethod
-    def get_default(field, target):
+    def get_default(field):
         """ Get default value from field.
 
         :return value: A default value or NO_VALUE
@@ -65,7 +65,7 @@ class TypeMixer(BaseTypeMixer):
             return NO_VALUE
 
         if column.default.is_callable:
-            return column.default.arg(target)
+            return column.default.arg(None)
 
         return getattr(column.default, 'arg', NO_VALUE)
 

@@ -186,7 +186,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
         :return : None or (name, value) for later use
 
         """
-        default = self.get_default(field, target)
+        default = self.get_default(field)
 
         if default is not NO_VALUE:
             return self.set_value(target, field.name, default)
@@ -361,7 +361,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
         return True
 
     @staticmethod
-    def get_default(field, target):
+    def get_default(field):
         """ Get default value from field.
 
         :return value:

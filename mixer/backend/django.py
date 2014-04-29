@@ -187,7 +187,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
             target, field_name, field_value, finaly)
 
     @staticmethod
-    def get_default(field, target):
+    def get_default(field):
         """ Get default value from field.
 
         :return value: A default value or NO_VALUE

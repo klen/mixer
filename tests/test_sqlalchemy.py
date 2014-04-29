@@ -15,6 +15,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relation, sessionmaker, relationship, scoped_session
 from sqlalchemy.ext.declarative import declarative_base
+from random import randrange
 import pytest
 
 
@@ -42,6 +43,7 @@ class User(BASE):
     updated_at = Column(Boolean)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     enum = Column(Enum('one', 'two'), nullable=False)
+    random = Column(Integer, default=lambda: randrange(993, 995))
 
     profile_id = Column(Integer, ForeignKey('profile.id'), nullable=False)
 
@@ -72,6 +74,7 @@ def test_typemixer():
     assert user
     assert not user.id
     assert user.name
+    assert 993 <= user.random < 995
     assert user.score == 50
     assert 2 < len(user.name) <= 10
     assert user.role == 'client'

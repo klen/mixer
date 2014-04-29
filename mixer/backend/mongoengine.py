@@ -196,7 +196,7 @@ class TypeMixer(BaseTypeMixer):
             ftype, field_name=field_name, fake=fake, args=args, kwargs=kwargs)
 
     @staticmethod
-    def get_default(field, target):
+    def get_default(field):
         """ Get default value from field.
 
         :return value: A default value or NO_VALUE
