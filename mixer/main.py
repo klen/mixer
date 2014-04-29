@@ -30,7 +30,6 @@ except ImportError:
     from ordereddict import OrderedDict # noqa
 
 
-NO_VALUE = object()
 SKIP_VALUE = object()
 
 LOGLEVEL = logging.WARN
@@ -102,28 +101,33 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
         :return value: a generated value
 
         """
-        target = self.__scheme()
-
         defaults = deepcopy(self.__fields)
 
         # Prepare relations
         for key, params in values.items():
             if '__' in key:
-                rname, rvalue = key.split('__', 1)
-                if rname not in defaults:
-                    defaults[rname] = t.Field(None, rname)
-                defaults[rname].params.update({rvalue: params})
+                name, value = key.split('__', 1)
+                if name not in defaults:
+                    defaults[name] = t.Field(None, name)
+                defaults[name].params.update({value: params})
                 continue
             defaults[key] = params
 
-        deferred_values = list(self.fill_fields(target, defaults))
+        values = dict(
+            value.gen_value(self, name, value)
+            if isinstance(value, t.ServiceValue)
+            else self.get_value(name, value)
+            for name, value in defaults.items()
+        )
 
-        post_values = [
-            item for item in [
-                self.set_value(target, fname, fvalue, finaly=True)
-                for (fname, fvalue) in deferred_values
-            ] if item
-        ]
+        # Parse MIX and SKIP values
+        values = dict(
+            (name, value & values if isinstance(value, t.Mix) else value)
+            for name, value in values.items()
+            if value is not SKIP_VALUE
+        )
+
+        target = self.populate_target(values)
 
         # Run registered middlewares
         for middleware in self.middlewares:
@@ -133,55 +137,37 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
         if self.__mixer:
             target = self.__mixer.postprocess(target)
 
-        for fname, fvalue in post_values:
-            self.set_value(target, fname, fvalue)
+        # Set post values
+        # for fname, fvalue in post_values:
+            # self.get_value(target, fname, fvalue)
 
         LOGGER.info('Blended: %s [%s]', target, self.__scheme) # noqa
         return target
 
-    def fill_fields(self, target, defaults):
-        """ Fill all required fields. """
-        for fname, value in defaults.items():
+    def populate_target(self, values):
+        """ Populate target with values. """
+        target = self.__scheme()
+        for name, value in values.items():
+            setattr(target, name, value)
+        return target
 
-            if isinstance(value, t.ServiceValue):
-                deferred = value.gen_value(self, target, fname, value)
+    def get_value(self, name, value):
+        """ Parse field value.
 
-            else:
-                deferred = self.set_value(target, fname, value)
-
-            if deferred:
-                yield deferred
-
-    def set_value(self, target, field_name, field_value, finaly=False):
-        """ Set `value` to `target` as `field_name`.
-
-        :return : None or (name, value) for later use
+        :return : (name, value) or None
 
         """
-        if field_value is SKIP_VALUE:
-            return
+        if isinstance(value, GeneratorType):
+            return self.get_value(name, next(value))
 
-        if isinstance(field_value, GeneratorType):
-            return self.set_value(
-                target, field_name, next(field_value), finaly=finaly)
+        if callable(value) and not isinstance(value, t.Mix):
+            return self.get_value(name, value())
 
-        if isinstance(field_value, t.Mix):
-            if not finaly:
-                return field_name, field_value
+        return name, value
 
-            return self.set_value(
-                target, field_name, field_value & target, finaly=finaly)
-
-        if callable(field_value):
-            return self.set_value(
-                target, field_name, field_value(), finaly=finaly)
-
-        setattr(target, field_name, field_value)
-
-    def gen_field(self, target, field):
+    def gen_field(self, field):
         """ Generate value by field.
 
-        :param target: Target for generate value.
         :param field: Instance of :class:`Field`
 
         :return : None or (name, value) for later use
@@ -189,19 +175,18 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
         """
         default = self.get_default(field)
 
-        if default is not NO_VALUE:
-            return self.set_value(target, field.name, default)
+        if default is not SKIP_VALUE:
+            return self.get_value(field.name, default)
 
         if not self.is_required(field):
-            return False
+            return field.name, SKIP_VALUE
 
         unique = self.is_unique(field)
-        return self.gen_value(target, field.name, field, unique=unique)
+        return self.gen_value(field.name, field, unique=unique)
 
-    def gen_random(self, target, field_name, random):
-        """ Generate random value of field with `field_name` for `target`.
+    def gen_random(self, field_name, random):
+        """ Generate random value of field with `field_name`.
 
-        :param target: Target for generate value.
         :param field_name: Name of field for generation.
         :param random: Instance of :class:`~mixer.main.Random`.
 
@@ -212,17 +197,16 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
             random = deepcopy(self.__fields.get(field_name))
 
         elif not isinstance(random.scheme, type):
-            return self.set_value(
-                target, field_name, g.get_choice(random.choices))
+            return self.get_value(
+                field_name, g.get_choice(random.choices))
 
-        return self.gen_value(target, field_name, random, fake=False)
+        return self.gen_value(field_name, random, fake=False)
 
     gen_select = gen_random
 
-    def gen_fake(self, target, field_name, fake):
-        """ Generate fake value of field with `field_name` for `target`.
+    def gen_fake(self, field_name, fake):
+        """ Generate fake value of field with `field_name`.
 
-        :param target: Target for generate value.
         :param field_name: Name of field for generation.
         :param fake: Instance of :class:`~mixer.main.Fake`.
 
@@ -232,13 +216,10 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
         if not fake.scheme:
             fake = deepcopy(self.__fields.get(field_name))
 
-        return self.gen_value(target, field_name, fake, fake=True)
+        return self.gen_value(field_name, fake, fake=True)
 
-    def gen_value(
-            self, target, field_name, field, fake=None, unique=False):
+    def gen_value(self, field_name, field, fake=None, unique=False):
         """ Generate values from basic types.
-
-        Set value to target.
 
         :return : None or (name, value) for later use
 
@@ -252,6 +233,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
         try:
             value = next(gen)
         except ValueError:
+            import ipdb; ipdb.set_trace()  # XXX BREAKPOINT
             value = target
 
         if unique and value is not SKIP_VALUE:
@@ -265,7 +247,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
                     )
             self.__gen_values[field].add(value)
 
-        return self.set_value(target, field_name, value)
+        return self.get_value(field_name, value)
 
     def get_generator(self, field, field_name=None, fake=None):
         """ Get generator for field and cache it.
@@ -368,7 +350,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
         :return value:
 
         """
-        return NO_VALUE
+        return SKIP_VALUE
 
     @staticmethod
     def guard(**filters):
