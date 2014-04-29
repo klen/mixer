@@ -107,7 +107,10 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
         ('url', t.URL): f.get_url,
     }
 
-    types = {}
+    types = {
+        _.string_types: str,
+        _.integer_types: int,
+    }
 
     @classmethod
     def cls_to_simple(cls, fcls):
@@ -139,7 +142,7 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
 
         """
         simple = cls.cls_to_simple(fcls)
-        func = cls.generators.get(fcls)
+        func = cls.generators.get(fcls) or cls.generators.get(simple)
 
         if fname and fake and (fname, simple) in cls.fakers:
             fname = cls.name_to_simple(fname)

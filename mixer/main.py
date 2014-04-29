@@ -251,7 +251,10 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
         else:
             gen = self.__factory.gen_maker(type(field))()
 
-        value = next(gen)
+        try:
+            value = next(gen)
+        except ValueError:
+            value = None
 
         if unique and value is not SKIP_VALUE:
             counter = 0
