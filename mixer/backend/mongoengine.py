@@ -269,16 +269,16 @@ class Mixer(BaseMixer):
         super(Mixer, self).__init__(**params)
         self.params['commit'] = commit
 
-    def postprocess(self, result, postprocess_values):
+    def postprocess(self, target):
         """ Save instance to DB.
 
         :return instance:
 
         """
-        if self.params.get('commit') and isinstance(result, Document):
-            result.save()
+        if self.params.get('commit') and isinstance(target, Document):
+            target.save()
 
-        return result
+        return target
 
 
 mixer = Mixer()

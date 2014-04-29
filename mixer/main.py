@@ -150,11 +150,19 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
         for middleware in self.middlewares:
             target = middleware(target)
 
-        # Run mixer postprocess
-        if self.__mixer:
-            target = self.__mixer.postprocess(target, postprocess_values)
+        target = self.postprocess(target, postprocess_values)
 
         LOGGER.info('Blended: %s [%s]', target, self.__scheme) # noqa
+        return target
+
+    def postprocess(self, target, postprocess_values):
+        """ Run postprocess code. """
+        if self.__mixer:
+            target = self.__mixer.postprocess(target)
+
+        for name, deffered in postprocess_values:
+            setattr(target, name, deffered.value)
+
         return target
 
     def populate_target(self, values):
@@ -243,11 +251,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
         else:
             gen = self.__factory.gen_maker(type(field))()
 
-        try:
-            value = next(gen)
-        except ValueError:
-            import ipdb; ipdb.set_trace()  # XXX BREAKPOINT
-            value = target
+        value = next(gen)
 
         if unique and value is not SKIP_VALUE:
             counter = 0
@@ -601,14 +605,12 @@ class Mixer(_.with_metaclass(_MetaMixer)):
             fake=self.params.get('fake'), factory=self.__factory)
 
     @staticmethod
-    def postprocess(target, postprocess_values):
+    def postprocess(target):
         """ Post processing a generated value.
 
         :return target:
 
         """
-        for name, deffered in postprocess_values:
-            setattr(target, name, deffered.value)
         return target
 
     @staticmethod # noqa

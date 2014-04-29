@@ -15,8 +15,8 @@ from sqlalchemy.types import (
 
 from .. import mix_types as t, generators as g
 from ..main import (
-    NO_VALUE, LOGGER, TypeMixer as BaseTypeMixer, GenFactory as BaseFactory,
-    Mixer as BaseMixer)
+    SKIP_VALUE, LOGGER, TypeMixer as BaseTypeMixer, GenFactory as BaseFactory,
+    Mixer as BaseMixer, _Deffered)
 
 
 class GenFactory(BaseFactory):
@@ -49,6 +49,22 @@ class TypeMixer(BaseTypeMixer):
         super(TypeMixer, self).__init__(cls, **params)
         self.mapper = self.__scheme._sa_class_manager.mapper
 
+    def postprocess(self, target, postprocess_values):
+        """ Fill postprocess values. """
+        for name, deffered in postprocess_values:
+            value = deffered.value
+            setattr(target, name, value)
+
+            col = deffered.scheme.local_remote_pairs[0][0]
+            setattr(
+                target, col.name,
+                deffered.scheme.mapper.identity_key_from_instance(value)[1][0])
+
+        if self.__mixer:
+            target = self.__mixer.postprocess(target)
+
+        return target
+
     @staticmethod
     def get_default(field):
         """ Get default value from field.
@@ -62,31 +78,30 @@ class TypeMixer(BaseTypeMixer):
             column = column.local_remote_pairs[0][0]
 
         if not column.default:
-            return NO_VALUE
+            return SKIP_VALUE
 
         if column.default.is_callable:
             return column.default.arg(None)
 
-        return getattr(column.default, 'arg', NO_VALUE)
+        return getattr(column.default, 'arg', SKIP_VALUE)
 
-    def gen_select(self, target, field_name, select):
+    def gen_select(self, field_name, select):
         """ Select exists value from database.
 
-        :param target: Target for generate value.
         :param field_name: Name of field for generation.
 
         :return : None or (name, value) for later use
 
         """
         if not self.__mixer or not self.__mixer.params.get('session'):
-            return False
+            return field_name, SKIP_VALUE
 
         relation = self.mapper.get_property(field_name)
         session = self.__mixer.params.get('session')
         value = session.query(
             relation.mapper.class_
         ).filter(*select.choices).order_by(func.random()).first()
-        self.set_value(target, field_name, value)
+        return self.get_value(field_name, value)
 
     @staticmethod
     def is_unique(field):
@@ -118,22 +133,17 @@ class TypeMixer(BaseTypeMixer):
             or not column.nullable
             and not (column.autoincrement and column.primary_key))
 
-    def set_value(self, target, field_name, field_value, finaly=False):
-        """ Set `value` to `target` as `field_name`.
+    def get_value(self, field_name, field_value):
+        """ Get `value` as `field_name`.
 
         :return : None or (name, value) for later use
 
         """
         field = self.__fields.get(field_name)
         if field and isinstance(field.scheme, RelationshipProperty):
-            col = field.scheme.local_remote_pairs[0][0]
-            setattr(
-                target, col.name,
-                field.scheme.mapper.identity_key_from_instance(
-                    field_value)[1][0])
+            return field_name, _Deffered(field_value, field.scheme)
 
-        return super(TypeMixer, self).set_value(
-            target, field_name, field_value, finaly)
+        return super(TypeMixer, self).get_value(field_name, field_value)
 
     def make_generator(self, column, field_name=None, fake=False, args=None, kwargs=None): # noqa
         """ Make values generator for column.
@@ -202,7 +212,7 @@ class Mixer(BaseMixer):
         self.params['session'] = session
         self.params['commit'] = bool(session) and commit
 
-    def postprocess(self, result):
+    def postprocess(self, target):
         """ Save objects in db.
 
         :return value: A generated value
@@ -213,10 +223,10 @@ class Mixer(BaseMixer):
             if not session:
                 LOGGER.warn("'commit' set true but session not initialized.")
             else:
-                session.add(result)
+                session.add(target)
                 session.commit()
 
-        return result
+        return target
 
 
 # Default mixer

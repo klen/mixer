@@ -148,6 +148,36 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
     factory = GenFactory
 
+    def postprocess(self, target, postprocess_values):
+        """ Fill postprocess_values. """
+        if self.__mixer:
+            target = self.__mixer.postprocess(target)
+
+        for name, deffered in postprocess_values:
+
+            value = deffered.value
+
+            if not type(deffered.scheme) is GenericForeignKey:
+
+                if not target.pk:
+                    continue
+
+                # # If the ManyToMany relation has an intermediary model,
+                # # the add and remove methods do not exist.
+                if not deffered.scheme.rel.through._meta.auto_created and self.__mixer: # noqa
+                    self.__mixer.blend(
+                        deffered.scheme.rel.through, **{
+                            deffered.scheme.m2m_field_name(): target,
+                            deffered.scheme.m2m_reverse_field_name(): value})
+                    continue
+
+                if not isinstance(value, (list, tuple)):
+                    value = [value]
+
+            setattr(target, name, value)
+
+        return target
+
     def get_value(self, field_name, field_value):
         """ Set value to generated instance.
 
@@ -330,7 +360,7 @@ class Mixer(BaseMixer):
         super(Mixer, self).__init__(**params)
         self.params['commit'] = commit
 
-    def postprocess(self, target, postprocess_values):
+    def postprocess(self, target):
         """ Save objects in db.
 
         :return value: A generated value
@@ -338,26 +368,6 @@ class Mixer(BaseMixer):
         """
         if self.params.get('commit'):
             target.save()
-
-        for name, deffered in postprocess_values:
-
-            value = deffered.value
-
-            if not type(deffered.scheme) is GenericForeignKey:
-
-                # # If the ManyToMany relation has an intermediary model,
-                # # the add and remove methods do not exist.
-                if not deffered.scheme.rel.through._meta.auto_created:
-                    self.blend(
-                        deffered.scheme.rel.through, **{
-                            deffered.scheme.m2m_field_name(): target,
-                            deffered.scheme.m2m_reverse_field_name(): value})
-                    continue
-
-                if not isinstance(value, (list, tuple)):
-                    value = [value]
-
-            setattr(target, name, value)
 
         return target
 
