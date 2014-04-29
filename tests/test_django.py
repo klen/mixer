@@ -144,10 +144,9 @@ def test_many_to_many_through(mixer):
 
 
 def test_random(mixer):
-    user = mixer.blend('auth.User', username=mixer.RANDOM(
-        'mixer', 'is', 'fun'
-    ))
-    assert user.username in ('mixer', 'is', 'fun')
+    user = mixer.blend(
+        'auth.User', username=mixer.RANDOM('mixer', 'its', 'fun'))
+    assert user.username in ('mixer', 'its', 'fun')
 
     rabbit = mixer.blend(Rabbit, url=mixer.RANDOM)
     assert '/' in rabbit.url
@@ -194,18 +193,6 @@ def test_invalid_relation(mixer):
         mixer.blend('django_app.Hole', unknown__test=1)
 
 
-def test_generic(mixer):
-    obj = mixer.blend(Simple)
-    with mixer.ctx(loglevel='DEBUG'):
-        rabbit = mixer.blend(Rabbit, content_object=obj)
-    assert rabbit.content_object == obj
-    assert rabbit.object_id == obj.pk
-    assert rabbit.content_type.model_class() == type(obj)
-
-    rabbit = mixer.blend(Rabbit)
-    assert rabbit.content_type
-
-
 def test_ctx(mixer):
 
     with mixer.ctx(commit=False):
@@ -230,3 +217,16 @@ def test_guard(mixer):
     r2 = mixer.guard(username='maxi').blend(Rabbit)
     assert r1
     assert r1 == r2
+
+
+def test_generic(mixer):
+    rabbit = mixer.blend(Rabbit)
+    assert rabbit.content_type
+    assert rabbit.content_type.model_class()
+
+    obj = mixer.blend(Simple)
+    with mixer.ctx(loglevel='DEBUG'):
+        rabbit = mixer.blend(Rabbit, content_object=obj)
+    assert rabbit.content_object == obj
+    assert rabbit.object_id == obj.pk
+    assert rabbit.content_type.model_class() == Simple

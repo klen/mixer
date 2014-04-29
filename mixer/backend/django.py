@@ -14,8 +14,8 @@ from django.core.files.base import ContentFile
 from .. import generators as g, mix_types as t
 from .. import _compat as _
 from ..main import (
-    NO_VALUE, TypeMixerMeta as BaseTypeMixerMeta, TypeMixer as BaseTypeMixer,
-    GenFactory as BaseFactory, Mixer as BaseMixer)
+    SKIP_VALUE, TypeMixerMeta as BaseTypeMixerMeta, TypeMixer as BaseTypeMixer,
+    GenFactory as BaseFactory, Mixer as BaseMixer, _Deffered)
 
 
 get_contentfile = ContentFile
@@ -52,19 +52,14 @@ def get_image(filepath=MOCK_IMAGE):
     return get_file(filepath)
 
 
-def get_contenttype(**kwargs):
-    """ Generate a content type value.
-
-    :return ContentType:
-
-    """
-    choices = [m for m in models.get_models() if m is not ContentType]
-    return ContentType.objects.get_for_model(g.get_choice(choices))
-
-
 def get_relation(_pylama_scheme=None, _pylama_typemixer=None, **params):
     """ Function description. """
     scheme = _pylama_scheme.related.parent_model
+
+    if scheme is ContentType:
+        choices = [m for m in models.get_models() if m is not ContentType]
+        return ContentType.objects.get_for_model(g.get_choice(choices))
+
     return TypeMixer(
         scheme,
         mixer=_pylama_typemixer._TypeMixer__mixer,
@@ -99,7 +94,6 @@ class GenFactory(BaseFactory):
     generators = {
         models.FileField: get_file,
         models.ImageField: get_image,
-        ContentType: get_contenttype,
         models.ForeignKey: get_relation,
         models.ManyToManyField: get_relation,
     }
@@ -154,54 +148,65 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
     factory = GenFactory
 
-    def set_value(self, target, field_name, field_value, finaly=False):
+    def postprocess(self, target, postprocess_values):
+        """ Fill postprocess_values. """
+        if self.__mixer:
+            target = self.__mixer.postprocess(target)
+
+        for name, deffered in postprocess_values:
+
+            value = deffered.value
+
+            if not type(deffered.scheme) is GenericForeignKey:
+
+                if not target.pk:
+                    continue
+
+                # # If the ManyToMany relation has an intermediary model,
+                # # the add and remove methods do not exist.
+                if not deffered.scheme.rel.through._meta.auto_created and self.__mixer: # noqa
+                    self.__mixer.blend(
+                        deffered.scheme.rel.through, **{
+                            deffered.scheme.m2m_field_name(): target,
+                            deffered.scheme.m2m_reverse_field_name(): value})
+                    continue
+
+                if not isinstance(value, (list, tuple)):
+                    value = [value]
+
+            setattr(target, name, value)
+
+        return target
+
+    def get_value(self, field_name, field_value):
         """ Set value to generated instance.
 
         :return : None or (name, value) for later use
 
         """
         field = self.__fields.get(field_name)
-        if field and field.scheme in self.__scheme._meta.local_many_to_many:
 
-            if not target.pk:
-                return field_name, field_value
+        if field and (field.scheme in self.__scheme._meta.local_many_to_many or
+                      type(field.scheme) is GenericForeignKey):
+            return field_name, _Deffered(field_value, field.scheme)
 
-            # If the ManyToMany relation has an intermediary model,
-            # the add and remove methods do not exist.
-            if not field.scheme.rel.through._meta.auto_created:
-                return self.__mixer.blend(
-                    field.scheme.rel.through,
-                    **{
-                        field.scheme.m2m_field_name(): target,
-                        field.scheme.m2m_reverse_field_name(): field_value,
-                    }
-                )
-            if not isinstance(field_value, (list, tuple)):
-                field_value = [field_value]
-
-            setattr(target, field_name, field_value)
-
-            return True
-
-        return super(TypeMixer, self).set_value(
-            target, field_name, field_value, finaly)
+        return super(TypeMixer, self).get_value(field_name, field_value)
 
     @staticmethod
     def get_default(field):
         """ Get default value from field.
 
-        :return value: A default value or NO_VALUE
+        :return value: A default value or SKIP_VALUE
 
         """
         if not field.scheme.has_default():
-            return NO_VALUE
+            return SKIP_VALUE
 
         return field.scheme.get_default()
 
-    def gen_select(self, target, field_name, select):
+    def gen_select(self, field_name, select):
         """ Select exists value from database.
 
-        :param target: Target for generate value.
         :param field_name: Name of field for generation.
 
         :return : None or (name, value) for later use
@@ -209,37 +214,31 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
         """
         field = self.__fields.get(field_name)
         if not field:
-            return super(TypeMixer, self).gen_select(
-                target, field_name, select)
+            return super(TypeMixer, self).gen_select(field_name, select)
 
         try:
-            return self.set_value(
-                target, field_name, field.scheme.rel.to.objects
-                .filter(**select.params).order_by('?')[0])
+            return field.name, field.scheme.rel.to.objects.filter(
+                **select.params).order_by('?')[0]
 
         except Exception:
             raise Exception(
                 "Cannot find a value for the field: '{0}'".format(field_name))
 
-    def gen_field(self, target, field):
+    def gen_field(self, field):
         """ Generate value by field.
 
-        :param target: Target for generate value.
         :param relation: Instance of :class:`Field`
 
         :return : None or (name, value) for later use
 
         """
         if isinstance(field.scheme, GenericForeignKey):
-            return None
+            return field.name, SKIP_VALUE
 
         if field.params and not field.scheme:
             raise ValueError('Invalid relation %s' % field.name)
 
-        if not isinstance(field.scheme, models.ManyToManyField) and field.scheme.value_from_object(target): # noqa
-            return None
-
-        return super(TypeMixer, self).gen_field(target, field)
+        return super(TypeMixer, self).gen_field(field)
 
     def make_generator(self, field, fname=None, fake=False, args=None, kwargs=None): # noqa
         """ Make values generator for field.
@@ -361,16 +360,16 @@ class Mixer(BaseMixer):
         super(Mixer, self).__init__(**params)
         self.params['commit'] = commit
 
-    def postprocess(self, result):
+    def postprocess(self, target):
         """ Save objects in db.
 
         :return value: A generated value
 
         """
         if self.params.get('commit'):
-            result.save()
+            target.save()
 
-        return result
+        return target
 
 
 # Default mixer

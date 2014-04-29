@@ -120,10 +120,12 @@ class Mix(object):
         self.__func = func
         return self
 
-    def __and__(self, value):
+    def __and__(self, values):
         if self.__parent:
-            value = self.__parent & value
-        value = getattr(value, self.__value)
+            values = self.__parent & values
+        if not isinstance(values, dict):
+            values = values.__dict__
+        value = values[self.__value]
         if self.__func:
             return self.__func(value)
         return value
@@ -148,7 +150,7 @@ class ServiceValue(object):
     def __call__(cls, *args, **kwargs):
         return cls(*args, **kwargs)
 
-    def gen_value(self, type_mixer, target, name, field):
+    def gen_value(self, type_mixer, name, field):
         """ Abstract method for value generation. """
         raise NotImplementedError
 
@@ -194,13 +196,13 @@ class Field(ServiceValue):
     def __deepcopy__(self, memo):
         return Field(self.scheme, self.name, **deepcopy(self.params))
 
-    def gen_value(self, type_mixer, target, name, field):
+    def gen_value(self, type_mixer, name, field):
         """ Call :meth:`TypeMixer.gen_field`.
 
         :return value: A generated value
 
         """
-        return type_mixer.gen_field(target, field)
+        return type_mixer.gen_field(field)
 
 
 # Service classes
@@ -237,13 +239,13 @@ class Fake(ServiceValue):
 
     """
 
-    def gen_value(self, type_mixer, target, name, fake):
+    def gen_value(self, type_mixer, name, fake):
         """ Call :meth:`TypeMixer.gen_fake`.
 
         :return value: A generated value
 
         """
-        return type_mixer.gen_fake(target, name, fake)
+        return type_mixer.gen_fake(name, fake)
 
 
 class Random(ServiceValue):
@@ -290,13 +292,13 @@ class Random(ServiceValue):
         if scheme is not None:
             self.choices += scheme,
 
-    def gen_value(self, type_mixer, target, name, random):
+    def gen_value(self, type_mixer, name, random):
         """ Call :meth:`TypeMixer.gen_random`.
 
         :return value: A generated value
 
         """
-        return type_mixer.gen_random(target, name, random)
+        return type_mixer.gen_random(name, random)
 
 
 class Select(Random):
@@ -323,10 +325,10 @@ class Select(Random):
 
     """
 
-    def gen_value(self, type_mixer, target, name, field):
+    def gen_value(self, type_mixer, name, field):
         """ Call :meth:`TypeMixer.gen_random`.
 
         :return value: A generated value
 
         """
-        return type_mixer.gen_select(target, name, field)
+        return type_mixer.gen_select(name, field)
