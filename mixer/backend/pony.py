@@ -6,28 +6,15 @@
 """
 from __future__ import absolute_import
 
+from pony.orm import commit
+
 from .. import mix_types as t
-
-from pony.orm import PrimaryKey
-
-from ..main import (
-    TypeMixer as BaseTypeMixer, GenFactory as BaseFactory, Mixer as BaseMixer)
-
-
-class GenFactory(BaseFactory):
-
-    """ Map a Pony ORM classes to simple types. """
-
-    types = {
-        PrimaryKey: int,
-    }
+from ..main import TypeMixer as BaseTypeMixer, Mixer as BaseMixer, SKIP_VALUE
 
 
 class TypeMixer(BaseTypeMixer):
 
     """ TypeMixer for Pony ORM. """
-
-    factory = GenFactory
 
     def __load_fields(self):
         for attr in self.__scheme._attrs_:
@@ -44,6 +31,23 @@ class TypeMixer(BaseTypeMixer):
 
         """
         return field.scheme.is_required and not field.scheme.is_pk
+
+    def is_unique(self, field):
+        """ Return True is field's value should be a unique.
+
+        :return bool:
+
+        """
+        return field.scheme.is_unique
+
+    @staticmethod
+    def get_default(field):
+        """ Get default value from field.
+
+        :return value:
+
+        """
+        return field.scheme.default is None and SKIP_VALUE or field.scheme.default # noqa
 
     def make_generator(self, field, field_name=None, fake=False, args=None, kwargs=None): # noqa
         """ Make values generator for column.
@@ -67,6 +71,17 @@ class Mixer(BaseMixer):
 
     type_mixer_cls = TypeMixer
 
+    def postprocess(self, target):
+        """ Save objects in db.
 
-# Default mixer
+        :return value: A generated value
+
+        """
+        if self.params.get('commit'):
+            commit()
+
+        return target
+
+
+# Default Pony mixer
 mixer = Mixer()
