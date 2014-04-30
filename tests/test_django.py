@@ -171,6 +171,9 @@ def test_mix(mixer):
     assert test.hole.owner.username in test.hole.title
     assert 's hole' in test.hole.title
 
+    test = mixer.blend(Door, owner=mixer.MIX.hole.owner)
+    assert test.owner == test.hole.owner
+
 
 def test_contrib(mixer):
     from django.db import connection
