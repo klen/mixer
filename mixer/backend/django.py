@@ -73,7 +73,7 @@ class GenFactory(BaseFactory):
     """ Map a django classes to simple types. """
 
     types = {
-        (models.AutoField, models.IntegerField): int,
+        models.IntegerField: int,
         (models.CharField, models.SlugField): str,
         models.BigIntegerField: t.BigInteger,
         models.BooleanField: bool,
@@ -83,7 +83,7 @@ class GenFactory(BaseFactory):
         models.EmailField: t.EmailString,
         models.FloatField: float,
         models.IPAddressField: t.IP4String,
-        models.PositiveIntegerField: t.PositiveInteger,
+        (models.AutoField, models.PositiveIntegerField): t.PositiveInteger,
         models.PositiveSmallIntegerField: t.PositiveSmallInteger,
         models.SmallIntegerField: t.SmallInteger,
         models.TextField: t.Text,
@@ -333,10 +333,6 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
             if isinstance(field, models.AutoField)\
                     and self.__mixer and self.__mixer.params.get('commit'):
-                continue
-
-            if isinstance(field, models.ForeignKey):
-                yield field.name, t.Field(field, field.name)
                 continue
 
             yield field.name, t.Field(field, field.name)
