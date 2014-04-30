@@ -7,7 +7,8 @@ from os import path
 
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes.generic import GenericForeignKey
+from django.contrib.contenttypes.generic import (
+    GenericForeignKey, GenericRelation)
 from django import VERSION
 from django.core.files.base import ContentFile
 
@@ -303,6 +304,9 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
             return False
 
         if isinstance(field.scheme, models.ManyToManyField):
+            return False
+
+        if isinstance(field.scheme, GenericRelation):
             return False
 
         return True
