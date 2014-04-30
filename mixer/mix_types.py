@@ -123,9 +123,10 @@ class Mix(object):
     def __and__(self, values):
         if self.__parent:
             values = self.__parent & values
-        if not isinstance(values, dict):
-            values = values.__dict__
-        value = values[self.__value]
+        if isinstance(values, dict):
+            value = values[self.__value]
+        else:
+            value = getattr(values, self.__value)
         if self.__func:
             return self.__func(value)
         return value
