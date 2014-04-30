@@ -720,6 +720,7 @@ class Mixer(_.with_metaclass(_MetaMixer)):
                 user.set_password('test')
                 return user
 
+
         You can add several middlewares.
         Each middleware should get one argument (generated value) and return
         them.
