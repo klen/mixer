@@ -54,6 +54,7 @@ class Hole(models.Model):
     title = models.CharField(max_length=16)
     size = models.SmallIntegerField()
     owner = models.ForeignKey(Rabbit)
+    rabbits = generic.GenericRelation(Rabbit)
     # wtf = models.ForeignKey('self')
 
 
