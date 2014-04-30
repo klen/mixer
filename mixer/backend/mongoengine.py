@@ -50,7 +50,7 @@ from mongoengine import (
 
 from .. import mix_types as t, generators as g, fakers as f
 from ..main import (
-    NO_VALUE, TypeMixer as BaseTypeMixer, GenFactory as BaseFactory,
+    SKIP_VALUE, TypeMixer as BaseTypeMixer, GenFactory as BaseFactory,
     Mixer as BaseMixer,
 )
 
@@ -196,14 +196,14 @@ class TypeMixer(BaseTypeMixer):
             ftype, field_name=field_name, fake=fake, args=args, kwargs=kwargs)
 
     @staticmethod
-    def get_default(field, target):
+    def get_default(field):
         """ Get default value from field.
 
         :return value: A default value or NO_VALUE
 
         """
         if not field.scheme.default:
-            return NO_VALUE
+            return SKIP_VALUE
 
         if callable(field.scheme.default):
             return field.scheme.default()
@@ -269,16 +269,16 @@ class Mixer(BaseMixer):
         super(Mixer, self).__init__(**params)
         self.params['commit'] = commit
 
-    def post_generate(self, result):
+    def postprocess(self, target):
         """ Save instance to DB.
 
         :return instance:
 
         """
-        if self.params.get('commit') and isinstance(result, Document):
-            result.save()
+        if self.params.get('commit') and isinstance(target, Document):
+            target.save()
 
-        return result
+        return target
 
 
 mixer = Mixer()

@@ -374,3 +374,11 @@ def test_guard():
     mixer = Mixer()
     test = mixer.guard().blend(Test)
     assert test
+
+
+def test_skip():
+    mixer = Mixer()
+    test = mixer.blend(Test, one=mixer.SKIP)
+    assert not test.one is mixer.SKIP
+    assert test.one is int
+

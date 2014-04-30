@@ -12,6 +12,8 @@ Mixer supports:
     - Django_;
     - SQLAlchemy_;
     - Flask-SqlAlchemy;
+    - Peewee_;
+    - Pony_;
     - Mongoengine_;
     - Custom schemes;
 
@@ -25,13 +27,13 @@ Mixer supports:
     :target: https://coveralls.io/r/klen/mixer
     :alt: Coverals
 
-.. image:: https://pypip.in/v/mixer/badge.png
-    :target: https://crate.io/packages/mixer
-    :alt: Version
+.. .. image:: https://pypip.in/v/mixer/badge.png
+    .. :target: https://crate.io/packages/mixer
+    .. :alt: Version
 
-.. image:: https://pypip.in/d/mixer/badge.png
-    :target: https://crate.io/packages/mixer
-    :alt: Downloads
+.. .. image:: https://pypip.in/d/mixer/badge.png
+    .. :target: https://crate.io/packages/mixer
+    .. :alt: Downloads
 
 .. image:: https://dl.dropboxusercontent.com/u/487440/reformal/donate.png
     :target: https://www.gittip.com/klen/
@@ -322,6 +324,8 @@ Licensed under a `BSD license`_.
 .. _klen: http://klen.github.io
 .. _SQLAlchemy: http://www.sqlalchemy.org/
 .. _Flask: http://flask.pocoo.org/
+.. _Peewee: http://peewee.readthedocs.org/en/latest/
+.. _Pony: http://ponyorm.com/
 .. _Django: http://djangoproject.org/
 .. _Mongoengine: http://mongoengine.org/
 .. |logo| image:: https://raw.github.com/klen/mixer/develop/docs/_static/logo.png
