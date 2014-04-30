@@ -54,7 +54,7 @@ class Hole(models.Model):
     title = models.CharField(max_length=16)
     size = models.SmallIntegerField()
     owner = models.ForeignKey(Rabbit)
-    rabbits = generic.GenericRelation(Rabbit)
+    rabbits = generic.GenericRelation(Rabbit, related_name='holes')
     # wtf = models.ForeignKey('self')
 
 
@@ -75,6 +75,7 @@ class Silk(models.Model):
 
 class Door(models.Model):
     hole = models.ForeignKey(Hole)
+    owner = models.ForeignKey(Rabbit, null=True, blank=True)
     size = models.PositiveIntegerField()
 
 
