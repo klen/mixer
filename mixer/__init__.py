@@ -1,6 +1,6 @@
 """ Mixer is a module that adds object generation tool for your application.
 
-It's supported Django_ ORM, SQLAlchemy_ ORM, Mongoengine_ ODM and etc.
+It's supported Django_ ORM, SQLAlchemy_ ORM, Pony_ ORM, Peewee_ ORM, Mongoengine_ ODM and etc.
 
 Mixer is very useful for testing and fixtures replacement.
 

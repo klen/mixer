@@ -12,6 +12,8 @@ Mixer supports:
     - Django_;
     - SQLAlchemy_;
     - Flask-SqlAlchemy;
+    - Peewee_;
+    - Pony_;
     - Mongoengine_;
     - Custom schemes;
 
@@ -322,6 +324,8 @@ Licensed under a `BSD license`_.
 .. _klen: http://klen.github.io
 .. _SQLAlchemy: http://www.sqlalchemy.org/
 .. _Flask: http://flask.pocoo.org/
+.. _Peewee: http://peewee.readthedocs.org/en/latest/
+.. _Pony: http://ponyorm.com/
 .. _Django: http://djangoproject.org/
 .. _Mongoengine: http://mongoengine.org/
 .. |logo| image:: https://raw.github.com/klen/mixer/develop/docs/_static/logo.png
