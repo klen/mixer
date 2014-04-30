@@ -1,3 +1,8 @@
+2014-04-30  horneds
+
+	* Version 4.0.0
+	* Add beta support for Peewee and Pony ORM
+
 2014-04-16  horneds
 
 	* Version 3.0.0
