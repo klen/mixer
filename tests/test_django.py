@@ -233,3 +233,11 @@ def test_generic(mixer):
     assert rabbit.content_object == obj
     assert rabbit.object_id == obj.pk
     assert rabbit.content_type.model_class() == Simple
+
+
+def test_deffered(mixer):
+    simples = mixer.cycle(3).blend(Simple)
+    rabbits = mixer.cycle(3).blend(
+        Rabbit, content_object=(s for s in simples)
+    )
+    assert rabbits

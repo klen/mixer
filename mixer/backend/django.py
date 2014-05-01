@@ -156,7 +156,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
         for name, deffered in postprocess_values:
 
-            value = deffered.value
+            value = self.__get_value(deffered.value)
 
             if not type(deffered.scheme) is GenericForeignKey:
 
