@@ -151,29 +151,34 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
     def postprocess(self, target, postprocess_values):
         """ Fill postprocess_values. """
+        for name, deffered in postprocess_values:
+            if not type(deffered.scheme) is GenericForeignKey:
+                continue
+
+            value = self.__get_value(deffered.value)
+            setattr(target, name, value)
+
         if self.__mixer:
             target = self.__mixer.postprocess(target)
 
         for name, deffered in postprocess_values:
 
+            if type(deffered.scheme) is GenericForeignKey or not target.pk:
+                continue
+
             value = self.__get_value(deffered.value)
 
-            if not type(deffered.scheme) is GenericForeignKey:
+            # # If the ManyToMany relation has an intermediary model,
+            # # the add and remove methods do not exist.
+            if not deffered.scheme.rel.through._meta.auto_created and self.__mixer: # noqa
+                self.__mixer.blend(
+                    deffered.scheme.rel.through, **{
+                        deffered.scheme.m2m_field_name(): target,
+                        deffered.scheme.m2m_reverse_field_name(): value})
+                continue
 
-                if not target.pk:
-                    continue
-
-                # # If the ManyToMany relation has an intermediary model,
-                # # the add and remove methods do not exist.
-                if not deffered.scheme.rel.through._meta.auto_created and self.__mixer: # noqa
-                    self.__mixer.blend(
-                        deffered.scheme.rel.through, **{
-                            deffered.scheme.m2m_field_name(): target,
-                            deffered.scheme.m2m_reverse_field_name(): value})
-                    continue
-
-                if not isinstance(value, (list, tuple)):
-                    value = [value]
+            if not isinstance(value, (list, tuple)):
+                value = [value]
 
             setattr(target, name, value)
 
