@@ -97,8 +97,7 @@ def test_select(mixer):
     assert hole.owner in rabbits
 
     rabbit = rabbits[0]
-    select = mixer.SELECT(email=rabbit.email)
-    hole = mixer.blend(Hole, owner=select)
+    hole = mixer.blend(Hole, owner=mixer.SELECT(email=rabbit.email))
     assert hole.owner == rabbit
 
 
@@ -241,3 +240,7 @@ def test_deffered(mixer):
         Rabbit, content_object=(s for s in simples)
     )
     assert rabbits
+
+    rabbit = rabbits[0]
+    rabbit = rabbit.__class__.objects.get(pk=rabbit.pk)
+    assert rabbit.content_object
