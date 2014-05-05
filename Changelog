@@ -1,3 +1,8 @@
+2014-05-05  horneds
+
+	* Version 4.0.5
+	* Respect max_length for django.TextField
+
 2014-04-30  horneds
 
 	* Version 4.0.4
