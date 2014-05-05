@@ -250,7 +250,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
         """ Make values generator for field.
 
         :param field: A mixer field
-        :param field_name: Field name
+        :param fname: Field name
         :param fake: Force fake data
 
         :return generator:
@@ -270,7 +270,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
             choices, _ = list(zip(*field.choices))
             return g.gen_choice(choices)
 
-        if stype is str:
+        if stype in (str, t.Text):
             kwargs['length'] = field.max_length
 
         elif stype is decimal.Decimal:
