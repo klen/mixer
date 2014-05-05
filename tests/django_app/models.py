@@ -18,7 +18,7 @@ class Rabbit(models.Model):
     username = models.CharField(max_length=16, unique=True)
     active = models.BooleanField()
     email = models.EmailField()
-    description = models.TextField()
+    text = models.TextField(max_length=512)
 
     created_at = models.DateField()
     updated_at = models.DateTimeField()
