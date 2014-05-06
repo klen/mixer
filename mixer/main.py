@@ -772,6 +772,10 @@ class Mixer(_.with_metaclass(_MetaMixer)):
         for field_name, func in params.items():
             type_mixer.register(field_name, func, fake=fake)
 
+            # Double register for RANDOM
+            if fake:
+                type_mixer.register(field_name, func, fake=False)
+
     @contextmanager
     def ctx(self, **params):
         """ Redifine params for current mixer on context.
