@@ -54,9 +54,13 @@ def test_random_fields():
 
 
 def test_custom(mixer):
-    mixer.register(Rabbit, title=lambda: 'Mr. Rabbit')
+    mixer.register(
+        Rabbit,
+        title=lambda: 'Mr. Rabbit',
+        speed=lambda: mixer.G.get_small_positive_integer(99))
 
-    rabbit = mixer.blend(Rabbit)
+    rabbit = mixer.blend(Rabbit, speed=mixer.RANDOM)
+    assert isinstance(rabbit.speed, int)
     assert rabbit.title == 'Mr. Rabbit'
 
     from mixer.backend.django import GenFactory
