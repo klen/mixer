@@ -137,6 +137,9 @@ def test_fakers():
     test = next(f.gen_coordinates())
     assert test
 
+    test = next(f.gen_city())
+    assert test
+
 
 def test_factory():
     """ Test base generator's factory. """
@@ -379,6 +382,5 @@ def test_guard():
 def test_skip():
     mixer = Mixer()
     test = mixer.blend(Test, one=mixer.SKIP)
-    assert not test.one is mixer.SKIP
+    assert test.one is not mixer.SKIP
     assert test.one is int
-

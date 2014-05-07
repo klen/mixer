@@ -90,6 +90,14 @@ CITY_SUFFIXIES = (
     "side", "shire"
 )
 
+CITIES = (
+    "Los Angeles", "Bangkok", "Beijing", "Bogota", "Buenos Aires", "Cairo",
+    "Delhi", "Dhaka", "Guangzhou", "Istanbul", "Jakarta", "Karachi", "Kolkata",
+    "Lagos", "London", "Manila", "Mexico City", "Moscow", "Mumbai",
+    "New York City", "Osaka", "Rio de Janeiro", "Sao Paulo", "Seoul",
+    "Shanghai", "Tianjin", "Tokyo"
+)
+
 LOREM_CHOICES = (
     "alias", "consequatur", "aut", "perferendis", "sit", "voluptatem",
     "accusantium", "doloremque", "aperiam", "eaque", "ipsa", "quae", "ab",
@@ -249,9 +257,13 @@ def get_city(**kwargs):
         print get_city()  # -> North Carter
 
     """
+    prf, sfx, city = g.get_choice(CITY_PREFIXIES), g.get_choice(CITY_SUFFIXIES), g.get_choice(CITIES) #noqa
+
     return g.get_choice((
-        "{0} {1}".format(g.get_choice(CITY_PREFIXIES), get_firstname()),
-        "{0} {1}".format(get_lastname(), g.get_choice(CITY_SUFFIXIES)),
+        city,
+        "{0} {1}".format(prf, city),
+        "{0} {1}".format(prf, get_firstname()),
+        "{0} {1}".format(get_lastname(), sfx),
     ))
 
 #: Generator's fabric for :meth:`mixer.fakers.get_city`

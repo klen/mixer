@@ -5,7 +5,8 @@ import datetime
 import pytest
 from django.core.management import call_command
 
-from .django_app.models import Rabbit, models, Hole, Door, Customer, Simple
+from .django_app.models import (
+    Rabbit, models, Hole, Door, Customer, Simple, Client)
 from mixer.backend.django import Mixer
 
 
@@ -249,3 +250,9 @@ def test_deffered(mixer):
     rabbit = rabbits[0]
     rabbit = rabbit.__class__.objects.get(pk=rabbit.pk)
     assert rabbit.content_object
+
+
+def test_unique(mixer):
+    for _ in range(100):
+        mixer.blend(Client)
+
