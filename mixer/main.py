@@ -253,14 +253,14 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
 
         if unique and value is not SKIP_VALUE:
             counter = 0
-            while value in self.__gen_values[field]:
+            while value in self.__gen_values[field_name]:
                 value = next(gen)
                 counter += 1
                 if counter > 100:
                     raise RuntimeError(
                         "Cannot generate a unique value for %s" % field_name
                     )
-            self.__gen_values[field].add(value)
+            self.__gen_values[field_name].add(value)
 
         return self.get_value(field_name, value)
 
