@@ -104,6 +104,7 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
         ('longitude', float): f.get_latlon,
         ('name', str): f.get_name,
         ('phone', str): f.get_phone,
+        ('slug', str): f.get_slug,
         ('title', str): f.get_short_lorem,
         ('url', t.URL): f.get_url,
         ('username', str): f.get_username,
