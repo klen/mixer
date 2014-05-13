@@ -96,7 +96,7 @@ def test_fakers():
     assert test
 
     test = next(f.gen_lorem(length=30))
-    assert len(test) == 30
+    assert len(test) <= 30
 
     test = next(f.gen_numerify('##-####'))
     assert test
@@ -138,6 +138,12 @@ def test_fakers():
     assert test
 
     test = next(f.gen_city())
+    assert test
+
+    test = next(f.gen_genre())
+    assert test
+
+    test = next(f.gen_short_lorem())
     assert test
 
 

@@ -23,7 +23,6 @@ class MixerTestAuto(TestCase):
 
         rabbit = mixer.blend(Rabbit)
         self.assertTrue(rabbit)
-        self.assertEqual(len(rabbit.title), 16)
 
         rabbit = mixer.blend('tests.django_app.models.Rabbit')
         self.assertTrue(rabbit)

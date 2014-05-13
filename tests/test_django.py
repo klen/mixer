@@ -32,7 +32,7 @@ def test_fields(mixer):
     assert rabbit.id
     assert rabbit.pk
     assert rabbit.pk == 1
-    assert len(rabbit.title) == 16
+    assert len(rabbit.title) <= 16
     assert isinstance(rabbit.active, bool)
     assert isinstance(rabbit.created_at, datetime.date)
     assert isinstance(rabbit.updated_at, datetime.datetime)
@@ -255,4 +255,3 @@ def test_deffered(mixer):
 def test_unique(mixer):
     for _ in range(100):
         mixer.blend(Client)
-
