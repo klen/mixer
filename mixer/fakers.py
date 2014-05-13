@@ -320,6 +320,22 @@ def get_short_lorem(length=64, **kwargs):
 gen_short_lorem = g.loop(get_short_lorem)
 
 
+def get_slug(length=64, **kwargs):
+    """ Get a part of URL using human-readable words.
+
+    :returns: Generated string
+
+    ::
+
+        print get_slug()  # -> atque-rerum-et-aut-reiciendis
+
+    """
+    return get_short_lorem(length, **kwargs).replace(' ', '-')
+
+#: Generator's fabric for :meth:`mixer.fakers.get_slug`
+gen_slug = g.loop(get_slug)
+
+
 def get_numerify(template='', symbol='#', **kwargs):
     """ Generate number string from templates.
 

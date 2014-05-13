@@ -146,6 +146,9 @@ def test_fakers():
     test = next(f.gen_short_lorem())
     assert test
 
+    test = next(f.gen_slug())
+    assert test
+
 
 def test_factory():
     """ Test base generator's factory. """
