@@ -162,6 +162,15 @@ USERNAMES = (
     "weak"
 ) + tuple([n.lower() for n in FIRSTNAMES])
 
+GENRES = (
+    'general', 'pop', 'dance', 'traditional', 'rock', 'alternative', 'rap',
+    'country', 'jazz', 'gospel', 'latin', 'reggae', 'comedy', 'historical',
+    'action', 'animation', 'documentary', 'family', 'adventure', 'fantasy',
+    'drama', 'crime', 'horror', 'music', 'mystery', 'romance', 'sport',
+    'thriller', 'war', 'western', 'fiction', 'epic', 'tragedy', 'parody',
+    'pastoral', 'culture', 'art', 'dance', 'drugs', 'social'
+)
+
 COMPANY_SYFFIXES = ('LLC', 'Group', 'LTD', 'PLC', 'LLP', 'Corp', 'Inc', 'DBA')
 
 GEOCOORD_MASK = decimal.Decimal('.000001')
@@ -283,10 +292,32 @@ def get_lorem(length=None, **kwargs):
     lorem = ' '.join(g.get_choices(LOREM_CHOICES))
     if length:
         lorem = lorem[:length]
+        lorem, _ = lorem.rsplit(' ', 1)
     return lorem
 
 #: Generator's fabric for :meth:`mixer.fakers.get_lorem`
 gen_lorem = g.loop(get_lorem)
+
+
+def get_short_lorem(length=64, **kwargs):
+    """ Get a small text (based on lorem ipsum.
+
+    :return str:
+
+    ::
+
+        print get_short_lorem()  # -> atque rerum et aut reiciendis
+
+    """
+    lorem = g.get_choice(LOREM_CHOICES)
+    while True:
+        choice = g.get_choice(LOREM_CHOICES)
+        if len(lorem + choice) > length - 1:
+            return lorem
+        lorem += ' ' + choice
+
+#: Generator's fabric for :meth:`mixer.fakers.get_short_lorem`
+gen_short_lorem = g.loop(get_short_lorem)
 
 
 def get_numerify(template='', symbol='#', **kwargs):
@@ -502,3 +533,19 @@ def get_coordinates():
 
 #: Generator's fabric for :meth:`mixer.fakers.get_coordinates`
 gen_coordinates = g.loop(get_coordinates)
+
+
+def get_genre():
+    """ Return random genre.
+
+    :returns: A choosen genre
+    ::
+
+        print get_genre()  # -> 'pop'
+
+    """
+    return g.get_choice(GENRES)
+
+
+#: Generator's fabric for :meth:`mixer.fakers.get_genre`
+gen_genre = g.loop(get_genre)
