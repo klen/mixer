@@ -83,6 +83,7 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
     }
 
     fakers = {
+        ('address', str): f.get_address,
         ('body', str): f.get_lorem,
         ('category', str): f.get_genre,
         ('city', str): f.get_city,
@@ -105,6 +106,7 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
         ('name', str): f.get_name,
         ('phone', str): f.get_phone,
         ('slug', str): f.get_slug,
+        ('street', str): f.get_street,
         ('title', str): f.get_short_lorem,
         ('url', t.URL): f.get_url,
         ('username', str): f.get_username,

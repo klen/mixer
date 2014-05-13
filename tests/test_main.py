@@ -149,6 +149,12 @@ def test_fakers():
     test = next(f.gen_slug())
     assert test
 
+    test = next(f.gen_street())
+    assert test
+
+    test = next(f.gen_address())
+    assert test
+
 
 def test_factory():
     """ Test base generator's factory. """
