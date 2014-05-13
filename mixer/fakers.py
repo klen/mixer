@@ -175,6 +175,37 @@ COMPANY_SYFFIXES = ('LLC', 'Group', 'LTD', 'PLC', 'LLP', 'Corp', 'Inc', 'DBA')
 
 GEOCOORD_MASK = decimal.Decimal('.000001')
 
+STREET_SUFFIXES = (
+    'Alley', 'Avenue', 'Branch', 'Bridge', 'Brook', 'Brooks', 'Burg', 'Burgs',
+    'Bypass', 'Camp', 'Canyon', 'Cape', 'Causeway', 'Center', 'Centers',
+    'Circle', 'Circles', 'Cliff', 'Cliffs', 'Club', 'Common', 'Corner',
+    'Corners', 'Course', 'Court', 'Courts', 'Cove', 'Coves', 'Creek',
+    'Crescent', 'Crest', 'Crossing', 'Crossroad', 'Curve', 'Dale', 'Dam',
+    'Divide', 'Drive', 'Drive', 'Drives', 'Estate', 'Estates', 'Expressway',
+    'Extension', 'Extensions', 'Fall', 'Falls', 'Ferry', 'Field', 'Fields',
+    'Flat', 'Flats', 'Ford', 'Fords', 'Forest', 'Forge', 'Forges', 'Fork',
+    'Forks', 'Fort', 'Freeway', 'Garden', 'Gardens', 'Gateway', 'Glen',
+    'Glens', 'Green', 'Greens', 'Grove', 'Groves', 'Harbor', 'Harbors',
+    'Haven', 'Heights', 'Highway', 'Hill', 'Hills', 'Hollow', 'Inlet', 'Inlet',
+    'Island', 'Island', 'Islands', 'Islands', 'Isle', 'Isle', 'Junction',
+    'Junctions', 'Key', 'Keys', 'Knoll', 'Knolls', 'Lake', 'Lakes', 'Land',
+    'Landing', 'Lane', 'Light', 'Lights', 'Loaf', 'Lock', 'Locks', 'Locks',
+    'Lodge', 'Lodge', 'Loop', 'Mall', 'Manor', 'Manors', 'Meadow', 'Meadows',
+    'Mews', 'Mill', 'Mills', 'Mission', 'Mission', 'Motorway', 'Mount',
+    'Mountain', 'Mountain', 'Mountains', 'Mountains', 'Neck', 'Orchard',
+    'Oval', 'Overpass', 'Park', 'Parks', 'Parkway', 'Parkways', 'Pass',
+    'Passage', 'Path', 'Pike', 'Pine', 'Pines', 'Place', 'Plain', 'Plains',
+    'Plains', 'Plaza', 'Plaza', 'Point', 'Points', 'Port', 'Ports', 'Ports',
+    'Prairie', 'Prairie', 'Radial', 'Ramp', 'Ranch', 'Rapid', 'Rapids', 'Rest',
+    'Ridge', 'Ridges', 'River', 'Road', 'Roads', 'Route', 'Row', 'Rue', 'Run',
+    'Shoal', 'Shoals', 'Shore', 'Shores', 'Skyway', 'Spring', 'Springs',
+    'Springs', 'Spur', 'Spurs', 'Square', 'Squares', 'Station', 'Stravenue',
+    'Stream', 'Street', 'Streets', 'Summit', 'Terrace', 'Throughway', 'Trace',
+    'Track', 'Trafficway', 'Trail', 'Trail', 'Tunnel', 'Turnpike', 'Underpass',
+    'Union', 'Unions', 'Valley', 'Valleys', 'Via', 'Viaduct', 'View', 'Views',
+    'Village', 'Villages', 'Ville', 'Vista', 'Walk', 'Walks', 'Wall', 'Way',
+    'Ways', 'Well', 'Wells')
+
 
 def get_firstname(**kwargs):
     """ Get a first name.
@@ -565,3 +596,38 @@ def get_genre():
 
 #: Generator's fabric for :meth:`mixer.fakers.get_genre`
 gen_genre = g.loop(get_genre)
+
+
+def get_street():
+    """ Generate street name. """
+    params = dict(
+        first_name=get_firstname(),
+        last_name=get_lastname(),
+        suffix=g.get_choice(STREET_SUFFIXES),
+    )
+
+    return g.get_choice((
+        '{first_name} {suffix}'.format(**params),
+        '{last_name} {suffix}'.format(**params)
+    ))
+
+#: Generator's fabric for :meth:`mixer.fakers.get_street`
+gen_street = g.loop(get_street)
+
+
+def get_address():
+    """ Generate address. """
+    params = dict(
+        street=get_street(),
+        number1=g.get_small_positive_integer(high=99),
+        number2=g.get_integer(high=999, low=100),
+    )
+
+    return g.get_choice((
+        '{number1} {street}'.format(**params),
+        '{number1} {street} Apt. {number2}'.format(**params),
+        '{number1} {street} Suite. {number2}'.format(**params)
+    ))
+
+#: Generator's fabric for :meth:`mixer.fakers.get_address`
+gen_address = g.loop(get_address)
