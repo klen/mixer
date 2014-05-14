@@ -84,6 +84,9 @@ def test_generators():
     test = next(g.gen_positive_decimal())
     assert test
 
+    test = next(g.gen_positive_decimal(i=2))
+    assert test < 100
+
 
 def test_fakers():
     """ Test default fakers. """
