@@ -1,3 +1,8 @@
+2014-05-14  horneds
+
+	* Version 4.3.1
+	* Fix get_positive_decimal
+
 2014-05-13  horneds
 
 	* Version 4.3.0
