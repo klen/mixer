@@ -376,7 +376,7 @@ def get_positive_decimal(**kwargs):
         print get_positive_decimal()  # -> decimal.Decimal('42.42')
 
     """
-    return get_decimal(positive=True)
+    return get_decimal(positive=True, **kwargs)
 
 #: Generator's fabric for :meth:`mixer.generators.get_positive_decimal`
 gen_positive_decimal = loop(get_positive_decimal)
