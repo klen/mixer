@@ -1,3 +1,8 @@
+2014-05-16  horneds
+
+	* Version 4.3.2
+	* Add support for Django o2o field.
+
 2014-05-14  horneds
 
 	* Version 4.3.1
