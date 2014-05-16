@@ -40,6 +40,8 @@ class Rabbit(models.Model):
     object_id = models.PositiveIntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
+    one2one = models.OneToOneField('django_app.Simple')
+
     def save(self, **kwargs):
         """ Custom save. """
 
