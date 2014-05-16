@@ -96,6 +96,7 @@ class GenFactory(BaseFactory):
         models.FileField: get_file,
         models.ImageField: get_image,
         models.ForeignKey: get_relation,
+        models.OneToOneField: get_relation,
         models.ManyToManyField: get_relation,
     }
 
@@ -379,3 +380,5 @@ class Mixer(BaseMixer):
 
 # Default mixer
 mixer = Mixer()
+
+# pylama:ignore=E1120
