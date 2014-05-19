@@ -1,3 +1,8 @@
+2014-05-19  horneds
+
+	* Version 4.4.0
+	* Added mixer.G.get_percent and mixer.G.get_percent_decimal
+
 2014-05-16  horneds
 
 	* Version 4.3.2
