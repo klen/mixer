@@ -87,6 +87,12 @@ def test_generators():
     test = next(g.gen_positive_decimal(i=2))
     assert test < 100
 
+    test = next(g.gen_percent())
+    assert 0 <= test <= 100
+
+    test = next(g.gen_percent_decimal())
+    assert 0.01 <= test <= 1.00
+
 
 def test_fakers():
     """ Test default fakers. """

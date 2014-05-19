@@ -408,3 +408,21 @@ def get_list(**kwargs):
 
 #: Generator's fabric for :meth:`mixer.generators.get_list`
 gen_list = loop(get_list)
+
+
+def get_percent(**kwargs):
+    """ Return random value from 0 to 100. """
+    return get_integer(low=0, high=100)
+
+#: Generator's fabric for :meth:`mixer.generators.get_percent`
+gen_percent = loop(get_percent)
+
+
+def get_percent_decimal(**kwargs):
+    """ Return random value from 0.01 to 1.00. """
+    return decimal.Decimal(
+        "0.%d" % get_positive_integer(99)
+    ) + decimal.Decimal('0.01')
+
+#: Generator's fabric for :meth:`mixer.generators.get_percent_decimal`
+gen_percent_decimal = loop(get_percent_decimal)

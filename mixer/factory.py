@@ -110,6 +110,8 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
         ('title', str): f.get_short_lorem,
         ('url', t.URL): f.get_url,
         ('username', str): f.get_username,
+        ('percent', int): g.get_percent,
+        ('percent', decimal.Decimal): g.get_percent_decimal,
     }
 
     types = {
