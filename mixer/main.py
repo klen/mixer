@@ -596,7 +596,7 @@ class Mixer(_.with_metaclass(_MetaMixer)):
         type_mixer = self.get_typemixer(scheme)
         try:
             return type_mixer.blend(**values)
-        except Exception, e:
+        except Exception as e:
             if self.params.get('silence'):
                 return None
             raise type(e)('Mixer (%s): %s' % (scheme, e))
