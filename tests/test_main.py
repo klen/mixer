@@ -91,7 +91,7 @@ def test_generators():
     assert 0 <= test <= 100
 
     test = next(g.gen_percent_decimal())
-    assert 0.01 <= test <= 1.00
+    assert Decimal('0.01') <= test <= Decimal('1.00')
 
 
 def test_fakers():

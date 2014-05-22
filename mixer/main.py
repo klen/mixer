@@ -596,10 +596,10 @@ class Mixer(_.with_metaclass(_MetaMixer)):
         type_mixer = self.get_typemixer(scheme)
         try:
             return type_mixer.blend(**values)
-        except Exception:
+        except Exception, e:
             if self.params.get('silence'):
                 return None
-            raise
+            raise type(e)('Mixer (%s): %s' % (scheme, e))
 
     def get_typemixer(self, scheme):
         """ Return cached typemixer instance.
