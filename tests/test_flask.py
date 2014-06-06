@@ -57,6 +57,7 @@ class Role(db.Model):
 class Message(db.Model):
     __tablename__ = 'message'
     id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.String(20))
 
 
 class Node(db.Model):
@@ -126,6 +127,18 @@ class MixerTestFlask(TestCase):
 
             user = mixer.blend(User, username=lambda: 'callable_value')
             self.assertEqual(user.username, 'callable_value')
+
+            # m2m
+            messages = mixer.cycle(3).blend(Message)
+            user = mixer.blend(User, messages=messages)
+            self.assertEqual(len(user.messages), 3)
+
+            user = mixer.blend(User, messages=mixer.RANDOM)
+            self.assertEqual(len(user.messages), 1)
+
+            user = mixer.blend(User, messages__content='message_content')
+            self.assertEqual(len(user.messages), 1)
+            self.assertEqual(user.messages[0].content, 'message_content')
 
     def test_default_mixer(self):
         from mixer.backend.flask import mixer
