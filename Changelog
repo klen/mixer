@@ -1,3 +1,8 @@
+2014-06-07  horneds
+
+	* Version 4.5.2
+	* Fix sqlalchemy many to many relationships (c) Antoine Bertin
+
 2014-05-23  horneds
 
 	* Version 4.5.1

@@ -307,7 +307,13 @@ Development of starter happens at github: https://github.com/klen/mixer
 Contributors
 =============
 
-* klen_ (horneds@gmail.com)
+* Kirill Klenov (horneds@gmail.com)
+
+* Antoine Bertin (https://github.com/Diaoul)
+* Mahdi Yusuf (https://github.com/myusuf3)
+* Marek Baczyński (https://github.com/imbaczek)
+* Matt Caldwell (https://github.com/mattcaldwell)
+* Skylar Saveland (https://github.com/skyl)
 
 
 .. _license:
