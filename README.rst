@@ -140,6 +140,22 @@ Quick example: ::
     some_models = mixer.cycle(5).blend('project.models.SomeModel', company=(company for company in companies))
 
 
+Support for Flask-SQLAlchemy models that have `__init__` arguments
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+For support this scheme, just create your own mixer class, like this: ::
+
+    from mixer.backend.sqlalchemy import Mixer
+
+    class MyOwnMixer(Mixer):
+
+        def populate_target(self, values):
+            target = self.__scheme(**values)
+            return target
+
+    mixer = MyOwnMixer()
+
+
 SQLAlchemy
 ----------
 

@@ -127,6 +127,22 @@ SQLAlchemy ORM
     messages = mixer.cycle(4).blend('path.to.module.ModelClass')
 
 
+Support for Flask-SQLAlchemy models that have `__init__` arguments
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+For support this scheme, just create your own mixer class, like this: ::
+
+    from mixer.backend.sqlalchemy import Mixer
+
+    class MyOwnMixer(Mixer):
+
+        def populate_target(self, values):
+            target = self.__scheme(**values)
+            return target
+
+    mixer = MyOwnMixer()
+
+
 Flask integration
 -----------------
 
