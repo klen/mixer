@@ -6,6 +6,7 @@ import datetime
 import decimal
 from sqlalchemy import func
 # from sqlalchemy.orm.interfaces import MANYTOONE
+from sqlalchemy.orm.collections import InstrumentedList
 from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.types import (
     BIGINT, BOOLEAN, BigInteger, Boolean, CHAR, DATE, DATETIME, DECIMAL, Date,
@@ -53,12 +54,9 @@ class TypeMixer(BaseTypeMixer):
         """ Fill postprocess values. """
         for name, deffered in postprocess_values:
             value = deffered.value
+            if isinstance(getattr(target, name), InstrumentedList) and not isinstance(value, list):
+                value = [value]
             setattr(target, name, value)
-
-            col = deffered.scheme.local_remote_pairs[0][0]
-            setattr(
-                target, col.name,
-                deffered.scheme.mapper.identity_key_from_instance(value)[1][0])
 
         if self.__mixer:
             target = self.__mixer.postprocess(target)
