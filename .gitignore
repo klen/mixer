@@ -1,4 +1,5 @@
+/.env3
+/build
+/todo.txt
 dist
 docs/_build
-/.env3
-/todo.txt
