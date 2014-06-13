@@ -95,6 +95,7 @@ class GenFactory(BaseFactory):
 
     generators = {
         models.FileField: get_file,
+        models.FilePathField: lambda: MOCK_FILE,
         models.ImageField: get_image,
         models.ForeignKey: get_relation,
         models.OneToOneField: get_relation,
