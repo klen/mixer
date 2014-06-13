@@ -279,6 +279,12 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
             kwargs['i'] = field.max_digits - field.decimal_places
             kwargs['d'] = field.decimal_places
 
+        elif stype is t.IPString:
+            # protocol matching is case insensitive
+            # default address is either IPv4 or IPv6
+            if field.protocol.lower() != 'both':
+                kwargs['protocol'] = field.protocol.lower()
+
         elif isinstance(field, models.fields.related.RelatedField):
             kwargs.update({'_pylama_typemixer': self, '_pylama_scheme': field})
 

@@ -513,8 +513,12 @@ def get_ip6(**kwargs):
 gen_ip6 = g.loop(get_ip6)
 
 
-def get_ip_generic(**kwargs):
+def get_ip_generic(protocol=None, **kwargs):
     """ Get IP (v4 or v6) address.
+
+    :param protocol:
+        Set protocol to 'ipv4' or 'ipv6'. Generate either IPv4 or
+        IPv6 address if none.
 
     :return str:
 
@@ -523,10 +527,14 @@ def get_ip_generic(**kwargs):
         print get_ip_generic()  # 192.168.1.1
 
     """
-    return g.get_choice((
-        get_ip4(**kwargs),
-        get_ip6(**kwargs)
-    ))
+    if protocol == 'ipv4':
+        choices = get_ip4(**kwargs),
+    elif protocol == 'ipv6':
+        choices = get_ip6(**kwargs),
+    else:
+        choices = get_ip4(**kwargs), get_ip6(**kwargs)
+
+    return g.get_choice(choices)
 
 #: Generator's fabric for :meth:`mixer.fakers.get_ip_generic`
 gen_ip_generic = g.loop(get_ip_generic)
