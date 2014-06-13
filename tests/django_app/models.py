@@ -38,6 +38,7 @@ class Rabbit(models.Model):
 
     content_type = models.ForeignKey(ct_models.ContentType)
     object_id = models.PositiveIntegerField()
+    error_code = models.PositiveSmallIntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
     one2one = models.OneToOneField('django_app.Simple')

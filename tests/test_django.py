@@ -34,6 +34,10 @@ def test_fields(mixer):
     assert rabbit.pk == 1
     assert len(rabbit.title) <= 16
     assert isinstance(rabbit.active, bool)
+    assert isinstance(rabbit.object_id, int)
+    assert rabbit.object_id >= 0
+    assert isinstance(rabbit.error_code, int)
+    assert rabbit.error_code >= 0
     assert isinstance(rabbit.created_at, datetime.date)
     assert isinstance(rabbit.updated_at, datetime.datetime)
     assert isinstance(rabbit.opened_at, datetime.time)

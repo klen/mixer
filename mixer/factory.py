@@ -75,6 +75,7 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
         t.NullOrBoolean: g.get_null_or_boolean,
         t.PositiveDecimal: g.get_positive_decimal,
         t.PositiveInteger: g.get_positive_integer,
+        t.PositiveSmallInteger: g.get_small_positive_integer,
         t.SmallInteger: g.get_small_integer,
         t.Text: f.get_lorem,
         t.URL: f.get_url,
