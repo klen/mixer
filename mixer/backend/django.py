@@ -6,6 +6,8 @@ import decimal
 from os import path
 
 from django.db import models
+from django.core.validators import (
+    validate_ipv4_address, validate_ipv6_address)
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import (
     GenericForeignKey, GenericRelation)
@@ -281,10 +283,20 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
             kwargs['d'] = field.decimal_places
 
         elif stype is t.IPString:
+
+            # Hack for support Django 1.4/1.5
+            protocol = getattr(field, 'protocol', None)
+            if not protocol:
+                validator = field.default_validators[0]
+                protocol = 'both'
+                if validator is validate_ipv4_address:
+                    protocol = 'ipv4'
+                elif validator is validate_ipv6_address:
+                    protocol = 'ipv6'
+
             # protocol matching is case insensitive
             # default address is either IPv4 or IPv6
-            if field.protocol.lower() != 'both':
-                kwargs['protocol'] = field.protocol.lower()
+            kwargs['protocol'] = protocol.lower()
 
         elif isinstance(field, models.fields.related.RelatedField):
             kwargs.update({'_pylama_typemixer': self, '_pylama_scheme': field})
