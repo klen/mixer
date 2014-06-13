@@ -55,6 +55,8 @@ def test_fields(mixer):
     for ip_section in rabbit.ip6.split(':'):
         assert 0 <= int(ip_section, 16) <= 65535
 
+    assert isinstance(rabbit.file_path, str)
+
     rabbit = mixer.blend('rabbit')
     assert rabbit
 

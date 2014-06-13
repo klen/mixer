@@ -37,6 +37,7 @@ class Rabbit(models.Model):
 
     url = models.URLField(null=True, blank=True, default='')
 
+    file_path = models.FilePathField()
     content_type = models.ForeignKey(ct_models.ContentType)
     object_id = models.PositiveIntegerField()
     error_code = models.PositiveSmallIntegerField()
