@@ -43,6 +43,10 @@ def test_fields(mixer):
     assert len(rabbit.text) <= 512
     assert rabbit.picture.read() == b'pylama\n'
 
+    assert rabbit.ip.count('.') == 3
+    for ip_section in rabbit.ip.split('.'):
+        assert 0 <= int(ip_section) <= 255
+
     rabbit = mixer.blend('rabbit')
     assert rabbit
 
