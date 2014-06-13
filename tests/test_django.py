@@ -51,6 +51,10 @@ def test_fields(mixer):
     for ip_section in rabbit.ip.split('.'):
         assert 0 <= int(ip_section) <= 255
 
+    assert rabbit.ip6.count(':') == 7
+    for ip_section in rabbit.ip6.split(':'):
+        assert 0 <= int(ip_section, 16) <= 65535
+
     rabbit = mixer.blend('rabbit')
     assert rabbit
 

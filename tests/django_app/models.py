@@ -27,6 +27,7 @@ class Rabbit(models.Model):
     percent = models.FloatField()
     money = models.IntegerField()
     ip = models.IPAddressField()
+    ip6 = models.GenericIPAddressField(protocol='IPv6')
     picture = models.FileField(upload_to=settings.TMPDIR)
 
     some_field = models.CommaSeparatedIntegerField(max_length=12)
