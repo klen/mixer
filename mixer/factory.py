@@ -72,6 +72,8 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
         t.EmailString: f.get_email,
         t.HostnameString: f.get_hostname,
         t.IP4String: f.get_ip4,
+        t.IP6String: f.get_ip6,
+        t.IPString: f.get_ip_generic,
         t.NullOrBoolean: g.get_null_or_boolean,
         t.PositiveDecimal: g.get_positive_decimal,
         t.PositiveInteger: g.get_positive_integer,

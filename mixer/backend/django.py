@@ -84,6 +84,7 @@ class GenFactory(BaseFactory):
         models.EmailField: t.EmailString,
         models.FloatField: float,
         models.IPAddressField: t.IP4String,
+        models.GenericIPAddressField: t.IPString,
         (models.AutoField, models.PositiveIntegerField): t.PositiveInteger,
         models.PositiveSmallIntegerField: t.PositiveSmallInteger,
         models.SmallIntegerField: t.SmallInteger,

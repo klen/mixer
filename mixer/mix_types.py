@@ -26,7 +26,21 @@ class HostnameString:
 
 class IP4String:
 
-    """ Type for IP4 addresses. """
+    """ Type for IPv4 addresses. """
+
+    pass
+
+
+class IP6String:
+
+    """ Type for IPv6 addresses. """
+
+    pass
+
+
+class IPString:
+
+    """ Type for IPv4 and IPv6 addresses. """
 
     pass
 
