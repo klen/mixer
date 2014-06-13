@@ -27,6 +27,7 @@ class Rabbit(models.Model):
     percent = models.FloatField()
     money = models.IntegerField()
     ip = models.IPAddressField()
+    ip6 = models.GenericIPAddressField(protocol='IPv6')
     picture = models.FileField(upload_to=settings.TMPDIR)
 
     some_field = models.CommaSeparatedIntegerField(max_length=12)
@@ -36,8 +37,10 @@ class Rabbit(models.Model):
 
     url = models.URLField(null=True, blank=True, default='')
 
+    file_path = models.FilePathField()
     content_type = models.ForeignKey(ct_models.ContentType)
     object_id = models.PositiveIntegerField()
+    error_code = models.PositiveSmallIntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
     one2one = models.OneToOneField('django_app.Simple')

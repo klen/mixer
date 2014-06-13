@@ -34,6 +34,10 @@ def test_fields(mixer):
     assert rabbit.pk == 1
     assert len(rabbit.title) <= 16
     assert isinstance(rabbit.active, bool)
+    assert isinstance(rabbit.object_id, int)
+    assert rabbit.object_id >= 0
+    assert isinstance(rabbit.error_code, int)
+    assert rabbit.error_code >= 0
     assert isinstance(rabbit.created_at, datetime.date)
     assert isinstance(rabbit.updated_at, datetime.datetime)
     assert isinstance(rabbit.opened_at, datetime.time)
@@ -42,6 +46,16 @@ def test_fields(mixer):
     assert rabbit.text
     assert len(rabbit.text) <= 512
     assert rabbit.picture.read() == b'pylama\n'
+
+    assert rabbit.ip.count('.') == 3
+    for ip_section in rabbit.ip.split('.'):
+        assert 0 <= int(ip_section) <= 255
+
+    assert rabbit.ip6.count(':') == 7
+    for ip_section in rabbit.ip6.split(':'):
+        assert 0 <= int(ip_section, 16) <= 65535
+
+    assert isinstance(rabbit.file_path, str)
 
     rabbit = mixer.blend('rabbit')
     assert rabbit

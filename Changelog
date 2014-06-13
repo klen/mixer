@@ -1,3 +1,8 @@
+2014-06-13  horneds
+
+	* Version 4.5.3
+	* Add support for django fields: FilePathField, GenericIPAddressField, PositiveSmallIntegerField
+
 2014-06-07  horneds
 
 	* Version 4.5.2

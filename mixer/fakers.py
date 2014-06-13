@@ -475,7 +475,7 @@ gen_email = g.loop(get_email)
 
 
 def get_ip4(**kwargs):
-    """ Get IP4 address.
+    """ Get IPv4 address.
 
     :return str:
 
@@ -491,6 +491,53 @@ def get_ip4(**kwargs):
 
 #: Generator's fabric for :meth:`mixer.fakers.get_ip4`
 gen_ip4 = g.loop(get_ip4)
+
+
+def get_ip6(**kwargs):
+    """ Get IPv6 addvess.
+
+    :return str:
+
+    ::
+
+        print get_ip6()  # 0:0:0:0:0:0:0:1
+
+    """
+    gen = g.gen_positive_integer(2 ** 16)
+    return '{0:x}:{1:x}:{2:x}:{3:x}:{4:x}:{5:x}:{6:x}:{7:x}'.format(
+        next(gen), next(gen), next(gen), next(gen),
+        next(gen), next(gen), next(gen), next(gen),
+    )
+
+#: Generator's fabric for :meth:`mixer.fakers.get_ip6`
+gen_ip6 = g.loop(get_ip6)
+
+
+def get_ip_generic(protocol=None, **kwargs):
+    """ Get IP (v4 or v6) address.
+
+    :param protocol:
+        Set protocol to 'ipv4' or 'ipv6'. Generate either IPv4 or
+        IPv6 address if none.
+
+    :return str:
+
+    ::
+
+        print get_ip_generic()  # 192.168.1.1
+
+    """
+    if protocol == 'ipv4':
+        choices = get_ip4(**kwargs),
+    elif protocol == 'ipv6':
+        choices = get_ip6(**kwargs),
+    else:
+        choices = get_ip4(**kwargs), get_ip6(**kwargs)
+
+    return g.get_choice(choices)
+
+#: Generator's fabric for :meth:`mixer.fakers.get_ip_generic`
+gen_ip_generic = g.loop(get_ip_generic)
 
 
 def get_url(hostname=None, **kwargs):

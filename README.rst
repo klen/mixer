@@ -326,6 +326,7 @@ Contributors
 * Kirill Klenov (horneds@gmail.com)
 
 * Antoine Bertin (https://github.com/Diaoul)
+* Kirill Pavlov (https://github.com/pavlov99)
 * Mahdi Yusuf (https://github.com/myusuf3)
 * Marek Baczyński (https://github.com/imbaczek)
 * Matt Caldwell (https://github.com/mattcaldwell)
