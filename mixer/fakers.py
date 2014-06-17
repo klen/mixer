@@ -484,7 +484,7 @@ def get_ip4(**kwargs):
         print get_ip4()  # 192.168.1.1
 
     """
-    gen = g.gen_positive_integer(256)
+    gen = g.gen_positive_integer(255)
     return '{0}.{1}.{2}.{3}'.format(
         next(gen), next(gen), next(gen), next(gen),
     )

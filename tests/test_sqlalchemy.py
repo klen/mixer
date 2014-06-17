@@ -144,3 +144,29 @@ def test_default_mixer():
 
     test = mixer.blend(User)
     assert test.name
+
+
+def test_guard(session):
+    from mixer.backend.sqlalchemy import Mixer, mixer
+
+    with pytest.raises(ValueError):
+        mixer.guard(User.name == 'maxi').blend(User)
+
+    mixer = Mixer(session=session, commit=True)
+
+    u1 = mixer.guard(User.name == 'maxi').blend(User, name='maxi')
+    u2 = mixer.guard(User.name == 'maxi').blend(User)
+    assert u1
+    assert u1 == u2
+
+
+def test_reload(session):
+    from mixer.backend.sqlalchemy import Mixer
+
+    mixer = Mixer(session=session, commit=True)
+
+    u1 = mixer.blend(User)
+    u1.name = 'wrong name'
+    u2 = mixer.reload(u1)
+    assert u2 == u1
+    assert u2.name != 'wrong name'

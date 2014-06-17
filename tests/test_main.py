@@ -408,3 +408,14 @@ def test_skip():
     test = mixer.blend(Test, one=mixer.SKIP)
     assert test.one is not mixer.SKIP
     assert test.one is int
+
+
+def test_reload():
+    mixer = Mixer()
+    test = mixer.blend(Test)
+    test2 = mixer.reload(test)
+    assert test is not test2
+    assert test.name == test2.name
+
+    test3, test4 = mixer.reload(test, test2)
+    assert test3 and test4

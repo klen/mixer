@@ -231,6 +231,26 @@ class TypeMixer(BaseTypeMixer):
 
         return field.scheme.required or isinstance(field.scheme, ObjectIdField)
 
+    def gen_select(self, field_name, select):
+        """ Select related document from mongo. """
+        field = self.__fields.get(field_name)
+        if not field:
+            return super(TypeMixer, self).gen_select(field_name, select)
+
+        return field.name, field.scheme.document_type.objects.filter(**select.params).first()
+
+    def guard(self, *args, **kwargs):
+        """ Ensure for an objects are exist in DB. """
+        qs = self.__scheme.objects(*args, **kwargs)
+        count = len(qs)
+        if count == 1:
+            return qs[0]
+        return qs
+
+    def reload(self, obj):
+        """ Reload object from storage. """
+        return self.__scheme.get(id=obj.id)
+
     def __load_fields(self):
         for fname, field in self.__scheme._fields.items():
 
@@ -284,4 +304,4 @@ class Mixer(BaseMixer):
 mixer = Mixer()
 
 
-# lint_ignore=W0212
+# pylama:ignore=E1120
