@@ -1,5 +1,6 @@
 2014-06-17  horneds
 
+	* Version 4.5.5
 	* Provided guard and select for sqlalchemy. Added mixer.reload.
 
 2014-06-13  horneds
