@@ -2,20 +2,20 @@
 from __future__ import absolute_import
 
 import datetime
-import decimal
 from os import path
 
-from django.db import models
-from django.core.validators import (
-    validate_ipv4_address, validate_ipv6_address)
-from django.contrib.contenttypes.models import ContentType
+import decimal
+from types import GeneratorType
+from django import VERSION
 from django.contrib.contenttypes.generic import (
     GenericForeignKey, GenericRelation)
-from django import VERSION
+from django.contrib.contenttypes.models import ContentType
 from django.core.files.base import ContentFile
+from django.core.validators import (
+    validate_ipv4_address, validate_ipv6_address)
+from django.db import models
 
-from .. import generators as g, mix_types as t
-from .. import _compat as _
+from .. import generators as g, mix_types as t, _compat as _
 from ..main import (
     SKIP_VALUE, TypeMixerMeta as BaseTypeMixerMeta, TypeMixer as BaseTypeMixer,
     GenFactory as BaseFactory, Mixer as BaseMixer, _Deffered)
@@ -160,7 +160,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
             if not type(deffered.scheme) is GenericForeignKey:
                 continue
 
-            value = self.__get_value(deffered.value)
+            name, value = self._get_value(name, deffered.value)
             setattr(target, name, value)
 
         if self.__mixer:
@@ -171,7 +171,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
             if type(deffered.scheme) is GenericForeignKey or not target.pk:
                 continue
 
-            value = self.__get_value(deffered.value)
+            name, value = self._get_value(name, deffered.value)
 
             # # If the ManyToMany relation has an intermediary model,
             # # the add and remove methods do not exist.
@@ -189,19 +189,37 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
         return target
 
-    def get_value(self, field_name, field_value):
+    def get_value(self, name, value):
         """ Set value to generated instance.
 
         :return : None or (name, value) for later use
 
         """
-        field = self.__fields.get(field_name)
+        field = self.__fields.get(name)
+        if field:
 
-        if field and (field.scheme in self.__scheme._meta.local_many_to_many or
-                      type(field.scheme) is GenericForeignKey):
-            return field_name, _Deffered(field_value, field.scheme)
+            if (field.scheme in self.__scheme._meta.local_many_to_many or
+                    type(field.scheme) is GenericForeignKey):
+                return name, _Deffered(value, field.scheme)
 
-        return super(TypeMixer, self).get_value(field_name, field_value)
+            return self._get_value(name, value, field)
+
+        return super(TypeMixer, self).get_value(name, value)
+
+    def _get_value(self, name, value, field=None):
+
+        if isinstance(value, GeneratorType):
+            return self._get_value(name, next(value), field)
+
+        if not isinstance(value, t.Mix) and value is not SKIP_VALUE:
+
+            if callable(value):
+                return self._get_value(name, value(), field)
+
+            if field:
+                value = field.scheme.to_python(value)
+
+        return name, value
 
     @staticmethod
     def get_default(field):
