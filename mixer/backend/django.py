@@ -337,13 +337,13 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
         return True
 
-    def guard(self, **filters):
+    def guard(self, *args, **kwargs):
         """ Look objects in database.
 
         :returns: A finded object or False
 
         """
-        qs = self.__scheme.objects.filter(**filters)
+        qs = self.__scheme.objects.filter(*args, **kwargs)
         count = qs.count()
 
         if count == 1:
@@ -353,6 +353,12 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
             return list(qs)
 
         return False
+
+    def reload(self, obj):
+        """ Reload object from database. """
+        if not obj.pk:
+            raise ValueError("Cannot load the object: %s" % obj)
+        return self.__scheme._default_manager.get(pk=obj.pk)
 
     def __load_fields(self):
 

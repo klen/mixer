@@ -85,3 +85,5 @@ class Mixer(BaseMixer):
 
 # Default Pony mixer
 mixer = Mixer()
+
+# pylama:ignore=E1120

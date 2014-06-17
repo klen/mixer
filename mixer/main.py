@@ -368,13 +368,17 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
         return SKIP_VALUE
 
     @staticmethod
-    def guard(**filters):
+    def guard(*args, **kwargs):
         """ Look objects in storage.
 
         :returns: False
 
         """
         return False
+
+    def reload(self, obj):
+        """ Reload the object from storage. """
+        return deepcopy(obj)
 
     def __load_fields(self):
         """ Find scheme's fields. """
@@ -795,24 +799,36 @@ class Mixer(_.with_metaclass(_MetaMixer)):
         finally:
             self.__init_params__(**_params)
 
-    def guard(self, **guards):
+    def reload(self, *objs):
+        """ Reload the objects from storage. """
+        results = []
+        for obj in objs:
+            scheme = type(obj)
+            tm = self.get_typemixer(scheme)
+            results.append(tm.reload(obj))
+
+        return results if len(results) > 1 else results[0]
+
+    def guard(self, *args, **kwargs):
         """ Abstract method. In some backends used for prevent object creation.
 
         :returns: A Proxy to mixer
 
         """
-        return ProxyMixer(self, count=1, guards=guards)
+        return ProxyMixer(self, count=1, guards=(args, kwargs))
 
     def _guard(self, scheme, guards, **values):
         type_mixer = self.get_typemixer(scheme)
-        seek = type_mixer.guard(**guards)
+        args, kwargs = guards
+        seek = type_mixer.guard(*args, **kwargs)
         if seek:
             LOGGER.info('Finded: %s [%s]', seek, type(seek)) # noqa
             return seek
 
-        guards.update(values)
-        return self.blend(scheme, **guards)
+        return self.blend(scheme, **values)
 
 
 # Default mixer
 mixer = Mixer()
+
+# pylama:ignore=E1120

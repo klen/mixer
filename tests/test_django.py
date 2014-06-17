@@ -235,13 +235,6 @@ def test_skip(mixer):
     assert not rabbit.title
 
 
-def test_guard(mixer):
-    r1 = mixer.guard(username='maxi').blend(Rabbit)
-    r2 = mixer.guard(username='maxi').blend(Rabbit)
-    assert r1
-    assert r1 == r2
-
-
 def test_generic(mixer):
     rabbit = mixer.blend(Rabbit)
     assert rabbit.content_type
@@ -270,3 +263,22 @@ def test_deffered(mixer):
 def test_unique(mixer):
     for _ in range(100):
         mixer.blend(Client)
+
+
+def test_guard(mixer):
+    r1 = mixer.guard(username='maxi').blend(Rabbit, username='maxi')
+    r2 = mixer.guard(username='maxi').blend(Rabbit, username='maxi')
+    assert r1
+    assert r1 == r2
+
+
+def test_reload(mixer):
+    r1 = mixer.blend(Rabbit)
+    r1.title = 'wrong title'
+    r2 = mixer.reload(r1)
+    assert r2 == r1
+    assert r2.title != r1.title
+
+    s1 = mixer.blend(Simple)
+    r2, s2 = mixer.reload(r1, s1)
+    assert s1 == s2

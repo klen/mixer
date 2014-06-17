@@ -174,6 +174,39 @@ class TypeMixer(BaseTypeMixer):
         return super(TypeMixer, self).make_generator(
             stype, field_name=field_name, fake=fake, args=args, kwargs=kwargs)
 
+    def guard(self, *args, **kwargs):
+        """ Look objects in database.
+
+        :returns: A finded object or False
+
+        """
+        try:
+            session = self.__mixer.params.get('session')
+            assert session
+        except (AttributeError, AssertionError):
+            raise ValueError('Cannot make request to DB.')
+
+        qs = session.query(self.mapper).filter(*args, **kwargs)
+        count = qs.count()
+
+        if count == 1:
+            return qs.first()
+
+        if count:
+            return qs.all()
+
+        return False
+
+    def reload(self, obj):
+        """ Reload object from database. """
+        try:
+            session = self.__mixer.params.get('session')
+            session.expire(obj)
+            session.refresh(obj)
+            return obj
+        except (AttributeError, AssertionError):
+            raise ValueError('Cannot make request to DB.')
+
     def __load_fields(self):
         """ Prepare SQLALchemyTypeMixer.
 
@@ -230,4 +263,4 @@ class Mixer(BaseMixer):
 # Default mixer
 mixer = Mixer()
 
-# lint_ignore=W0212,E1002
+# pylama:ignore=E1120
