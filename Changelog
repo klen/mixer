@@ -1,7 +1,9 @@
 2014-06-17  horneds
 
-	* Version 4.5.5
+	* Version 4.6.0
 	* Provided guard and select for sqlalchemy. Added mixer.reload.
+	* Better Django support. Now Mixer tracks field value's type and
+	update it if needed
 
 2014-06-13  horneds
 

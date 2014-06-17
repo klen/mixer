@@ -178,7 +178,12 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
         :return : (name, value) or None
 
         """
-        value = self.__get_value(value)
+        if isinstance(value, GeneratorType):
+            return self.get_value(name, next(value))
+
+        if callable(value) and not isinstance(value, t.Mix):
+            return self.get_value(name, value())
+
         return name, value
 
     def gen_field(self, field):
@@ -237,7 +242,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
     def gen_value(self, field_name, field, fake=None, unique=False):
         """ Generate values from basic types.
 
-        :return : None or (name, value) for later use
+        :return : (name, value) for later use
 
         """
         fake = self.__fake if fake is None else fake
@@ -257,9 +262,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
                 value = next(gen)
                 counter += 1
                 if counter > 100:
-                    raise RuntimeError(
-                        "Cannot generate a unique value for %s" % field_name
-                    )
+                    raise RuntimeError("Cannot generate a unique value for %s" % field_name)
             self.__gen_values[field_name].add(value)
 
         return self.get_value(field_name, value)
@@ -387,15 +390,6 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
                 continue
             prop = getattr(self.__scheme, fname)
             yield fname, t.Field(prop, fname)
-
-    def __get_value(self, value):
-        if isinstance(value, GeneratorType):
-            return self.__get_value(next(value))
-
-        if callable(value) and not isinstance(value, t.Mix):
-            return self.__get_value(value())
-
-        return value
 
 
 class ProxyMixer:
