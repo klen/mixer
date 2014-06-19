@@ -597,7 +597,8 @@ class Mixer(_.with_metaclass(_MetaMixer)):
         except Exception as e:
             if self.params.get('silence'):
                 return None
-            raise type(e)('Mixer (%s): %s' % (scheme, e))
+            e.args = ('Mixer (%s): %s' % (scheme, e.args[0]),) + e.args[1:]
+            raise
 
     def get_typemixer(self, scheme):
         """ Return cached typemixer instance.
