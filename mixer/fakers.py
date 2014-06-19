@@ -485,9 +485,7 @@ def get_ip4(**kwargs):
 
     """
     gen = g.gen_positive_integer(255)
-    return '{0}.{1}.{2}.{3}'.format(
-        next(gen), next(gen), next(gen), next(gen),
-    )
+    return '{0}.{1}.{2}.{3}'.format(next(gen), next(gen), next(gen), next(gen))
 
 #: Generator's fabric for :meth:`mixer.fakers.get_ip4`
 gen_ip4 = g.loop(get_ip4)
