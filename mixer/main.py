@@ -15,6 +15,7 @@ import warnings
 from types import GeneratorType
 
 import logging
+import traceback
 from collections import defaultdict
 from contextlib import contextmanager
 from copy import deepcopy
@@ -464,6 +465,24 @@ class Mixer(_.with_metaclass(_MetaMixer)):
 
     """
 
+    # generator's controller class
+    type_mixer_cls = TypeMixer
+
+    def __init__(self, fake=True, factory=None, loglevel=LOGLEVEL,
+                 silence=False, **params):
+        """Initialize Mixer instance.
+
+        :param fake: (True) Generate fake data instead of random data.
+        :param loglevel: ('WARN') Set level for logging
+        :param silence: (False) Don't raise any errors if creation was falsed
+        :param factory: (:class:`~mixer.main.GenFactory`) A class for
+                          generation values for types
+
+        """
+        self.params = params
+        self.__init_params__(fake=fake, loglevel=loglevel, silence=silence)
+        self.__factory = factory
+
     def __getattr__(self, name):
         if name in ['f', 'g', 'fake', 'random', 'mix', 'select']:
             warnings.warn('"mixer.%s" is depricated, use "mixer.%s" instead.'
@@ -547,24 +566,6 @@ class Mixer(_.with_metaclass(_MetaMixer)):
         """
         return self.__class__.G
 
-    # generator's controller class
-    type_mixer_cls = TypeMixer
-
-    def __init__(self, fake=True, factory=None, loglevel=LOGLEVEL,
-                 silence=False, **params):
-        """Initialize Mixer instance.
-
-        :param fake: (True) Generate fake data instead of random data.
-        :param loglevel: ('WARN') Set level for logging
-        :param silence: (False) Don't raise any errors if creation was falsed
-        :param factory: (:class:`~mixer.main.GenFactory`) A class for
-                          generation values for types
-
-        """
-        self.params = params
-        self.__init_params__(fake=fake, loglevel=loglevel, silence=silence)
-        self.__factory = factory
-
     def __init_params__(self, **params):
         self.params.update(params)
         LOGGER.setLevel(self.params.get('loglevel'))
@@ -598,6 +599,7 @@ class Mixer(_.with_metaclass(_MetaMixer)):
             if self.params.get('silence'):
                 return None
             e.args = ('Mixer (%s): %s' % (scheme, e.args[0]),) + e.args[1:]
+            LOGGER.error(traceback.format_exc())
             raise
 
     def get_typemixer(self, scheme):
