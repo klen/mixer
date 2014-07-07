@@ -43,7 +43,8 @@ def test_fields(mixer):
     assert isinstance(rabbit.updated_at, datetime.datetime)
     assert isinstance(rabbit.opened_at, datetime.time)
     assert '@' in rabbit.email
-    assert rabbit.speed
+    assert isinstance(rabbit.speed, decimal.Decimal)
+    assert rabbit.custom
     assert rabbit.text
     assert len(rabbit.text) <= 512
     assert rabbit.picture.read() == b'pylama\n'

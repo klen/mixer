@@ -9,6 +9,13 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
+class CustomField(models.CharField):
+
+    """ Custom field. """
+
+    pass
+
+
 class Customer(User):
     name = models.CharField(max_length=100)
 
@@ -41,6 +48,7 @@ class Rabbit(models.Model):
     content_type = models.ForeignKey(ct_models.ContentType)
     object_id = models.PositiveIntegerField()
     error_code = models.PositiveSmallIntegerField()
+    custom = CustomField(max_length=24)
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
     one2one = models.OneToOneField('django_app.Simple')

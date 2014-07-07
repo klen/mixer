@@ -219,8 +219,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
             random = deepcopy(self.__fields.get(field_name))
 
         elif not isinstance(random.scheme, type):
-            return self.get_value(
-                field_name, g.get_choice(random.choices))
+            return self.get_value(field_name, g.get_choice(random.choices))
 
         return self.gen_value(field_name, random, fake=False)
 
