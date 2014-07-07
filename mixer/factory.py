@@ -154,6 +154,9 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
         simple = cls.cls_to_simple(fcls)
         func = cls.generators.get(fcls) or cls.generators.get(simple)
 
+        if not func and fcls.__bases__:
+            func = cls.generators.get(fcls.__bases__[0])
+
         if fname and fake and (fname, simple) in cls.fakers:
             fname = cls.name_to_simple(fname)
             func = cls.fakers.get((fname, simple)) or func

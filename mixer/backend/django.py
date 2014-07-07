@@ -241,17 +241,15 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
         :return : None or (name, value) for later use
 
         """
-        field = self.__fields.get(field_name)
-        if not field:
-            return super(TypeMixer, self).gen_select(field_name, select)
+        if field_name not in self.__fields:
+            return field_name, None
 
         try:
-            return field.name, field.scheme.rel.to.objects.filter(
-                **select.params).order_by('?')[0]
+            field = self.__fields[field_name]
+            return field.name, field.scheme.rel.to.objects.filter(**select.params).order_by('?')[0]
 
         except Exception:
-            raise Exception(
-                "Cannot find a value for the field: '{0}'".format(field_name))
+            raise Exception("Cannot find a value for the field: '{0}'".format(field_name))
 
     def gen_field(self, field):
         """ Generate value by field.
@@ -286,8 +284,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
         stype = self.__factory.cls_to_simple(fcls)
 
         if fcls is models.CommaSeparatedIntegerField:
-            return g.gen_choices(
-                [1, 2, 3, 4, 5, 6, 7, 8, 9, 0], field.max_length)
+            return g.gen_choices([1, 2, 3, 4, 5, 6, 7, 8, 9, 0], field.max_length)
 
         if field and field.choices:
             choices, _ = list(zip(*field.choices))
@@ -329,6 +326,8 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
         :return bool:
 
         """
+        if isinstance(field.scheme, models.OneToOneField):
+            return True
         return field.scheme.unique
 
     @staticmethod
