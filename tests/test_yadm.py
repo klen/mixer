@@ -14,13 +14,18 @@ def test_base():
 
     class Author(Document):
 
-        name = fields.StringField
+        name = fields.StringField()
+
+    class Place(Document):
+
+        address = fields.StringField()
 
     class BlogPost(Document):
 
-        title = fields.StringField
-        body = fields.StringField
+        title = fields.StringField()
+        body = fields.StringField()
         tags = fields.ListField(fields.StringField)
+        place = fields.EmbeddedDocumentField(Place)
 
         author = fields.ReferenceField(Author)
 

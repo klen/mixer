@@ -582,7 +582,7 @@ def get_phone(template='###-###-###', **kwargs):
 gen_phone = g.loop(get_phone)
 
 
-def get_company():
+def get_company(**kwargs):
     """ Get a company name.
 
     :return str:
@@ -594,7 +594,7 @@ def get_company():
 gen_company = g.loop(get_company)
 
 
-def get_latlon():
+def get_latlon(**kwargs):
     """ Get a value simular to latitude (longitude).
 
     :return float:
@@ -611,7 +611,7 @@ def get_latlon():
 gen_latlon = g.loop(get_latlon)
 
 
-def get_coordinates():
+def get_coordinates(**kwargs):
     """ Get a geographic coordinates.
 
     :return [float, float]:
@@ -627,7 +627,7 @@ def get_coordinates():
 gen_coordinates = g.loop(get_coordinates)
 
 
-def get_genre():
+def get_genre(**kwargs):
     """ Return random genre.
 
     :returns: A choosen genre
@@ -643,7 +643,7 @@ def get_genre():
 gen_genre = g.loop(get_genre)
 
 
-def get_street():
+def get_street(**kwargs):
     """ Generate street name. """
     params = dict(
         first_name=get_firstname(),
@@ -660,7 +660,7 @@ def get_street():
 gen_street = g.loop(get_street)
 
 
-def get_address():
+def get_address(**kwargs):
     """ Generate address. """
     params = dict(
         street=get_street(),

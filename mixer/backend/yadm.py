@@ -7,7 +7,7 @@ from bson import ObjectId
 from yadm import Document
 from yadm.fields import (
     BooleanField, DecimalField, FloatField, IntegerField, StringField,
-    ListField, SetField, ObjectIdField, ReferenceField, DatetimeField)
+    ListField, SetField, ObjectIdField, ReferenceField, DatetimeField, EmbeddedDocumentField)
 from yadm.markers import NoDefault
 
 from .. import mix_types as t, generators as g
@@ -112,6 +112,9 @@ class TypeMixer(BaseTypeMixer):
 
         elif isinstance(yadm_field, ReferenceField):
             ftype = yadm_field.reference_document_class
+
+        elif isinstance(yadm_field, EmbeddedDocumentField):
+            ftype = yadm_field.embedded_document_class
 
         elif ftype is DecimalField:
             sign, (ii,), dd = yadm_field.precision.as_tuple()
