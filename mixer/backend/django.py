@@ -55,20 +55,17 @@ def get_image(filepath=MOCK_IMAGE):
     return get_file(filepath)
 
 
-def get_relation(_pylama_scheme=None, _pylama_typemixer=None, **params):
+def get_relation(_scheme=None, _typemixer=None, **params):
     """ Function description. """
-    scheme = _pylama_scheme.related.parent_model
+    scheme = _scheme.related.parent_model
 
     if scheme is ContentType:
         choices = [m for m in models.get_models() if m is not ContentType]
         return ContentType.objects.get_for_model(g.get_choice(choices))
 
-    return TypeMixer(
-        scheme,
-        mixer=_pylama_typemixer._TypeMixer__mixer,
-        factory=_pylama_typemixer._TypeMixer__factory,
-        fake=_pylama_typemixer._TypeMixer__fake,
-    ).blend(**params)
+    return TypeMixer(scheme, mixer=_typemixer._TypeMixer__mixer,
+                     factory=_typemixer._TypeMixer__factory,
+                     fake=_typemixer._TypeMixer__fake,).blend(**params)
 
 
 class GenFactory(BaseFactory):
@@ -314,7 +311,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
             kwargs['protocol'] = protocol.lower()
 
         elif isinstance(field, models.fields.related.RelatedField):
-            kwargs.update({'_pylama_typemixer': self, '_pylama_scheme': field})
+            kwargs.update({'_typemixer': self, '_scheme': field})
 
         return super(TypeMixer, self).make_generator(
             fcls, field_name=fname, fake=fake, args=[], kwargs=kwargs)
