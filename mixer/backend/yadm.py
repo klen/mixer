@@ -100,7 +100,6 @@ class TypeMixer(BaseTypeMixer):
         ftype = type(yadm_field)
         args = [] if args is None else args
         kwargs = {} if kwargs is None else kwargs
-        kwargs.update({'_typemixer': self, '_scheme': yadm_field})
 
         if getattr(yadm_field, 'choices', None):
             if isinstance(yadm_field.choices[0], tuple):
@@ -122,8 +121,9 @@ class TypeMixer(BaseTypeMixer):
             kwargs['positive'] = not sign
             kwargs['i'] = ii + 1
 
-        kwargs.pop('_typemixer')
-        kwargs.pop('_scheme')
+        elif ftype in (SetField, ListField):
+            kwargs.update({'_typemixer': self, '_scheme': yadm_field})
+
         return super(TypeMixer, self).make_generator(
             ftype, field_name=field_name, fake=fake, args=args, kwargs=kwargs)
 
