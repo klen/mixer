@@ -17,15 +17,15 @@ from ..main import (
     GenFactory as BaseFactory)
 
 
-def get_relation(_pylama_scheme=None, _pylama_typemixer=None, **params):
+def get_relation(_scheme=None, _typemixer=None, **params):
     """ Function description. """
-    scheme = _pylama_scheme.rel_model
+    scheme = _scheme.rel_model
 
     return TypeMixer(
         scheme,
-        mixer=_pylama_typemixer._TypeMixer__mixer,
-        factory=_pylama_typemixer._TypeMixer__factory,
-        fake=_pylama_typemixer._TypeMixer__fake,
+        mixer=_typemixer._TypeMixer__mixer,
+        factory=_typemixer._TypeMixer__factory,
+        fake=_typemixer._TypeMixer__fake,
     ).blend(**params)
 
 
@@ -119,7 +119,7 @@ class TypeMixer(BaseTypeMixer):
         kwargs = {} if kwargs is None else kwargs
 
         if isinstance(field, ForeignKeyField):
-            kwargs.update({'_pylama_typemixer': self, '_pylama_scheme': field})
+            kwargs.update({'_typemixer': self, '_scheme': field})
 
         return super(TypeMixer, self).make_generator(
             type(field), field_name=field_name, fake=fake, args=args,
@@ -146,3 +146,5 @@ class Mixer(BaseMixer):
 
 # Default Pony mixer
 mixer = Mixer()
+
+# pylama:ignore=E1120

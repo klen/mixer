@@ -104,19 +104,17 @@ def get_polygon(length=5, **kwargs):
     return dict(type='Poligon', coordinates=lines)
 
 
-def get_generic_reference(_pylama_typemixer=None, **params):
+def get_generic_reference(_typemixer=None, **params):
     """ Choose a GenericRelation. """
-    meta = type(_pylama_typemixer)
+    meta = type(_typemixer)
     scheme = g.get_choice([
         m for (_, m, _, _) in meta.mixers.keys()
-        if issubclass(m, Document) and m is not _pylama_typemixer._TypeMixer__scheme # noqa
+        if issubclass(m, Document) and m is not _typemixer._TypeMixer__scheme # noqa
     ])
-    return TypeMixer(
-        scheme,
-        mixer=_pylama_typemixer._TypeMixer__mixer,
-        factory=_pylama_typemixer._TypeMixer__factory,
-        fake=_pylama_typemixer._TypeMixer__fake,
-    ).blend(**params)
+
+    return TypeMixer(scheme, mixer=_typemixer._TypeMixer__mixer,
+                     factory=_typemixer._TypeMixer__factory,
+                     fake=_typemixer._TypeMixer__fake).blend(**params)
 
 
 class GenFactory(BaseFactory):
@@ -184,7 +182,7 @@ class TypeMixer(BaseTypeMixer):
             ftype = me_field.document_type
 
         elif ftype is GenericReferenceField:
-            kwargs.update({'_pylama_typemixer': self})
+            kwargs.update({'_typemixer': self})
 
         elif ftype is DecimalField:
             sign, (ii,), dd = me_field.precision.as_tuple()

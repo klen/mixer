@@ -122,6 +122,8 @@ class TypeMixer(BaseTypeMixer):
             kwargs['positive'] = not sign
             kwargs['i'] = ii + 1
 
+        kwargs.pop('_typemixer')
+        kwargs.pop('_scheme')
         return super(TypeMixer, self).make_generator(
             ftype, field_name=field_name, fake=fake, args=args, kwargs=kwargs)
 
