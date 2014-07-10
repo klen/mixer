@@ -378,7 +378,7 @@ def get_numerify(template='', symbol='#', **kwargs):
 
     """
     return ''.join(
-        (str(random.randint(0, 10)) if c == '#' else c)
+        (str(random.randint(0, 9)) if c == '#' else c)
         for c in template
     )
 
