@@ -3,3 +3,4 @@
 /todo.txt
 dist
 docs/_build
+*.txt

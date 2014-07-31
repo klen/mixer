@@ -6,7 +6,7 @@ import decimal
 from bson import ObjectId
 from yadm import Document
 from yadm.fields import (
-    BooleanField, DecimalField, FloatField, IntegerField, StringField,
+    BooleanField, DecimalField, FloatField, IntegerField, StringField, EmailField,
     ListField, SetField, ObjectIdField, ReferenceField, DatetimeField, EmbeddedDocumentField)
 from yadm.markers import NoDefault
 
@@ -41,6 +41,7 @@ class GenFactory(BaseFactory):
         BooleanField: bool,
         DatetimeField: datetime.datetime,
         DecimalField: decimal.Decimal,
+        EmailField: t.EmailString,
         FloatField: float,
         IntegerField: int,
         StringField: str,
