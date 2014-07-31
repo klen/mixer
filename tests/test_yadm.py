@@ -15,6 +15,7 @@ def test_base():
     class Author(Document):
 
         name = fields.StringField()
+        email = fields.EmailField()
 
     class Place(Document):
 
@@ -37,6 +38,7 @@ def test_base():
     assert post.body
     assert post.tags
     assert post.author.name == 'Tomas'
+    assert '@' in post.author.email
 
 
 # pylama:ignore=D,F0401

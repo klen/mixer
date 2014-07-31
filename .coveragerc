@@ -1,8 +1,8 @@
 [report]
-omit=mixer/six.py
+omit=mixer/six.py,mixer/markov.py,mixer/backend/yadm.py
 source=mixer
 
 [run]
-omit=mixer/six.py
+omit=mixer/six.py,mixer/markov.py,mixer/backend/yadm.py
 source=mixer
 
