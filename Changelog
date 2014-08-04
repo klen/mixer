@@ -1,3 +1,8 @@
+2014-08-04  horneds
+
+	* Version 4.8.0
+	* Added gen_timedelta and gen_datetime_range to generators
+
 2014-08-31  horneds
 
 	* Version 4.7.5

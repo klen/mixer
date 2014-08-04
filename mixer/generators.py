@@ -189,6 +189,39 @@ def get_datetime(min_datetime=(1900, 1, 1, 0, 0, 0),
 gen_datetime = loop(get_datetime)
 
 
+def get_datetime_range():
+    """ Get a range with two datetimes.
+
+    :return tupple: a range
+
+    ::
+
+        print get_datetime_range()  # -> (datetime, datetime)
+
+    """
+    dt = get_datetime()
+    return dt, dt + get_timedelta()
+
+#: Generator's fabric for :meth:`mixer.generators.get_datetime_range`
+gen_datetime_range = loop(get_datetime_range)
+
+
+def get_timedelta():
+    """ Get a random timedelta.
+
+    :return timedelta:
+
+    ::
+
+        print get_timedelta()  # -> timedelta(hours=120)
+
+    """
+    return datetime.timedelta(hours=get_small_positive_integer())
+
+#: Generator's fabric for :meth:`mixer.generators.get_timedelta`
+gen_timedelta = loop(get_timedelta)
+
+
 def get_integer(low=-2147483647, high=2147483647, **kwargs):
     """ Get a random integer.
 
