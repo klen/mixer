@@ -93,6 +93,14 @@ def test_generators():
     test = next(g.gen_percent_decimal())
     assert Decimal('0.01') <= test <= Decimal('1.00')
 
+    test = next(g.gen_timedelta())
+    assert test
+
+    d1, d2 = next(g.gen_datetime_range())
+    assert d1
+    assert d2
+    assert d2 > d1
+
 
 def test_fakers():
     """ Test default fakers. """

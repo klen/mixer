@@ -1,9 +1,9 @@
-""" Base for custom backends.
+""" Generation core.
 
 mixer.main
 ~~~~~~~~~~
 
-This module implements the objects generation.
+The module implements objects generation.
 
 :copyright: 2013 by Kirill Klenov.
 :license: BSD, see LICENSE for more details.
@@ -41,7 +41,7 @@ if not LOGGER.handlers and not LOGGER.root.handlers:
 
 class _Deffered(object):
 
-    """ Post process value. """
+    """ A type which will be generated later. """
 
     def __init__(self, value, scheme=None):
         self.value = value
@@ -50,7 +50,7 @@ class _Deffered(object):
 
 class TypeMixerMeta(type):
 
-    """ Cache type mixers by scheme. """
+    """ Cache typemixers by scheme. """
 
     mixers = dict()
 
@@ -80,7 +80,7 @@ class TypeMixerMeta(type):
 
 class TypeMixer(_.with_metaclass(TypeMixerMeta)):
 
-    """ Generate models. """
+    """ Generate objects by scheme. """
 
     factory = GenFactory
 
@@ -105,7 +105,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
         return "<TypeMixer {0}>".format(self.__scheme)
 
     def blend(self, **values):
-        """ Generate instance.
+        """ Generate object.
 
         :param **values: Predefined fields
         :return value: a generated value
@@ -157,7 +157,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
         return target
 
     def postprocess(self, target, postprocess_values):
-        """ Run postprocess code. """
+        """ Run the code after a generation. """
         if self.__mixer:
             target = self.__mixer.postprocess(target)
 
@@ -167,14 +167,14 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
         return target
 
     def populate_target(self, values):
-        """ Populate target with values. """
+        """ Populate a target by values. """
         target = self.__scheme()
         for name, value in values:
             setattr(target, name, value)
         return target
 
     def get_value(self, name, value):
-        """ Parse field value.
+        """ Prepare value for field with name.
 
         :return : (name, value) or None
 
@@ -192,7 +192,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
 
         :param field: Instance of :class:`Field`
 
-        :return : None or (name, value) for later use
+        :return : None or (name, value) for later usage
 
         """
         default = self.get_default(field)
@@ -207,7 +207,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
         return self.gen_value(field.name, field, unique=unique)
 
     def gen_random(self, field_name, random):
-        """ Generate random value of field with `field_name`.
+        """ Generate a random value for field with `field_name`.
 
         :param field_name: Name of field for generation.
         :param random: Instance of :class:`~mixer.main.Random`.
@@ -226,7 +226,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
     gen_select = gen_random
 
     def gen_fake(self, field_name, fake):
-        """ Generate fake value of field with `field_name`.
+        """ Generate a fake value for field with `field_name`.
 
         :param field_name: Name of field for generation.
         :param fake: Instance of :class:`~mixer.main.Fake`.
@@ -255,6 +255,9 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
             value = next(gen)
         except ValueError:
             value = None
+        except StopIteration:
+            raise ValueError(
+                "Generation for %s (%s) has been stopped." % (field_name, self.__scheme.__name__))
 
         if unique and value is not SKIP_VALUE:
             counter = 0
@@ -268,7 +271,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
         return self.get_value(field_name, value)
 
     def get_generator(self, field, field_name=None, fake=None):
-        """ Get generator for field and cache it.
+        """ Get a generator for field and cache it.
 
         :param field: Field for looking a generator
         :param field_name: Name of field for generation
@@ -293,7 +296,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
         return self.__generators[key]
 
     def make_generator(self, scheme, field_name=None, fake=None, args=None, kwargs=None): # noqa
-        """ Make generator for class.
+        """ Make a generator for scheme.
 
         :param field_class: Class for looking a generator
         :param scheme: Scheme for generation
@@ -314,7 +317,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
         return fabric(*args, **kwargs)
 
     def register(self, field_name, func, fake=None):
-        """ Register function as generator for field.
+        """ Register function as generator for the field.
 
         :param field_name: Name of field for generation
         :param func: Function for data generation
@@ -363,7 +366,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
 
     @staticmethod
     def get_default(field):
-        """ Get default value from field.
+        """ Return a default value for the field if it exists.
 
         :return value:
 
@@ -372,7 +375,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
 
     @staticmethod
     def guard(*args, **kwargs):
-        """ Look objects in storage.
+        """ Look in storage.
 
         :returns: False
 
@@ -384,7 +387,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
         return deepcopy(obj)
 
     def __load_fields(self):
-        """ Find scheme's fields. """
+        """ Return scheme's fields. """
         for fname in dir(self.__scheme):
             if fname.startswith('_'):
                 continue
@@ -394,7 +397,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
 
 class ProxyMixer:
 
-    """ A Mixer proxy. Using for generate a few objects.
+    """ A Mixer's proxy. Using for generate more than one object.
 
     ::
 
@@ -442,7 +445,7 @@ class _MetaMixer(type):
 
 class Mixer(_.with_metaclass(_MetaMixer)):
 
-    """ This class is used for integration to one or more applications.
+    """ This class is using for integration to an application.
 
     :param fake: (True) Generate fake data instead of random data.
     :param factory: (:class:`~mixer.main.GenFactory`) Fabric of generators
@@ -469,7 +472,7 @@ class Mixer(_.with_metaclass(_MetaMixer)):
 
     def __init__(self, fake=True, factory=None, loglevel=LOGLEVEL,
                  silence=False, **params):
-        """Initialize Mixer instance.
+        """Initialize the Mixer instance.
 
         :param fake: (True) Generate fake data instead of random data.
         :param loglevel: ('WARN') Set level for logging
@@ -492,7 +495,7 @@ class Mixer(_.with_metaclass(_MetaMixer)):
 
     @property
     def SKIP(self, *args, **kwargs):
-        """ Skip field generation.
+        """ Do not generate a field.
 
         ::
             # Don't generate field 'somefield'
@@ -505,7 +508,7 @@ class Mixer(_.with_metaclass(_MetaMixer)):
 
     @property
     def FAKE(self, *args, **kwargs):
-        """ Force a fake values. See :class:`~mixer.main.Fake`.
+        """ Force generation of fake values. See :class:`~mixer.main.Fake`.
 
         :returns: Fake object
 
@@ -514,7 +517,7 @@ class Mixer(_.with_metaclass(_MetaMixer)):
 
     @property
     def RANDOM(self, *args, **kwargs):
-        """ Force a random values. See :class:`~mixer.main.Random`.
+        """ Force generation of random values. See :class:`~mixer.main.Random`.
 
         :returns: Random object
 
@@ -523,7 +526,7 @@ class Mixer(_.with_metaclass(_MetaMixer)):
 
     @property
     def SELECT(self, *args, **kwargs):
-        """ Select a data from databases. See :class:`~mixer.main.Select`.
+        """ Select data from a storage. See :class:`~mixer.main.Select`.
 
         :returns: Select object
 
@@ -532,7 +535,7 @@ class Mixer(_.with_metaclass(_MetaMixer)):
 
     @property
     def MIX(self, *args, **kwargs):
-        """ Point to a mixed object from future. See :class:`~mixer.main.Mix`.
+        """ Point to mixed object from future. See :class:`~mixer.main.Mix`.
 
         :returns: Mix object
 
@@ -597,12 +600,13 @@ class Mixer(_.with_metaclass(_MetaMixer)):
         except Exception as e:
             if self.params.get('silence'):
                 return None
-            e.args = ('Mixer (%s): %s' % (scheme, e.args[0]),) + e.args[1:]
+            if e.args:
+                e.args = ('Mixer (%s): %s' % (scheme, e.args[0]),) + e.args[1:]
             LOGGER.error(traceback.format_exc())
             raise
 
     def get_typemixer(self, scheme):
-        """ Return cached typemixer instance.
+        """ Return a cached typemixer instance.
 
         :return TypeMixer:
 
@@ -613,7 +617,7 @@ class Mixer(_.with_metaclass(_MetaMixer)):
 
     @staticmethod
     def postprocess(target):
-        """ Post processing a generated value.
+        """ Run the code after generation.
 
         :return target:
 
@@ -622,7 +626,7 @@ class Mixer(_.with_metaclass(_MetaMixer)):
 
     @staticmethod # noqa
     def sequence(*args):
-        """ Create sequence for predefined values.
+        """ Create a sequence for predefined values.
 
         It makes a infinity loop with given function where does increment the
         counter on each iteration.
@@ -691,7 +695,7 @@ class Mixer(_.with_metaclass(_MetaMixer)):
         return gen2()
 
     def cycle(self, count=5):
-        """ Generate a few objects. Syntastic sugar for cycles.
+        """ Generate a few objects. The syntastic sugar for cycles.
 
         :param count: List of objects or integer.
         :returns: ProxyMixer
@@ -712,7 +716,7 @@ class Mixer(_.with_metaclass(_MetaMixer)):
     def middleware(self, scheme):
         """ Middleware decorator.
 
-        You can add middleware layers to process generation: ::
+        You could add the middleware layers to generation process: ::
 
         ::
 
@@ -742,9 +746,8 @@ class Mixer(_.with_metaclass(_MetaMixer)):
     def register(self, scheme, **params):
         """ Manualy register a function as value's generator for class.field.
 
-        :param scheme: Scheme class for generation or string with class path.
-        :param params: dict of generators for fields. Keys are field's names.
-                        Values is function without argument or objects.
+        :param scheme: Scheme for generation (class or class path)
+        :param params: Kwargs with generator's definitions (field_name=field_generator)
 
         ::
 
@@ -755,10 +758,11 @@ class Mixer(_.with_metaclass(_MetaMixer)):
             def func():
                 return 'ID'
 
-            mixer.register(Scheme, {
-                'id': func
-                'title': 'Always same'
-            })
+            mixer.register(
+                Scheme,
+                id=func,
+                title='Always same',
+            )
 
             test = mixer.blend(Scheme)
             test.id == 'ID'
@@ -778,7 +782,7 @@ class Mixer(_.with_metaclass(_MetaMixer)):
 
     @contextmanager
     def ctx(self, **params):
-        """ Redifine params for current mixer on context.
+        """ Redifine params for current mixer as context.
 
         ::
 
