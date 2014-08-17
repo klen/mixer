@@ -163,7 +163,7 @@ class TypeMixer(BaseTypeMixer):
             return gen
 
         ftype = type(column.type)
-        stype = self.factory.cls_to_simple(ftype)
+        stype = self.__factory.cls_to_simple(ftype)
 
         if stype is str:
             kwargs['length'] = column.type.length
