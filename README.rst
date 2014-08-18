@@ -328,6 +328,7 @@ Contributors
 * Antoine Bertin    (https://github.com/Diaoul)
 * Dmitriy Moseev    (https://github.com/DmitriyMoseev)
 * Kirill Pavlov     (https://github.com/pavlov99)
+* Kwok-kuen Cheung  (https://github.com/cheungpat)
 * Mahdi Yusuf       (https://github.com/myusuf3)
 * Marek Baczyński   (https://github.com/imbaczek)
 * Matt Caldwell     (https://github.com/mattcaldwell)

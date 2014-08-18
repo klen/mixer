@@ -1,3 +1,8 @@
+2014-08-18  horneds
+
+	* Version 4.8.1
+	* Fix sqlalchemy using default GenFactory (c) cheungpat
+
 2014-08-04  horneds
 
 	* Version 4.8.0
