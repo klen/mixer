@@ -23,10 +23,6 @@ from ..main import (
 
 get_contentfile = ContentFile
 
-if VERSION < (1, 4):
-    get_contentfile = lambda content, name: ContentFile(content)
-
-
 MOCK_FILE = path.abspath(path.join(
     path.dirname(path.dirname(__file__)), 'resources', 'file.txt'
 ))
@@ -116,7 +112,6 @@ class TypeMixerMeta(BaseTypeMixerMeta):
         """
         params['models_cache'] = dict()
         cls = super(TypeMixerMeta, mcs).__new__(mcs, name, bases, params)
-        cls.__update_cache()
         return cls
 
     def __load_cls(cls, cls_type):
@@ -128,19 +123,28 @@ class TypeMixerMeta(BaseTypeMixerMeta):
 
             else:
                 try:
+
                     if cls_type not in cls.models_cache:
                         cls.__update_cache()
 
                     return cls.models_cache[cls_type]
+
                 except KeyError:
                     raise ValueError('Model "%s" not found.' % cls_type)
 
         return cls_type
 
     def __update_cache(cls):
-        for app_models in models.loading.cache.app_models.values():
-            for name, model in app_models.items():
-                cls.models_cache[name] = model
+        """ Update apps cache for Django < 1.7. """
+        if VERSION < (1, 7):
+            for app_models in models.loading.cache.app_models.values():
+                for name, model in app_models.items():
+                    cls.models_cache[name] = model
+        else:
+            from django.apps import apps
+            for app in apps.all_models:
+                for name, model in apps.all_models[app].items():
+                    cls.models_cache[name] = model
 
 
 class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
@@ -323,7 +327,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
         :return bool:
 
         """
-        if isinstance(field.scheme, models.OneToOneField):
+        if VERSION < (1, 7) and isinstance(field.scheme, models.OneToOneField):
             return True
         return field.scheme.unique
 

@@ -6,16 +6,14 @@ import decimal
 import pytest
 from django.core.management import call_command
 
-from .django_app.models import (
-    Rabbit, models, Hole, Door, Customer, Simple, Client)
+from .django_app.models import Rabbit, models, Hole, Door, Customer, Simple, Client
 from mixer.backend.django import Mixer
 
 
 @pytest.fixture(autouse=True)
 def mixer(request):
     call_command('syncdb', interactive=False, verbosity=0)
-    request.addfinalizer(lambda: call_command(
-        'flush', interactive=False, verbosity=0))
+    request.addfinalizer(lambda: call_command('flush', interactive=False, verbosity=0))
     return Mixer()
 
 

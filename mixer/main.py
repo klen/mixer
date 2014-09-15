@@ -59,7 +59,7 @@ class TypeMixerMeta(type):
         try:
             cls_type = cls.__load_cls(cls_type)
             assert cls_type
-        except (AttributeError, AssertionError):
+        except (AttributeError, AssertionError, LookupError):
             raise ValueError('Invalid scheme: %s' % backup)
 
         key = (mixer, cls_type, fake, factory)
@@ -261,12 +261,15 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
 
         if unique and value is not SKIP_VALUE:
             counter = 0
-            while value in self.__gen_values[field_name]:
-                value = next(gen)
-                counter += 1
-                if counter > 100:
-                    raise RuntimeError("Cannot generate a unique value for %s" % field_name)
-            self.__gen_values[field_name].add(value)
+            try:
+                while value in self.__gen_values[field_name]:
+                    value = next(gen)
+                    counter += 1
+                    if counter > 100:
+                        raise RuntimeError("Cannot generate a unique value for %s" % field_name)
+                self.__gen_values[field_name].add(value)
+            except TypeError:
+                pass
 
         return self.get_value(field_name, value)
 
