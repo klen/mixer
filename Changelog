@@ -1,3 +1,8 @@
+2014-09-07  horneds
+
+	* Drop support Django 1.4
+	* Add support Django 1.7
+
 2014-08-18  horneds
 
 	* Version 4.8.1

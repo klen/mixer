@@ -1,9 +1,6 @@
-import os
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'tests.django_app.settings')
-
 from django.conf import settings
 from django.contrib.contenttypes import generic, models as ct_models
+from django import VERSION
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -23,7 +20,7 @@ class Customer(User):
 class Rabbit(models.Model):
     title = models.CharField(max_length=16)
     username = models.CharField(max_length=16, unique=True)
-    active = models.BooleanField()
+    active = models.BooleanField(default=True)
     email = models.EmailField()
     text = models.TextField(max_length=512)
 
@@ -34,7 +31,7 @@ class Rabbit(models.Model):
     percent = models.FloatField()
     money = models.IntegerField()
     ip = models.IPAddressField()
-    ip6 = models.GenericIPAddressField(protocol='IPv6')
+    ip6 = models.GenericIPAddressField(protocol='ipv6')
     picture = models.FileField(upload_to=settings.TMPDIR)
 
     some_field = models.CommaSeparatedIntegerField(max_length=12)
@@ -67,8 +64,11 @@ class Hole(models.Model):
     title = models.CharField(max_length=16)
     size = models.SmallIntegerField()
     owner = models.ForeignKey(Rabbit)
-    rabbits = generic.GenericRelation(Rabbit, related_name='holes')
-    # wtf = models.ForeignKey('self')
+
+    # FIXME compatibility
+    rabbits = generic.GenericRelation(
+        Rabbit,
+        **({'related_name': 'holes'} if VERSION < (1, 7) else {'related_query_name': 'holes'}))
 
 
 class Hat(models.Model):

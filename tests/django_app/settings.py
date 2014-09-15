@@ -6,22 +6,18 @@ ROOT_URLCONF = 'tests.django_app.urls'
 
 SECRET_KEY = 'KeepMeSecret'
 
-DEBUG=True
+DEBUG = True
 
-MEDIA_ROOT=TMPDIR
+MEDIA_ROOT = TMPDIR
 
-DATABASES={
+DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': ':memory:',
-        'USER': '',
-        'PASSWORD': '',
-        'TEST_CHARSET': 'utf8',
     }
 }
 
-INSTALLED_APPS=(
-    'django.contrib.contenttypes',
-    'django.contrib.auth',
-    'tests.django_app',
-)
+MIDDLEWARE_CLASSES = (
+    'django.middleware.common.CommonMiddleware', 'django.middleware.csrf.CsrfViewMiddleware')
+
+INSTALLED_APPS = 'django.contrib.contenttypes', 'django.contrib.auth', 'tests.django_app'
