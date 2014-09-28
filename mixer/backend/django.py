@@ -288,8 +288,11 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
             return g.gen_choices([1, 2, 3, 4, 5, 6, 7, 8, 9, 0], field.max_length)
 
         if field and field.choices:
-            choices, _ = list(zip(*field.choices))
-            return g.gen_choice(choices)
+            try:
+                choices, _ = list(zip(*field.choices))
+                return g.gen_choice(choices)
+            except ValueError:
+                pass
 
         if stype in (str, t.Text):
             kwargs['length'] = field.max_length
