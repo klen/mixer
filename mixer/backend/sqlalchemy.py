@@ -7,7 +7,10 @@ import decimal
 from sqlalchemy import func
 # from sqlalchemy.orm.interfaces import MANYTOONE
 from sqlalchemy.orm.collections import InstrumentedList
-from sqlalchemy.orm.relationships import RelationshipProperty
+try:
+    from sqlalchemy.orm.relationships import RelationshipProperty
+except ImportError:
+    from sqlalchemy.orm.properties import RelationshipProperty
 from sqlalchemy.types import (
     BIGINT, BOOLEAN, BigInteger, Boolean, CHAR, DATE, DATETIME, DECIMAL, Date,
     DateTime, FLOAT, Float, INT, INTEGER, Integer, NCHAR, NVARCHAR, NUMERIC,
