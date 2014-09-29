@@ -1,3 +1,8 @@
+2014-09-29  horneds
+
+	* Fix SQLAlchemy <= 0.8 compatibility
+	* Version 4.9.3
+
 2014-09-15  horneds
 
 	* Drop support Django 1.4
