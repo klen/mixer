@@ -29,6 +29,17 @@ clean:
 register:
 	@python setup.py register
 
+.PHONY: release
+VERSION?=minor
+release:
+	@pip install bumpversion
+	@bumpversion $(VERSION)
+	@git checkout master
+	@git merge develop
+	@git checkout develop
+	@git push --all
+	@git push --tags
+
 .PHONY: upload
 # target: upload - Upload module on PyPi
 upload: docs
