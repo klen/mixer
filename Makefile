@@ -63,6 +63,7 @@ upload: clean docs
 .PHONY: docs
 # target: docs - Compile the docs
 docs: docs
+	@$(VIRTUALENV)/bin/pip install sphinx
 	python setup.py build_sphinx --source-dir=docs/ --build-dir=docs/_build --all-files
 	# python setup.py upload_sphinx --upload-dir=docs/_build/html
 
@@ -71,7 +72,7 @@ docs: docs
 #  Development
 # =============
 
-$(VIRTUALENV): requirements.txt
+$(VIRTUALENV): requirements-tests.txt
 	@[ -d $(VIRTUALENV) ]	|| virtualenv --no-site-packages $(VIRTUALENV)
 	@$(VIRTUALENV)/bin/pip install -r requirements.txt
 
