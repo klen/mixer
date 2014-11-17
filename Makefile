@@ -72,9 +72,8 @@ docs: docs
 # =============
 
 $(VIRTUALENV): requirements.txt
-	@virtualenv --no-site-packages $(VIRTUALENV)
-	@$(VIRTUALENV)/bin/pip install -M -r requirements.txt
-	touch $(VIRTUALENV)
+	@[ -d $(VIRTUALENV) ]	|| virtualenv --no-site-packages $(VIRTUALENV)
+	@$(VIRTUALENV)/bin/pip install -r requirements.txt
 
 .PHONY: t
 # target: t - Runs tests
