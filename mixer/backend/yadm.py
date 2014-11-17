@@ -153,7 +153,7 @@ class Mixer(BaseMixer):
         """
         db = self.params.get('db')
         if db and isinstance(target, Document):
-            db.save(target)
+            db.insert(target)
 
         return target
 
