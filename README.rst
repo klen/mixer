@@ -19,24 +19,28 @@ Mixer supports:
 
 .. _badges:
 
-.. image:: https://secure.travis-ci.org/klen/mixer.png?branch=develop
+.. image:: http://img.shields.io/travis/klen/mixer.svg?style=flat-square
     :target: http://travis-ci.org/klen/mixer
     :alt: Build Status
 
-.. image:: https://coveralls.io/repos/klen/mixer/badge.png?branch=develop
+.. image:: http://img.shields.io/coveralls/klen/mixer.svg?style=flat-square
     :target: https://coveralls.io/r/klen/mixer
     :alt: Coverals
 
-.. .. image:: https://pypip.in/v/mixer/badge.png
-    .. :target: https://crate.io/packages/mixer
-    .. :alt: Version
+.. image:: http://img.shields.io/pypi/v/mixer.svg?style=flat-square
+    :target: https://pypi.python.org/pypi/mixer
+    :alt: Version
 
-.. .. image:: https://pypip.in/d/mixer/badge.png
-    .. :target: https://crate.io/packages/mixer
-    .. :alt: Downloads
+.. image:: http://img.shields.io/pypi/dm/mixer.svg?style=flat-square
+    :target: https://pypi.python.org/pypi/mixer
+    :alt: Downloads
 
-.. image:: https://dl.dropboxusercontent.com/u/487440/reformal/donate.png
-    :target: https://www.gittip.com/klen/
+.. image:: http://img.shields.io/pypi/l/mixer.svg?style=flat-square
+    :target: https://pypi.python.org/pypi/mixer
+    :alt: License
+
+.. image:: http://img.shields.io/gratipay/klen.svg?style=flat-square
+    :target: https://www.gratipay.com/klen/
     :alt: Donate
 
 
