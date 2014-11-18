@@ -3,9 +3,9 @@ from __future__ import absolute_import
 
 import datetime
 from os import path
+from types import GeneratorType
 
 import decimal
-from types import GeneratorType
 from django import VERSION
 from django.contrib.contenttypes.generic import (
     GenericForeignKey, GenericRelation)
@@ -14,6 +14,7 @@ from django.core.files.base import ContentFile
 from django.core.validators import (
     validate_ipv4_address, validate_ipv6_address)
 from django.db import models
+from django.conf import settings
 
 from .. import generators as g, mix_types as t, _compat as _
 from ..main import (
@@ -64,6 +65,11 @@ def get_relation(_scheme=None, _typemixer=None, **params):
                      fake=_typemixer._TypeMixer__fake,).blend(**params)
 
 
+def get_datetime(**params):
+    """ Support Django TZ support. """
+    return g.get_datetime(tzinfo=settings.USE_TZ)
+
+
 class GenFactory(BaseFactory):
 
     """ Map a django classes to simple types. """
@@ -74,7 +80,6 @@ class GenFactory(BaseFactory):
         models.BigIntegerField: t.BigInteger,
         models.BooleanField: bool,
         models.DateField: datetime.date,
-        models.DateTimeField: datetime.datetime,
         models.DecimalField: decimal.Decimal,
         models.EmailField: t.EmailString,
         models.FloatField: float,
@@ -91,6 +96,7 @@ class GenFactory(BaseFactory):
     generators = {
         models.FileField: get_file,
         models.FilePathField: lambda: MOCK_FILE,
+        models.DateTimeField: get_datetime,
         models.ImageField: get_image,
         models.ForeignKey: get_relation,
         models.OneToOneField: get_relation,

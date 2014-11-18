@@ -28,6 +28,16 @@ DEFAULT_CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
 DEFAULT_DATE = datetime.date.today()
 
 
+class UTCZone(datetime.tzinfo):
+
+    """ Implement UTC timezone. """
+
+    utcoffset = dst = lambda s, dt: datetime.timedelta(0)
+    tzname = lambda s, dt: "UTC"
+
+UTC = UTCZone()
+
+
 def loop(get_func):
     """ Make generator from function.
 
@@ -160,11 +170,12 @@ gen_time = loop(get_time)
 
 
 def get_datetime(min_datetime=(1900, 1, 1, 0, 0, 0),
-                 max_datetime=(2020, 12, 31, 23, 59, 59), **kwargs):
+                 max_datetime=(2020, 12, 31, 23, 59, 59), tzinfo=False, **kwargs):
     """ Get a random datetime.
 
     :param low: datetime or datetime's tuple from
     :param hight: datetime or datetime's tuple to
+    :param tzinfo: make aware datetime
 
     :return datetime:
 
@@ -183,7 +194,10 @@ def get_datetime(min_datetime=(1900, 1, 1, 0, 0, 0),
     delta = (delta.days * 24 * 60 * 60 + delta.seconds)
     delta = get_integer(0, delta)
 
-    return min_datetime + datetime.timedelta(seconds=delta)
+    dt = min_datetime + datetime.timedelta(seconds=delta)
+    if tzinfo:
+        dt = dt.replace(tzinfo=UTC)
+    return dt
 
 #: Generator's fabric for :meth:`mixer.generators.get_datetime`
 gen_datetime = loop(get_datetime)
