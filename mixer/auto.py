@@ -1,7 +1,5 @@
 """ Automatic backend selection. """
 
-from importlib import import_module
-
 from .main import ProxyMixer
 from . import _compat as _
 
@@ -60,7 +58,7 @@ class MixerProxy(object):
     def __load_cls(cls_type):
         if isinstance(cls_type, _.string_types):
             mod, cls_type = cls_type.rsplit('.', 1)
-            mod = import_module(mod)
+            mod = _.import_module(mod)
             cls_type = getattr(mod, cls_type)
         return cls_type
 

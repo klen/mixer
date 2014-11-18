@@ -19,16 +19,9 @@ import traceback
 from collections import defaultdict
 from contextlib import contextmanager
 from copy import deepcopy
-from importlib import import_module
 
 from . import generators as g, fakers as f, mix_types as t, _compat as _
 from .factory import GenFactory
-
-
-try:
-    from collections import OrderedDict
-except ImportError:
-    from ordereddict import OrderedDict # noqa
 
 
 SKIP_VALUE = object()
@@ -73,7 +66,7 @@ class TypeMixerMeta(type):
     def __load_cls(cls_type):
         if isinstance(cls_type, _.string_types):
             mod, cls_type = cls_type.rsplit('.', 1)
-            mod = import_module(mod)
+            mod = _.import_module(mod)
             cls_type = getattr(mod, cls_type)
         return cls_type
 
@@ -99,7 +92,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
         self.__mixer = mixer
         self.__scheme = cls
 
-        self.__fields = OrderedDict(self.__load_fields())
+        self.__fields = _.OrderedDict(self.__load_fields())
 
     def __repr__(self):
         return "<TypeMixer {0}>".format(self.__scheme)
