@@ -6,7 +6,6 @@ mixer -- Description
 
 """
 import re
-import sys
 from os import path as op
 
 from setuptools import setup
@@ -30,10 +29,6 @@ install_requires = [
 tests_require = [
     l for l in _read('requirements-tests.txt').split('\n')
     if l and not l.startswith('#')]
-
-if sys.version_info < (2, 7):
-    install_requires.append('importlib')
-    install_requires.append('ordereddict')
 
 
 setup(
