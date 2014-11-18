@@ -17,6 +17,8 @@ DATABASES = {
     }
 }
 
+USE_TZ = True
+
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware', 'django.middleware.csrf.CsrfViewMiddleware')
 
