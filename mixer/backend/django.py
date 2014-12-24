@@ -228,18 +228,6 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
         return name, value
 
-    @staticmethod
-    def get_default(field):
-        """ Get default value from field.
-
-        :return value: A default value or SKIP_VALUE
-
-        """
-        if not field.scheme.has_default():
-            return SKIP_VALUE
-
-        return field.scheme.get_default()
-
     def gen_select(self, field_name, select):
         """ Select exists value from database.
 
@@ -350,7 +338,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
         if field.params:
             return True
 
-        if field.scheme.null and field.scheme.blank:
+        if field.scheme.has_default() or field.scheme.null and field.scheme.blank:
             return False
 
         if field.scheme.auto_created:
