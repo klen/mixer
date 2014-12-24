@@ -33,7 +33,7 @@ release:
 	@git checkout master
 	@git merge develop
 	@git checkout develop
-	@git push --all
+	@git push origin master develop
 	@git push --tags
 
 .PHONY: minor
