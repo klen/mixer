@@ -72,17 +72,20 @@ docs: docs
 #  Development
 # =============
 
-$(VIRTUALENV): requirements-tests.txt
+$(VIRTUALENV): requirements.txt
 	@[ -d $(VIRTUALENV) ]	|| virtualenv --no-site-packages $(VIRTUALENV)
 	@$(VIRTUALENV)/bin/pip install -r requirements.txt
+	@touch $(VIRTUALENV)
+
+$(VIRTUALENV)/bin/py.test: requirements-tests.txt
+	@$(VIRTUALENV)/bin/pip install -r requirements-tests.txt
+	@touch $(VIRTUALENV)/bin/py.test
 
 TEST=tests
 .PHONY: t
 # target: t - Runs tests
-t: clean
-	$(VIRTUALENV)/bin/pip install -r requirements-tests.txt
+t: clean $(VIRTUALENV)/bin/py.test
 	$(VIRTUALENV)/bin/py.test $(TEST) -s
-	# @python setup.py test
 
 .PHONY: audit
 # target: audit - Audit code
