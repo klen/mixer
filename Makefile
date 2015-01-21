@@ -76,6 +76,7 @@ $(VIRTUALENV): requirements-tests.txt
 	@[ -d $(VIRTUALENV) ]	|| virtualenv --no-site-packages $(VIRTUALENV)
 	@$(VIRTUALENV)/bin/pip install -r requirements.txt
 
+TEST=tests
 .PHONY: t
 # target: t - Runs tests
 t: clean
