@@ -3,7 +3,7 @@
 import datetime
 import decimal
 
-from . import _compat as _, generators as g, mix_types as t, fakers as f
+from . import _compat as _, generators as gen, mix_types as t, fakers as f
 
 
 class GenFactoryMeta(type):
@@ -56,29 +56,29 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
     """ Make generators for types. """
 
     generators = {
-        bool: g.get_boolean,
-        float: g.get_float,
-        int: g.get_integer,
-        str: g.get_string,
-        list: g.get_list,
-        set: lambda **kwargs: set(g.get_list()),
-        tuple: lambda **kwargs: tuple(g.get_list()),
-        dict: lambda **kwargs: dict(zip(g.get_list(), g.get_list())),
-        datetime.date: g.get_date,
-        datetime.datetime: g.get_datetime,
-        datetime.time: g.get_time,
-        decimal.Decimal: g.get_decimal,
-        t.BigInteger: g.get_big_integer,
+        bool: gen.get_boolean,
+        float: gen.get_float,
+        int: gen.get_integer,
+        str: gen.get_string,
+        list: gen.get_list,
+        set: lambda **kwargs: set(gen.get_list()),
+        tuple: lambda **kwargs: tuple(gen.get_list()),
+        dict: lambda **kwargs: dict(zip(gen.get_list(), gen.get_list())),
+        datetime.date: gen.get_date,
+        datetime.datetime: gen.get_datetime,
+        datetime.time: gen.get_time,
+        decimal.Decimal: gen.get_decimal,
+        t.BigInteger: gen.get_big_integer,
         t.EmailString: f.get_email,
         t.HostnameString: f.get_hostname,
         t.IP4String: f.get_ip4,
         t.IP6String: f.get_ip6,
         t.IPString: f.get_ip_generic,
-        t.NullOrBoolean: g.get_null_or_boolean,
-        t.PositiveDecimal: g.get_positive_decimal,
-        t.PositiveInteger: g.get_positive_integer,
-        t.PositiveSmallInteger: g.get_small_positive_integer,
-        t.SmallInteger: g.get_small_integer,
+        t.NullOrBoolean: gen.get_null_or_boolean,
+        t.PositiveDecimal: gen.get_positive_decimal,
+        t.PositiveInteger: gen.get_positive_integer,
+        t.PositiveSmallInteger: gen.get_small_positive_integer,
+        t.SmallInteger: gen.get_small_integer,
         t.Text: f.get_lorem,
         t.URL: f.get_url,
         t.UUID: f.get_uuid,
@@ -113,8 +113,8 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
         ('title', str): f.get_short_lorem,
         ('url', t.URL): f.get_url,
         ('username', str): f.get_username,
-        ('percent', int): g.get_percent,
-        ('percent', decimal.Decimal): g.get_percent_decimal,
+        ('percent', int): gen.get_percent,
+        ('percent', decimal.Decimal): gen.get_percent_decimal,
     }
 
     types = {
@@ -145,10 +145,10 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
         return fname.lower().strip()
 
     @classmethod
-    def gen_maker(cls, fcls, fname=None, fake=False):
-        """ Make a generator based on class and name.
+    def get_fabric(cls, fcls, fname=None, fake=False):
+        """ Make a objects fabric  based on class and name.
 
-        :return generator:
+        :return function:
 
         """
         simple = cls.cls_to_simple(fcls)
@@ -161,4 +161,7 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
             fname = cls.name_to_simple(fname)
             func = cls.fakers.get((fname, simple)) or func
 
-        return g.loop(func) if func is not None else False
+        if func is None:
+            return False
+
+        return func

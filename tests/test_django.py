@@ -87,8 +87,8 @@ def test_custom(mixer):
     class MyFactory(GenFactory):
         generators = {models.CharField: getter}
 
-    fabric = MyFactory.gen_maker(models.CharField)
-    assert next(fabric()) == "Always same"
+    fabric = MyFactory.get_fabric(models.CharField)
+    assert fabric() == "Always same"
 
     mixer = Mixer(factory=MyFactory, fake=False)
     assert mixer._Mixer__factory == MyFactory

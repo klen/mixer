@@ -178,11 +178,11 @@ def test_factory():
     from mixer.main import GenFactory
 
     g = GenFactory()
-    test = g.gen_maker(int)()
-    assert -2147483647 <= next(test) < 2147483647
+    test = g.get_fabric(int)
+    assert -2147483647 <= test() < 2147483647
 
-    test = g.gen_maker(bool)()
-    assert next(test) in (True, False)
+    test = g.get_fabric(bool)
+    assert test() in (True, False)
 
 
 def test_typemixer_meta():

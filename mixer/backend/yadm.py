@@ -10,14 +10,14 @@ from yadm.fields import (
     ListField, SetField, ObjectIdField, ReferenceField, DatetimeField, EmbeddedDocumentField)
 from yadm.markers import NoDefault
 
-from .. import mix_types as t, generators as g
+from .. import mix_types as t, generators as gen
 from ..main import TypeMixer as BaseTypeMixer, GenFactory as BaseFactory,\
-    Mixer as BaseMixer, SKIP_VALUE
+    Mixer as BaseMixer, SKIP_VALUE, partial
 
 
 def get_list_field(_typemixer, _scheme):
-    gen = _typemixer.make_generator(_scheme.item_field)
-    return g.loop(lambda: [next(gen) for _ in range(3)])()
+    fab = _typemixer.make_generator(_scheme.item_field)
+    return lambda: [fab() for _ in range(3)]
 
 
 def get_set_field(**kwargs):
@@ -88,7 +88,7 @@ class TypeMixer(BaseTypeMixer):
         """
         return True
 
-    def make_generator(self, yadm_field, field_name=None, fake=None, args=None, kwargs=None): # noqa
+    def make_generator(self, yadm_field, field_name=None, fake=None, kwargs=None): # noqa
         """ Make values generator for field.
 
         :param yadm_field: YADM field's instance
@@ -99,7 +99,6 @@ class TypeMixer(BaseTypeMixer):
 
         """
         ftype = type(yadm_field)
-        args = [] if args is None else args
         kwargs = {} if kwargs is None else kwargs
 
         if getattr(yadm_field, 'choices', None):
@@ -108,7 +107,7 @@ class TypeMixer(BaseTypeMixer):
             else:
                 choices = list(yadm_field.choices)
 
-            return g.gen_choice(choices)
+            return partial(gen.get_choice, choices)
 
         elif isinstance(yadm_field, ReferenceField):
             ftype = yadm_field.reference_document_class
@@ -126,7 +125,7 @@ class TypeMixer(BaseTypeMixer):
             kwargs.update({'_typemixer': self, '_scheme': yadm_field})
 
         return super(TypeMixer, self).make_generator(
-            ftype, field_name=field_name, fake=fake, args=args, kwargs=kwargs)
+            ftype, field_name=field_name, fake=fake, kwargs=kwargs)
 
 
 class Mixer(BaseMixer):

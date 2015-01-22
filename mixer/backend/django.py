@@ -19,7 +19,7 @@ from django.conf import settings
 from .. import generators as g, mix_types as t, _compat as _
 from ..main import (
     SKIP_VALUE, TypeMixerMeta as BaseTypeMixerMeta, TypeMixer as BaseTypeMixer,
-    GenFactory as BaseFactory, Mixer as BaseMixer, _Deffered)
+    GenFactory as BaseFactory, Mixer as BaseMixer, _Deffered, partial)
 
 
 get_contentfile = ContentFile
@@ -262,29 +262,28 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
         return super(TypeMixer, self).gen_field(field)
 
-    def make_generator(self, field, fname=None, fake=False, args=None, kwargs=None): # noqa
-        """ Make values generator for field.
+    def make_fabric(self, field, fname=None, fake=False, kwargs=None): # noqa
+        """ Make a fabric for field.
 
         :param field: A mixer field
         :param fname: Field name
         :param fake: Force fake data
 
-        :return generator:
+        :return function:
 
         """
-        args = [] if args is None else args
         kwargs = {} if kwargs is None else kwargs
 
         fcls = type(field)
         stype = self.__factory.cls_to_simple(fcls)
 
         if fcls is models.CommaSeparatedIntegerField:
-            return g.gen_choices([1, 2, 3, 4, 5, 6, 7, 8, 9, 0], field.max_length)
+            return partial(g.get_choices, [1, 2, 3, 4, 5, 6, 7, 8, 9, 0], length=field.max_length)
 
         if field and field.choices:
             try:
                 choices, _ = list(zip(*field.choices))
-                return g.gen_choice(choices)
+                return partial(g.get_choice, choices)
             except ValueError:
                 pass
 
@@ -314,8 +313,8 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
         elif isinstance(field, models.fields.related.RelatedField):
             kwargs.update({'_typemixer': self, '_scheme': field})
 
-        return super(TypeMixer, self).make_generator(
-            fcls, field_name=fname, fake=fake, args=[], kwargs=kwargs)
+        return super(TypeMixer, self).make_fabric(
+            fcls, field_name=fname, fake=fake, kwargs=kwargs)
 
     @staticmethod
     def is_unique(field):

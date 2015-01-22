@@ -48,10 +48,10 @@ from mongoengine import (
     UUIDField,
 )
 
-from .. import mix_types as t, generators as g, fakers as f
+from .. import mix_types as t, generators as gen, fakers as f
 from ..main import (
     SKIP_VALUE, TypeMixer as BaseTypeMixer, GenFactory as BaseFactory,
-    Mixer as BaseMixer,
+    Mixer as BaseMixer, partial
 )
 
 
@@ -79,9 +79,8 @@ def get_linestring(length=5, **kwargs):
     :return dict:
 
     """
-    return dict(
-        type='LineString',
-        coordinates=[f.get_coordinates() for _ in range(length)])
+    return dict(type='LineString',
+                coordinates=[f.get_coordinates() for _ in range(length)])
 
 
 def get_polygon(length=5, **kwargs):
@@ -107,7 +106,7 @@ def get_polygon(length=5, **kwargs):
 def get_generic_reference(_typemixer=None, **params):
     """ Choose a GenericRelation. """
     meta = type(_typemixer)
-    scheme = g.get_choice([
+    scheme = gen.get_choice([
         m for (_, m, _, _) in meta.mixers.keys()
         if issubclass(m, Document) and m is not _typemixer._TypeMixer__scheme # noqa
     ])
@@ -149,18 +148,17 @@ class TypeMixer(BaseTypeMixer):
 
     factory = GenFactory
 
-    def make_generator(self, me_field, field_name=None, fake=None, args=None, kwargs=None): # noqa
-        """ Make values generator for field.
+    def make_fabric(self, me_field, field_name=None, fake=None, kwargs=None): # noqa
+        """ Make a fabric for field.
 
         :param me_field: Mongoengine field's instance
         :param field_name: Field name
         :param fake: Force fake data
 
-        :return generator:
+        :return function:
 
         """
         ftype = type(me_field)
-        args = [] if args is None else args
         kwargs = {} if kwargs is None else kwargs
 
         if me_field.choices:
@@ -169,14 +167,14 @@ class TypeMixer(BaseTypeMixer):
             else:
                 choices = list(me_field.choices)
 
-            return g.gen_choice(choices)
+            return partial(gen.get_choice, choices)
 
         if ftype is StringField:
             kwargs['length'] = me_field.max_length
 
         elif ftype is ListField:
-            gen = self.make_generator(me_field.field, kwargs=kwargs)
-            return g.loop(lambda: [next(gen) for _ in range(3)])()
+            fab = self.make_fabric(me_field.field, kwargs=kwargs)
+            return lambda: [fab() for _ in range(3)]
 
         elif isinstance(me_field, (EmbeddedDocumentField, ReferenceField)):
             ftype = me_field.document_type
@@ -190,8 +188,8 @@ class TypeMixer(BaseTypeMixer):
             kwargs['positive'] = not sign
             kwargs['i'] = ii + 1
 
-        return super(TypeMixer, self).make_generator(
-            ftype, field_name=field_name, fake=fake, args=args, kwargs=kwargs)
+        return super(TypeMixer, self).make_fabric(
+            ftype, field_name=field_name, fake=fake, kwargs=kwargs)
 
     @staticmethod
     def get_default(field):
