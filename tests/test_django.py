@@ -72,7 +72,7 @@ def test_custom(mixer):
     mixer.register(
         Rabbit,
         title=lambda: 'Mr. Rabbit',
-        speed=lambda: mixer.G.get_small_positive_integer(99))
+        speed=lambda: mixer.faker.small_positive_integer(99))
 
     rabbit = mixer.blend(Rabbit, speed=mixer.RANDOM, percent=23)
     assert isinstance(rabbit.speed, decimal.Decimal)

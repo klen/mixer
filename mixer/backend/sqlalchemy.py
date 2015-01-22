@@ -17,10 +17,10 @@ from sqlalchemy.types import (
     Numeric, SMALLINT, SmallInteger, String, TEXT, TIME, Text, Time, Unicode,
     UnicodeText, VARCHAR, Enum)
 
-from .. import mix_types as t, generators as gen
+from .. import mix_types as t
 from ..main import (
     SKIP_VALUE, LOGGER, TypeMixer as BaseTypeMixer, GenFactory as BaseFactory,
-    Mixer as BaseMixer, _Deffered, partial)
+    Mixer as BaseMixer, _Deffered, partial, faker)
 
 
 class GenFactory(BaseFactory):
@@ -167,10 +167,12 @@ class TypeMixer(BaseTypeMixer):
         stype = self.__factory.cls_to_simple(ftype)
 
         if stype is str:
-            kwargs['length'] = column.type.length
+            fab = super(TypeMixer, self).make_fabric(
+                stype, field_name=field_name, fake=fake, kwargs=kwargs)
+            return lambda: fab()[:column.type.length]
 
         if ftype is Enum:
-            return partial(gen.get_choice, column.type.enums)
+            return partial(faker.random_element, column.type.enums)
 
         return super(TypeMixer, self).make_fabric(
             stype, field_name=field_name, fake=fake, kwargs=kwargs)
@@ -264,4 +266,4 @@ class Mixer(BaseMixer):
 # Default mixer
 mixer = Mixer()
 
-# pylama:ignore=E1120
+# pylama:ignore=E1120,E0611

@@ -16,10 +16,10 @@ from django.core.validators import (
 from django.db import models
 from django.conf import settings
 
-from .. import generators as g, mix_types as t, _compat as _
+from .. import mix_types as t, _compat as _
 from ..main import (
     SKIP_VALUE, TypeMixerMeta as BaseTypeMixerMeta, TypeMixer as BaseTypeMixer,
-    GenFactory as BaseFactory, Mixer as BaseMixer, _Deffered, partial)
+    GenFactory as BaseFactory, Mixer as BaseMixer, _Deffered, partial, faker)
 
 
 get_contentfile = ContentFile
@@ -58,7 +58,7 @@ def get_relation(_scheme=None, _typemixer=None, **params):
 
     if scheme is ContentType:
         choices = [m for m in models.get_models() if m is not ContentType]
-        return ContentType.objects.get_for_model(g.get_choice(choices))
+        return ContentType.objects.get_for_model(faker.random_element(choices))
 
     return TypeMixer(scheme, mixer=_typemixer._TypeMixer__mixer,
                      factory=_typemixer._TypeMixer__factory,
@@ -67,7 +67,7 @@ def get_relation(_scheme=None, _typemixer=None, **params):
 
 def get_datetime(**params):
     """ Support Django TZ support. """
-    return g.get_datetime(tzinfo=settings.USE_TZ)
+    return faker.datetime(tzinfo=settings.USE_TZ)
 
 
 class GenFactory(BaseFactory):
@@ -278,21 +278,23 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
         stype = self.__factory.cls_to_simple(fcls)
 
         if fcls is models.CommaSeparatedIntegerField:
-            return partial(g.get_choices, [1, 2, 3, 4, 5, 6, 7, 8, 9, 0], length=field.max_length)
+            return partial(faker.choices, range(0, 10), length=field.max_length)
 
         if field and field.choices:
             try:
                 choices, _ = list(zip(*field.choices))
-                return partial(g.get_choice, choices)
+                return partial(faker.random_element, choices)
             except ValueError:
                 pass
 
         if stype in (str, t.Text):
-            kwargs['length'] = field.max_length
+            fab = super(TypeMixer, self).make_fabric(
+                fcls, field_name=fname, fake=fake, kwargs=kwargs)
+            return lambda: fab()[:field.max_length]
 
-        elif stype is decimal.Decimal:
-            kwargs['i'] = field.max_digits - field.decimal_places
-            kwargs['d'] = field.decimal_places
+        if stype is decimal.Decimal:
+            kwargs['left_digits'] = field.max_digits - field.decimal_places
+            kwargs['right_digits'] = field.decimal_places
 
         elif stype is t.IPString:
 

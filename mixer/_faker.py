@@ -1,5 +1,6 @@
 """ Work with faker. """
 import decimal as dc
+import datetime as dt
 
 from faker import Factory
 from faker.providers import BaseProvider
@@ -10,6 +11,16 @@ GENRES = ('general', 'pop', 'dance', 'traditional', 'rock', 'alternative', 'rap'
           'documentary', 'family', 'adventure', 'fantasy', 'drama', 'crime', 'horror', 'music',
           'mystery', 'romance', 'sport', 'thriller', 'war', 'western', 'fiction', 'epic',
           'tragedy', 'parody', 'pastoral', 'culture', 'art', 'dance', 'drugs', 'social')
+
+
+class UTCZone(dt.tzinfo):
+
+    """ Implement UTC timezone. """
+
+    utcoffset = dst = lambda s, d: dt.timedelta(0)
+    tzname = lambda s, d: "UTC"
+
+UTC = UTCZone()
 
 
 class MixerProvider(BaseProvider):
@@ -94,6 +105,15 @@ class MixerProvider(BaseProvider):
     def title(self):
         words = self.generator.words(6)
         return " ".join(words).title()
+
+    def datetime(self, start_date='-30y', end_date='now', tzinfo=False):
+        dt = self.generator.date_time_between(start_date, end_date)
+        if tzinfo:
+            dt = dt.replace(tzinfo=UTC)
+        return dt
+
+    def coordinates(self):
+        return (self.generator.latitude(), self.generator.longitude())
 
 
 faker = Factory.create()

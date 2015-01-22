@@ -48,10 +48,10 @@ from mongoengine import (
     UUIDField,
 )
 
-from .. import mix_types as t, generators as gen, fakers as f
+from .. import mix_types as t
 from ..main import (
     SKIP_VALUE, TypeMixer as BaseTypeMixer, GenFactory as BaseFactory,
-    Mixer as BaseMixer, partial
+    Mixer as BaseMixer, partial, faker
 )
 
 
@@ -70,7 +70,7 @@ def get_pointfield(**kwargs):
     :return dict:
 
     """
-    return dict(type='Point', coordinates=f.get_coordinates())
+    return dict(type='Point', coordinates=faker.coordinates())
 
 
 def get_linestring(length=5, **kwargs):
@@ -79,8 +79,7 @@ def get_linestring(length=5, **kwargs):
     :return dict:
 
     """
-    return dict(type='LineString',
-                coordinates=[f.get_coordinates() for _ in range(length)])
+    return dict(type='LineString', coordinates=[faker.coordinates() for _ in range(length)])
 
 
 def get_polygon(length=5, **kwargs):
@@ -106,7 +105,7 @@ def get_polygon(length=5, **kwargs):
 def get_generic_reference(_typemixer=None, **params):
     """ Choose a GenericRelation. """
     meta = type(_typemixer)
-    scheme = gen.get_choice([
+    scheme = faker.random_element([
         m for (_, m, _, _) in meta.mixers.keys()
         if issubclass(m, Document) and m is not _typemixer._TypeMixer__scheme # noqa
     ])
@@ -134,7 +133,7 @@ class GenFactory(BaseFactory):
 
     generators = {
         GenericReferenceField: get_generic_reference,
-        GeoPointField: f.get_coordinates,
+        GeoPointField: faker.coordinates,
         LineStringField: get_linestring,
         ObjectIdField: get_objectid,
         PointField: get_pointfield,
@@ -167,16 +166,18 @@ class TypeMixer(BaseTypeMixer):
             else:
                 choices = list(me_field.choices)
 
-            return partial(gen.get_choice, choices)
+            return partial(faker.random_element, choices)
 
         if ftype is StringField:
-            kwargs['length'] = me_field.max_length
+            fab = super(TypeMixer, self).make_fabric(
+                ftype, field_name=field_name, fake=fake, kwargs=kwargs)
+            return lambda: fab()[:me_field.max_length]
 
-        elif ftype is ListField:
+        if ftype is ListField:
             fab = self.make_fabric(me_field.field, kwargs=kwargs)
             return lambda: [fab() for _ in range(3)]
 
-        elif isinstance(me_field, (EmbeddedDocumentField, ReferenceField)):
+        if isinstance(me_field, (EmbeddedDocumentField, ReferenceField)):
             ftype = me_field.document_type
 
         elif ftype is GenericReferenceField:
@@ -184,9 +185,9 @@ class TypeMixer(BaseTypeMixer):
 
         elif ftype is DecimalField:
             sign, (ii,), dd = me_field.precision.as_tuple()
-            kwargs['d'] = abs(dd)
+            kwargs['left_digits'] = abs(dd)
+            kwargs['right_digits'] = ii + 1
             kwargs['positive'] = not sign
-            kwargs['i'] = ii + 1
 
         return super(TypeMixer, self).make_fabric(
             ftype, field_name=field_name, fake=fake, kwargs=kwargs)

@@ -22,8 +22,9 @@ from copy import deepcopy
 from functools import partial
 from types import FunctionType, MethodType
 
-from . import generators as gen, fakers as f, mix_types as t, _compat as _
+from . import mix_types as t, _compat as _
 from .factory import GenFactory
+from ._faker import faker
 
 
 SKIP_VALUE = object()
@@ -214,7 +215,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
             random = deepcopy(self.__fields.get(field_name))
 
         elif not isinstance(random.scheme, type):
-            return self.get_value(field_name, gen.get_choice(random.choices))
+            return self.get_value(field_name, faker.random_element(random.choices))
 
         return self.gen_value(field_name, random, fake=False)
 
@@ -436,9 +437,7 @@ class ProxyMixer:
 # Support depricated attributes
 class _MetaMixer(type):
 
-    F = property(lambda cls: f)
     FAKE = property(lambda cls: t.Fake())
-    G = property(lambda cls: gen)
     MIX = property(lambda cls: t.Mix())
     RANDOM = property(lambda cls: t.Random())
     SELECT = property(lambda cls: t.Select())
@@ -483,6 +482,7 @@ class Mixer(_.with_metaclass(_MetaMixer)):
 
         """
         self.params = params
+        self.faker = faker
         self.__init_params__(fake=fake, loglevel=loglevel, silence=silence)
         self.__factory = factory
 
@@ -542,32 +542,6 @@ class Mixer(_.with_metaclass(_MetaMixer)):
 
         """
         return self.__class__.MIX
-
-    @property
-    def F(self):
-        """ Shortcut to :mod:`mixer.fakers`.
-
-        ::
-
-            mixer.F.get_name()  # -> Pier Lombardin
-
-        :returns: fakers module
-
-        """
-        return self.__class__.F
-
-    @property
-    def G(self):
-        """ Shortcut to :mod:`mixer.generators`.
-
-        ::
-
-            mixer.G.get_date()  # -> datetime.date(1984, 12, 12)
-
-        :returns: generators module
-
-        """
-        return self.__class__.G
 
     def __init_params__(self, **params):
         self.params.update(params)

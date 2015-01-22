@@ -10,9 +10,9 @@ from yadm.fields import (
     ListField, SetField, ObjectIdField, ReferenceField, DatetimeField, EmbeddedDocumentField)
 from yadm.markers import NoDefault
 
-from .. import mix_types as t, generators as gen
+from .. import mix_types as t
 from ..main import TypeMixer as BaseTypeMixer, GenFactory as BaseFactory,\
-    Mixer as BaseMixer, SKIP_VALUE, partial
+    Mixer as BaseMixer, SKIP_VALUE, partial, faker
 
 
 def get_list_field(_typemixer, _scheme):
@@ -107,7 +107,7 @@ class TypeMixer(BaseTypeMixer):
             else:
                 choices = list(yadm_field.choices)
 
-            return partial(gen.get_choice, choices)
+            return partial(faker.random_element, choices)
 
         elif isinstance(yadm_field, ReferenceField):
             ftype = yadm_field.reference_document_class
