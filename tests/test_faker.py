@@ -41,3 +41,5 @@ def test_faker():
     faker.locale = 'en'
     assert faker.name()
     assert faker.env is env
+
+    assert faker.email()
