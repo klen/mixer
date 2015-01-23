@@ -32,7 +32,10 @@ def test_faker():
 
     env = faker.env
 
+    name = faker.name
     faker.locale = 'ru'
+
+    assert name()
     assert faker.name()
 
     faker.locale = 'en'

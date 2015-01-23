@@ -148,7 +148,10 @@ class MixerGenerator(Generator):
         return MixerProvider(self)
 
     def __getattr__(self, name):
-        return getattr(self.env, name)
+        def wrapper(*args, **kwargs):
+            fab = getattr(self.env, name)
+            return fab(*args, **kwargs)
+        return wrapper
 
     @property
     def providers(self):
