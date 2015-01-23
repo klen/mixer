@@ -768,6 +768,8 @@ class Mixer(_.with_metaclass(_MetaMixer)):
 
         """
         _params = deepcopy(self.params)
+        _params['locale'] = self.faker.locale
+
         try:
             self.__init_params__(**params)
             yield self
