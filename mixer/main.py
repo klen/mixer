@@ -542,10 +542,11 @@ class Mixer(_.with_metaclass(_MetaMixer)):
         """
         return self.__class__.MIX
 
-    def __init_params__(self, **params):
+    def __init_params__(self, locale=None, **params):
         self.params.update(params)
-        if self.params.get('locale', faker.locale) != faker.locale:
-            faker.locale = self.params.get('locale')
+        if locale:
+            faker.locale = locale
+            self.params['locale'] = faker.locale
         LOGGER.setLevel(self.params.get('loglevel'))
 
     def __repr__(self):

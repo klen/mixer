@@ -246,6 +246,19 @@ def test_ctx():
     assert LOGGER.level == level
 
 
+def test_locale():
+    mixer = Mixer(locale='ru')
+    with mixer.ctx(locale='it'):
+        mixer.faker.name()
+
+    assert mixer.faker.locale == 'ru_RU'
+
+    with mixer.ctx(loglevel='INFO'):
+        mixer.faker.name()
+
+    assert mixer.faker.locale == 'ru_RU'
+
+
 def test_silence():
     mixer = Mixer()
 
