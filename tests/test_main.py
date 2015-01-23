@@ -247,7 +247,9 @@ def test_ctx():
 
 
 def test_locale():
-    mixer = Mixer(locale='ru')
+    mixer = Mixer()
+    mixer.faker.locale = 'ru'
+
     with mixer.ctx(locale='it'):
         mixer.faker.name()
 
