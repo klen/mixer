@@ -94,7 +94,6 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
         self.__fabrics = dict()
         self.__mixer = mixer
         self.__scheme = cls
-
         self.__fields = _.OrderedDict(self.__load_fields())
 
     def __repr__(self):
@@ -471,7 +470,7 @@ class Mixer(_.with_metaclass(_MetaMixer)):
     type_mixer_cls = TypeMixer
 
     def __init__(self, fake=True, factory=None, loglevel=LOGLEVEL,
-                 silence=False, **params):
+                 silence=False, locale=faker.locale, **params):
         """Initialize the Mixer instance.
 
         :param fake: (True) Generate fake data instead of random data.
@@ -483,7 +482,7 @@ class Mixer(_.with_metaclass(_MetaMixer)):
         """
         self.params = params
         self.faker = faker
-        self.__init_params__(fake=fake, loglevel=loglevel, silence=silence)
+        self.__init_params__(fake=fake, loglevel=loglevel, silence=silence, locale=locale)
         self.__factory = factory
 
     def __getattr__(self, name):
@@ -545,6 +544,8 @@ class Mixer(_.with_metaclass(_MetaMixer)):
 
     def __init_params__(self, **params):
         self.params.update(params)
+        if self.params.get('locale', faker.locale) != faker.locale:
+            faker.locale = self.params.get('locale')
         LOGGER.setLevel(self.params.get('loglevel'))
 
     def __repr__(self):
@@ -606,7 +607,7 @@ class Mixer(_.with_metaclass(_MetaMixer)):
         It makes a infinity loop with given function where does increment the
         counter on each iteration.
 
-        :param *args: If method get more one arguments, them make generator
+        :param args: If method get more one arguments, them make generator
                       from arguments (loop on arguments). If that get one
                       argument and this equal a function, method makes
                       a generator from them. If argument is equal string it
@@ -692,8 +693,6 @@ class Mixer(_.with_metaclass(_MetaMixer)):
         """ Middleware decorator.
 
         You could add the middleware layers to generation process: ::
-
-        ::
 
             from mixer.backend.django import mixer
 

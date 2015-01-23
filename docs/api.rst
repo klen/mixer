@@ -3,8 +3,8 @@ API
 
 .. contents::
 
-This part of the documentation documents all the public classes and
-functions in Mixer.
+This part of the documentation documents all the public classes and functions
+in Mixer.
 
 
 Common interface

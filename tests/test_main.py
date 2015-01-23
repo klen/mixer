@@ -236,6 +236,13 @@ def test_ctx():
         mixer.blend(Test)
         assert LOGGER.level != level
 
+    with mixer.ctx(locale='ru'):
+        phone = mixer.faker.phone_number()
+        assert phone.startswith('+7')
+
+    phone = mixer.faker.phone_number()
+    assert not phone.startswith('+7')
+
     assert LOGGER.level == level
 
 
