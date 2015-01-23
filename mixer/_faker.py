@@ -27,6 +27,15 @@ HOSTZONES = ("aero", "asia", "biz", "cat", "com", "coop", "info", "int", "jobs",
              "ar", "pl", "pe", "nz", "my", "gr", "pm", "re", "tf", "wf", "yt", "fi", "br", "ac") \
     + COUNTRY_CODES
 
+USERNAMES = ('admin', 'akholic', 'ass', 'bear', 'bee', 'beep', 'blood', 'bone', 'boots', 'boss',
+             'boy', 'boyscouts', 'briefs', 'candy', 'cat', 'cave', 'climb', 'cookie', 'cop',
+             'crunching', 'daddy', 'diller', 'dog', 'fancy', 'gamer', 'garlic', 'gnu', 'hot',
+             'jack', 'job', 'kicker', 'kitty', 'lemin', 'lol', 'lover', 'low', 'mix', 'mom',
+             'monkey', 'nasty', 'new', 'nut', 'nutjob', 'owner', 'park', 'peppermint', 'pitch',
+             'poor', 'potato', 'prune', 'raider', 'raiser', 'ride', 'root', 'scull', 'shattered',
+             'show', 'sleep', 'sneak', 'spamalot', 'star', 'table', 'test', 'tips', 'user',
+             'ustink', 'weak')
+
 
 class UTCZone(dt.tzinfo):
 
@@ -145,14 +154,27 @@ class MixerProvider(BaseProvider):
     def coordinates(self):
         return (self.generator.latitude(), self.generator.longitude())
 
-    def tld(self):
+    def hostzone(self):
         return self.generator.random_element(HOSTZONES)
 
     def hostname(self):
-        return "%s.%s" % (self.generator.random_element(HOSTNAMES), self.tld)
+        return "%s.%s" % (self.generator.random_element(HOSTNAMES), self.hostzone())
 
-    def email(self):
-        return "{{username}}@%s.%s" % self.generator.parse()
+    def email_address(self):
+        return self.generator.parse("{{nickname}}@{{hostname}}")
+
+    def alias(self):
+        return self.random_element(USERNAMES)
+
+    def nickname(self):
+        template = self.random_element((
+            '{{alias}}.{{alias}}',
+            '{{alias}}_{{alias}}',
+            '{{alias}}{{alias}}#',
+            '{{alias}}##',
+            '?{{alias}}',
+        ))
+        return self.bothify(self.generator.parse(template))
 
 
 class MixerGenerator(Generator):
