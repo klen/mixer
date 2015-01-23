@@ -19,9 +19,12 @@ import traceback
 from collections import defaultdict
 from contextlib import contextmanager
 from copy import deepcopy
+from functools import partial
+from types import FunctionType, MethodType
 
-from . import generators as g, fakers as f, mix_types as t, _compat as _
+from . import mix_types as t, _compat as _
 from .factory import GenFactory
+from ._faker import faker
 
 
 SKIP_VALUE = object()
@@ -88,10 +91,9 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
         self.__factory = factory or self.factory
         self.__fake = fake
         self.__gen_values = defaultdict(set)
-        self.__generators = dict()
+        self.__fabrics = dict()
         self.__mixer = mixer
         self.__scheme = cls
-
         self.__fields = _.OrderedDict(self.__load_fields())
 
     def __repr__(self):
@@ -175,7 +177,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
         if isinstance(value, GeneratorType):
             return self.get_value(name, next(value))
 
-        if callable(value) and not isinstance(value, t.Mix):
+        if isinstance(value, (FunctionType, MethodType)):
             return self.get_value(name, value())
 
         return name, value
@@ -212,7 +214,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
             random = deepcopy(self.__fields.get(field_name))
 
         elif not isinstance(random.scheme, type):
-            return self.get_value(field_name, g.get_choice(random.choices))
+            return self.get_value(field_name, faker.random_element(random.choices))
 
         return self.gen_value(field_name, random, fake=False)
 
@@ -240,23 +242,23 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
         """
         fake = self.__fake if fake is None else fake
         if field:
-            gen = self.get_generator(field, field_name, fake=fake)
+            fab = self.get_fabric(field, field_name, fake=fake)
         else:
-            gen = self.__factory.gen_maker(type(field))()
+            fab = self.__factory.get_fabric(type(field))()
 
         try:
-            value = next(gen)
+            value = fab()
         except ValueError:
             value = None
-        except StopIteration:
-            raise ValueError(
-                "Generation for %s (%s) has been stopped." % (field_name, self.__scheme.__name__))
+        except Exception as exc:
+            raise ValueError("Generation for %s (%s) has been stopped. Exception: %s" % (
+                field_name, self.__scheme.__name__, exc))
 
         if unique and value is not SKIP_VALUE:
             counter = 0
             try:
                 while value in self.__gen_values[field_name]:
-                    value = next(gen)
+                    value = fab()
                     counter += 1
                     if counter > 100:
                         raise RuntimeError("Cannot generate a unique value for %s" % field_name)
@@ -266,54 +268,53 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
 
         return self.get_value(field_name, value)
 
-    def get_generator(self, field, field_name=None, fake=None):
-        """ Get a generator for field and cache it.
+    def get_fabric(self, field, field_name=None, fake=None):
+        """ Get an objects fabric for field and cache it.
 
-        :param field: Field for looking a generator
+        :param field: Field for looking a fabric
         :param field_name: Name of field for generation
         :param fake: Generate fake data instead of random data.
 
-        :return generator:
+        :return function:
 
         """
         if fake is None:
             fake = self.__fake
 
         if field.params:
-            return self.make_generator(
-                field.scheme, field_name, fake, kwargs=field.params)
+            return self.make_fabric(field.scheme, field_name, fake, kwargs=field.params)
 
         key = (field.scheme, field_name, fake)
 
-        if key not in self.__generators:
-            self.__generators[key] = self.make_generator(
-                field.scheme, field_name, fake, kwargs=field.params)
+        if key not in self.__fabrics:
+            self.__fabrics[key] = self.make_fabric(field.scheme, field_name, fake)
 
-        return self.__generators[key]
+        return self.__fabrics[key]
 
-    def make_generator(self, scheme, field_name=None, fake=None, args=None, kwargs=None): # noqa
-        """ Make a generator for scheme.
+    def make_fabric(self, scheme, field_name=None, fake=None, kwargs=None): # noqa
+        """ Make a fabric for scheme.
 
-        :param field_class: Class for looking a generator
+        :param field_class: Class for looking a fabric
         :param scheme: Scheme for generation
         :param fake: Generate fake data instead of random data.
 
-        :return generator:
+        :return function:
 
         """
-        args = [] if args is None else args
         kwargs = {} if kwargs is None else kwargs
 
-        fabric = self.__factory.gen_maker(scheme, field_name, fake)
-        if not fabric:
-            return g.loop(self.__class__(
-                scheme, mixer=self.__mixer, fake=self.__fake,
-                factory=self.__factory).blend)(**kwargs)
+        fab = self.__factory.get_fabric(scheme, field_name, fake)
+        if not fab:
+            return partial(type(self)(scheme, mixer=self.__mixer, fake=self.__fake,
+                                      factory=self.__factory).blend, **kwargs)
 
-        return fabric(*args, **kwargs)
+        if kwargs:
+            return partial(fab, **kwargs)
+
+        return fab
 
     def register(self, field_name, func, fake=None):
-        """ Register function as generator for the field.
+        """ Register function as fabric for the field.
 
         :param field_name: Name of field for generation
         :param func: Function for data generation
@@ -338,9 +339,14 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
             fake = self.__fake
 
         field = self.__fields.get(field_name)
-        if field:
-            key = (field.scheme, field_name, fake)
-            self.__generators[key] = g.loop(func)()
+        if not field:
+            return False
+
+        key = (field.scheme, field_name, fake)
+        self.__fabrics[key] = func
+
+        if not isinstance(func, (FunctionType, MethodType)):
+            self.__fabrics[key] = lambda: func
 
     @staticmethod
     def is_unique(field):
@@ -430,9 +436,7 @@ class ProxyMixer:
 # Support depricated attributes
 class _MetaMixer(type):
 
-    F = property(lambda cls: f)
     FAKE = property(lambda cls: t.Fake())
-    G = property(lambda cls: g)
     MIX = property(lambda cls: t.Mix())
     RANDOM = property(lambda cls: t.Random())
     SELECT = property(lambda cls: t.Select())
@@ -444,8 +448,7 @@ class Mixer(_.with_metaclass(_MetaMixer)):
     """ This class is using for integration to an application.
 
     :param fake: (True) Generate fake data instead of random data.
-    :param factory: (:class:`~mixer.main.GenFactory`) Fabric of generators
-                        for types values
+    :param factory: (:class:`~mixer.main.GenFactory`) Fabric's factory
 
     ::
 
@@ -467,7 +470,7 @@ class Mixer(_.with_metaclass(_MetaMixer)):
     type_mixer_cls = TypeMixer
 
     def __init__(self, fake=True, factory=None, loglevel=LOGLEVEL,
-                 silence=False, **params):
+                 silence=False, locale=faker.locale, **params):
         """Initialize the Mixer instance.
 
         :param fake: (True) Generate fake data instead of random data.
@@ -478,7 +481,8 @@ class Mixer(_.with_metaclass(_MetaMixer)):
 
         """
         self.params = params
-        self.__init_params__(fake=fake, loglevel=loglevel, silence=silence)
+        self.faker = faker
+        self.__init_params__(fake=fake, loglevel=loglevel, silence=silence, locale=locale)
         self.__factory = factory
 
     def __getattr__(self, name):
@@ -538,34 +542,10 @@ class Mixer(_.with_metaclass(_MetaMixer)):
         """
         return self.__class__.MIX
 
-    @property
-    def F(self):
-        """ Shortcut to :mod:`mixer.fakers`.
-
-        ::
-
-            mixer.F.get_name()  # -> Pier Lombardin
-
-        :returns: fakers module
-
-        """
-        return self.__class__.F
-
-    @property
-    def G(self):
-        """ Shortcut to :mod:`mixer.generators`.
-
-        ::
-
-            mixer.G.get_date()  # -> datetime.date(1984, 12, 12)
-
-        :returns: generators module
-
-        """
-        return self.__class__.G
-
     def __init_params__(self, **params):
         self.params.update(params)
+        if self.params.get('locale', faker.locale) != faker.locale:
+            faker.locale = self.params.get('locale')
         LOGGER.setLevel(self.params.get('loglevel'))
 
     def __repr__(self):
@@ -627,7 +607,7 @@ class Mixer(_.with_metaclass(_MetaMixer)):
         It makes a infinity loop with given function where does increment the
         counter on each iteration.
 
-        :param *args: If method get more one arguments, them make generator
+        :param args: If method get more one arguments, them make generator
                       from arguments (loop on arguments). If that get one
                       argument and this equal a function, method makes
                       a generator from them. If argument is equal string it
@@ -713,8 +693,6 @@ class Mixer(_.with_metaclass(_MetaMixer)):
         """ Middleware decorator.
 
         You could add the middleware layers to generation process: ::
-
-        ::
 
             from mixer.backend.django import mixer
 

@@ -3,19 +3,19 @@
 
 .. _description:
 
-Mixer is application to generate instances of Django or SQLAlchemy models.
-It's useful for testing and fixtures replacement.
-Fast and convenient test-data generation.
+Mixer is an application to generate instances of Django or SQLAlchemy models.
+It's useful for testing and fixtures replacement. Fast and convenient test-data
+generation.
 
 Mixer supports:
 
-    - Django_;
-    - SQLAlchemy_;
-    - Flask-SqlAlchemy;
-    - Peewee_;
-    - Pony_;
-    - Mongoengine_;
-    - Custom schemes;
+* Django_;
+* SQLAlchemy_;
+* Flask-SqlAlchemy;
+* Peewee_;
+* Pony_;
+* Mongoengine_;
+* Custom schemes;
 
 .. _badges:
 
@@ -47,7 +47,8 @@ Mixer supports:
 .. _documentation:
 
 
-**Docs are available at https://mixer.readthedocs.org/. Pull requests with documentation enhancements and/or fixes are awesome and most welcome.**
+**Docs are available at https://mixer.readthedocs.org/. Pull requests with
+documentation enhancements and/or fixes are awesome and most welcome.**
 
 Описание на русском языке: http://klen.github.io/mixer-ru.html
 
@@ -62,7 +63,8 @@ Mixer supports:
 Requirements
 =============
 
-- python (2.6, 2.7, 3.2, 3.3)
+- python (2.6, 2.7, 3.2, 3.3, 3.4)
+- fake-factory >= 0.4.2
 - Django (1.5, 1.6, 1.7) for django ORM suport;
 - SQLAlchemy for SQLAlchemy ORM suport;
 - Mongoengine for Mongoengine ODM support;
@@ -84,11 +86,14 @@ Installation
 Usage
 =====
 
- |   By default Mixer try to generate fake data. If you want randomize values
- |   initialize the Mixer by manual like: Mixer(fake=False)
+ |   By default Mixer tries to generate a fake (human-friendly) data.
+ |   If you want randomize the generated values initialize the Mixer
+ |   by manual: Mixer(fake=False)
 
- |   By default Mixer saves generated objects in database. If you want disable
+
+ |   By default Mixer saves the generated objects in database. If you want disable
  |   this, initialize the Mixer by manual like: Mixer(commit=False)
+
 
 Django
 ------
@@ -97,23 +102,23 @@ Quick example: ::
     from mixer.backend.django import mixer
     from customapp.models import User, UserMessage
 
-    # Generate random User
+    # Generate a random user
     user = mixer.blend(User)
 
-    # Generate UserMessage
+    # Generate an UserMessage
     message = mixer.blend(UserMessage, user=user)
 
-    # Generate UserMessage and User. Set User.username to 'testname'.
+    # Generate an UserMessage and an User. Set username for generated user to 'testname'.
     message = mixer.blend(UserMessage, user__username='testname')
 
     # Generate SomeModel from SomeApp and select FK or M2M values from db
     some = mixer.blend('someapp.somemodel', somerelation=mixer.SELECT)
 
-    # Generate SomeModel from SomeApp and force a value of field with default to random
+    # Generate SomeModel from SomeApp and force a value of money field from default to random
     some = mixer.blend('someapp.somemodel', money=mixer.RANDOM)
 
-    # Generate 5 SomeModel instances and get a field values from custom generator
-    some_models = mixer.cycle(5).blend('somemodel', company=(company for company in companies))
+    # Generate 5 SomeModel's instances and take company field's values from custom generator
+    some_models = mixer.cycle(5).blend('somemodel', company=(name for name in company_names))
 
 
 Flask, Flask-SQLAlchemy
@@ -125,22 +130,22 @@ Quick example: ::
 
     mixer.init_app(self.app)
 
-    # Generate random User
+    # Generate a random user
     user = mixer.blend(User)
 
-    # Generate UserMessage
+    # Generate an userMessage
     message = mixer.blend(UserMessage, user=user)
 
-    # Generate UserMessage and User. Set User.username to 'testname'.
+    # Generate an UserMessage and an User. Set username for generated user to 'testname'.
     message = mixer.blend(UserMessage, user__username='testname')
 
     # Generate SomeModel and select FK or M2M values from db
     some = mixer.blend('project.models.SomeModel', somerelation=mixer.SELECT)
 
-    # Generate SomeModel from SomeApp and force a value of field with default to random
+    # Generate SomeModel from SomeApp and force a value of money field from default to random
     some = mixer.blend('project.models.SomeModel', money=mixer.RANDOM)
 
-    # Generate 5 SomeModel instances and get a field values from custom generator
+    # Generate 5 SomeModel's instances and take company field's values from custom generator
     some_models = mixer.cycle(5).blend('project.models.SomeModel', company=(company for company in companies))
 
 
@@ -222,15 +227,15 @@ Quick example: ::
 DB commits
 ----------
 
-By default 'django', 'flask', 'mongoengine' backends tries to save objects
-to database. For prevent this behaviour init `mixer` manually: ::
+By default 'django', 'flask', 'mongoengine' backends tries to save objects in
+database. For prevent this behaviour init `mixer` manually: ::
 
     from mixer.backend.django import Mixer
 
     mixer = Mixer(commit=False)
 
 
-Or you can use mixer with custom params as context: ::
+Or you can temporary switch context use the mixer as context manager: ::
 
     from mixer.backend.django import mixer
 
@@ -300,9 +305,34 @@ You can add middleware layers to process generation: ::
         user.set_password('test')
         return user
 
-You can add several middlewares.
-Each middleware should get one argument (generated value) and return them.
+You can add several middlewares. Each middleware should get one argument
+(generated value) and return them.
 
+Locales
+-------
+
+By default mixer uses 'en' locale. You could switch mixer default locale by
+creating your own mixer: ::
+
+    from mixer.backend.django import Mixer
+
+    mixer = Mixer(locale='it')
+    mixer.faker.name()          ## u'Acchisio Conte'
+
+At any time you could switch mixer current locale: ::
+
+    mixer.faker.locale = 'cz'
+    mixer.faker.name()          ## u'Miloslava Urbanov\xe1 CSc.'
+
+    mixer.faker.locale = 'en'
+    mixer.faker.name()          ## u'John Black'
+
+    # Use the mixer context manager
+    mixer.faker.phone()         ## u'1-438-238-1116'
+    with mixer.ctx(locale='fr'):
+        mixer.faker.phone()     ## u'08 64 92 11 79'
+
+    mixer.faker.phone()         ## u'1-438-238-1116'
 
 .. _bugtracker:
 
@@ -319,7 +349,7 @@ at https://github.com/klen/mixer/issues
 Contributing
 ============
 
-Development of starter happens at github: https://github.com/klen/mixer
+Development of mixer happens at github: https://github.com/klen/mixer
 
 
 .. _contributors:

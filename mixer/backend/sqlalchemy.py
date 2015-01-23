@@ -17,10 +17,10 @@ from sqlalchemy.types import (
     Numeric, SMALLINT, SmallInteger, String, TEXT, TIME, Text, Time, Unicode,
     UnicodeText, VARCHAR, Enum)
 
-from .. import mix_types as t, generators as g
+from .. import mix_types as t
 from ..main import (
     SKIP_VALUE, LOGGER, TypeMixer as BaseTypeMixer, GenFactory as BaseFactory,
-    Mixer as BaseMixer, _Deffered)
+    Mixer as BaseMixer, _Deffered, partial, faker)
 
 
 class GenFactory(BaseFactory):
@@ -146,36 +146,36 @@ class TypeMixer(BaseTypeMixer):
 
         return super(TypeMixer, self).get_value(field_name, field_value)
 
-    def make_generator(self, column, field_name=None, fake=False, args=None, kwargs=None): # noqa
-        """ Make values generator for column.
+    def make_fabric(self, column, field_name=None, fake=False, kwargs=None): # noqa
+        """ Make values fabric for column.
 
         :param column: SqlAlchemy column
         :param field_name: Field name
         :param fake: Force fake data
 
-        :return generator:
+        :return function:
 
         """
-        args = [] if args is None else args
         kwargs = {} if kwargs is None else kwargs
 
         if isinstance(column, RelationshipProperty):
-            gen = g.loop(TypeMixer(
-                column.mapper.class_, mixer=self.__mixer, fake=self.__fake,
-                factory=self.__factory).blend)(**kwargs)
-            return gen
+            return partial(type(self)(
+                column.mapper.class_, mixer=self.__mixer, fake=self.__fake, factory=self.__factory
+            ).blend, **kwargs)
 
         ftype = type(column.type)
         stype = self.__factory.cls_to_simple(ftype)
 
         if stype is str:
-            kwargs['length'] = column.type.length
+            fab = super(TypeMixer, self).make_fabric(
+                stype, field_name=field_name, fake=fake, kwargs=kwargs)
+            return lambda: fab()[:column.type.length]
 
         if ftype is Enum:
-            return g.gen_choice(column.type.enums)
+            return partial(faker.random_element, column.type.enums)
 
-        return super(TypeMixer, self).make_generator(
-            stype, field_name=field_name, fake=fake, args=args, kwargs=kwargs)
+        return super(TypeMixer, self).make_fabric(
+            stype, field_name=field_name, fake=fake, kwargs=kwargs)
 
     def guard(self, *args, **kwargs):
         """ Look objects in database.
@@ -266,4 +266,4 @@ class Mixer(BaseMixer):
 # Default mixer
 mixer = Mixer()
 
-# pylama:ignore=E1120
+# pylama:ignore=E1120,E0611

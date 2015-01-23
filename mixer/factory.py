@@ -3,7 +3,8 @@
 import datetime
 import decimal
 
-from . import _compat as _, generators as g, mix_types as t, fakers as f
+from . import _compat as _, mix_types as t
+from ._faker import faker
 
 
 class GenFactoryMeta(type):
@@ -56,65 +57,65 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
     """ Make generators for types. """
 
     generators = {
-        bool: g.get_boolean,
-        float: g.get_float,
-        int: g.get_integer,
-        str: g.get_string,
-        list: g.get_list,
-        set: lambda **kwargs: set(g.get_list()),
-        tuple: lambda **kwargs: tuple(g.get_list()),
-        dict: lambda **kwargs: dict(zip(g.get_list(), g.get_list())),
-        datetime.date: g.get_date,
-        datetime.datetime: g.get_datetime,
-        datetime.time: g.get_time,
-        decimal.Decimal: g.get_decimal,
-        t.BigInteger: g.get_big_integer,
-        t.EmailString: f.get_email,
-        t.HostnameString: f.get_hostname,
-        t.IP4String: f.get_ip4,
-        t.IP6String: f.get_ip6,
-        t.IPString: f.get_ip_generic,
-        t.NullOrBoolean: g.get_null_or_boolean,
-        t.PositiveDecimal: g.get_positive_decimal,
-        t.PositiveInteger: g.get_positive_integer,
-        t.PositiveSmallInteger: g.get_small_positive_integer,
-        t.SmallInteger: g.get_small_integer,
-        t.Text: f.get_lorem,
-        t.URL: f.get_url,
-        t.UUID: f.get_uuid,
+        bool: faker.pybool,
+        float: faker.pyfloat,
+        int: faker.random_int,
+        str: faker.pystr,
+        list: faker.pylist,
+        set: faker.pyset,
+        tuple: faker.pytuple,
+        dict: faker.pydict,
+        datetime.date: faker.date,
+        datetime.datetime: faker.date_time,
+        datetime.time: faker.time,
+        decimal.Decimal: faker.pydecimal,
+        t.BigInteger: faker.big_integer,
+        t.EmailString: faker.email,
+        t.HostnameString: faker.domain_name,
+        t.IP4String: faker.ipv4,
+        t.IP6String: faker.ipv6,
+        t.IPString: faker.ip_generic,
+        t.NullOrBoolean: faker.null_boolean,
+        t.PositiveDecimal: faker.positive_decimal,
+        t.PositiveInteger: faker.positive_integer,
+        t.PositiveSmallInteger: faker.small_positive_integer,
+        t.SmallInteger: faker.small_integer,
+        t.Text: faker.text,
+        t.URL: faker.url,
+        t.UUID: faker.uuid,
         type(None): '',
     }
 
     fakers = {
-        ('address', str): f.get_address,
-        ('body', str): f.get_lorem,
-        ('category', str): f.get_genre,
-        ('city', str): f.get_city,
-        ('company', str): f.get_company,
-        ('content', str): f.get_lorem,
-        ('country', str): f.get_country,
-        ('description', str): f.get_lorem,
-        ('domain', str): f.get_hostname,
-        ('email', str): f.get_email,
-        ('first_name', str): f.get_firstname,
-        ('firstname', str): f.get_firstname,
-        ('genre', str): f.get_genre,
-        ('last_name', str): f.get_lastname,
-        ('lastname', str): f.get_lastname,
-        ('lat', float): f.get_latlon,
-        ('latitude', float): f.get_latlon,
-        ('login', str): f.get_username,
-        ('lon', float): f.get_latlon,
-        ('longitude', float): f.get_latlon,
-        ('name', str): f.get_name,
-        ('phone', str): f.get_phone,
-        ('slug', str): f.get_slug,
-        ('street', str): f.get_street,
-        ('title', str): f.get_short_lorem,
-        ('url', t.URL): f.get_url,
-        ('username', str): f.get_username,
-        ('percent', int): g.get_percent,
-        ('percent', decimal.Decimal): g.get_percent_decimal,
+        ('address', str): faker.street_address,
+        ('body', str): faker.text,
+        ('category', str): faker.genre,
+        ('city', str): faker.city,
+        ('company', str): faker.company,
+        ('content', str): faker.text,
+        ('country', str): faker.country,
+        ('description', str): faker.text,
+        ('domain', str): faker.domain_name,
+        ('email', str): faker.email,
+        ('first_name', str): faker.first_name,
+        ('firstname', str): faker.first_name,
+        ('genre', str): faker.genre,
+        ('last_name', str): faker.last_name,
+        ('lastname', str): faker.last_name,
+        ('lat', float): faker.latitude,
+        ('latitude', float): faker.latitude,
+        ('login', str): faker.user_name,
+        ('lon', float): faker.longitude,
+        ('longitude', float): faker.longitude,
+        ('name', str): faker.name,
+        ('phone', str): faker.phone_number,
+        ('slug', str): faker.slug,
+        ('street', str): faker.street_name,
+        ('title', str): faker.title,
+        ('url', t.URL): faker.uri,
+        ('username', str): faker.user_name,
+        ('percent', int): faker.percent,
+        ('percent', decimal.Decimal): faker.percent_decimal,
     }
 
     types = {
@@ -145,10 +146,10 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
         return fname.lower().strip()
 
     @classmethod
-    def gen_maker(cls, fcls, fname=None, fake=False):
-        """ Make a generator based on class and name.
+    def get_fabric(cls, fcls, fname=None, fake=False):
+        """ Make a objects fabric  based on class and name.
 
-        :return generator:
+        :return function:
 
         """
         simple = cls.cls_to_simple(fcls)
@@ -161,4 +162,7 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
             fname = cls.name_to_simple(fname)
             func = cls.fakers.get((fname, simple)) or func
 
-        return g.loop(func) if func is not None else False
+        if func is None:
+            return False
+
+        return func

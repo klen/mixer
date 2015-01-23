@@ -1,4 +1,4 @@
-""" Mixer is a module that adds object generation tool for your application.
+""" Mixer is an object generation tool for your application.
 
 It's supported Django_ ORM, SQLAlchemy_ ORM, Pony_ ORM, Peewee_ ORM,
 Mongoengine_ ODM and etc.
@@ -14,7 +14,7 @@ from __future__ import unicode_literals
 # Module information
 # ==================
 
-__version__ = "4.10.2"
+__version__ = "5.0.0"
 __project__ = "mixer"
 __author__ = "horneds <horneds@gmail.com>"
 __license__ = "BSD"

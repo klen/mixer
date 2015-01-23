@@ -72,7 +72,7 @@ def test_custom(mixer):
     mixer.register(
         Rabbit,
         title=lambda: 'Mr. Rabbit',
-        speed=lambda: mixer.G.get_small_positive_integer(99))
+        speed=lambda: mixer.faker.small_positive_integer(99))
 
     rabbit = mixer.blend(Rabbit, speed=mixer.RANDOM, percent=23)
     assert isinstance(rabbit.speed, decimal.Decimal)
@@ -87,8 +87,8 @@ def test_custom(mixer):
     class MyFactory(GenFactory):
         generators = {models.CharField: getter}
 
-    fabric = MyFactory.gen_maker(models.CharField)
-    assert next(fabric()) == "Always same"
+    fabric = MyFactory.get_fabric(models.CharField)
+    assert fabric() == "Always same"
 
     mixer = Mixer(factory=MyFactory, fake=False)
     assert mixer._Mixer__factory == MyFactory
@@ -209,12 +209,6 @@ def test_contrib(mixer):
 def test_invalid_scheme(mixer):
     with pytest.raises(ValueError):
         mixer.blend('django_app.Unknown')
-
-
-# def test_invalid_relation(mixer):
-    # with pytest.raises(ValueError) as e:
-        # mixer.blend('django_app.Hole', unknown__test=1)
-    # assert str(e.value).startswith('Mixer (django_app.Hole):')
 
 
 def test_ctx(mixer):

@@ -105,25 +105,23 @@ class TypeMixer(BaseTypeMixer):
         """
         return field.scheme.default is None and SKIP_VALUE or field.scheme.default # noqa
 
-    def make_generator(self, field, field_name=None, fake=False, args=None, kwargs=None): # noqa
-        """ Make values generator for column.
+    def make_fabric(self, field, field_name=None, fake=False, kwargs=None): # noqa
+        """ Make values fabric for column.
 
         :param column: SqlAlchemy column
         :param field_name: Field name
         :param fake: Force fake data
 
-        :return generator:
+        :return function:
 
         """
-        args = [] if args is None else args
         kwargs = {} if kwargs is None else kwargs
 
         if isinstance(field, ForeignKeyField):
             kwargs.update({'_typemixer': self, '_scheme': field})
 
-        return super(TypeMixer, self).make_generator(
-            type(field), field_name=field_name, fake=fake, args=args,
-            kwargs=kwargs)
+        return super(TypeMixer, self).make_fabric(
+            type(field), field_name=field_name, fake=fake, kwargs=kwargs)
 
 
 class Mixer(BaseMixer):
