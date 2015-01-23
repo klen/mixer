@@ -14,6 +14,19 @@ GENRES = ('general', 'pop', 'dance', 'traditional', 'rock', 'alternative', 'rap'
           'mystery', 'romance', 'sport', 'thriller', 'war', 'western', 'fiction', 'epic',
           'tragedy', 'parody', 'pastoral', 'culture', 'art', 'dance', 'drugs', 'social')
 
+HOSTNAMES = ('facebook', 'google', 'youtube', 'yahoo', 'baidu', 'wikipedia', 'amazon', 'qq',
+             'live', 'taobao', 'blogspot', 'linkedin', 'twitter', 'bing', 'yandex', 'vk', 'msn',
+             'ebay', '163', 'wordpress', 'ask', 'weibo', 'mail', 'microsoft', 'hao123', 'tumblr',
+             'xvideos', 'googleusercontent', 'fc2')
+
+COUNTRY_CODES = 'cn', 'in', 'id', 'de', 'el', 'en', 'es', 'fr', 'it', 'pt', 'ru', 'ua'
+
+HOSTZONES = ("aero", "asia", "biz", "cat", "com", "coop", "info", "int", "jobs", "mobi", "museum",
+             "name", "net", "org", "post", "pro", "tel", "travel", "xxx", "edu", "gov", "mil",
+             "eu", "ee", "dk", "ch", "bg", "vn", "tw", "tr", "tm", "su", "si", "sh", "se", "pt",
+             "ar", "pl", "pe", "nz", "my", "gr", "pm", "re", "tf", "wf", "yt", "fi", "br", "ac") \
+    + COUNTRY_CODES
+
 
 class UTCZone(dt.tzinfo):
 
@@ -90,17 +103,17 @@ class MixerProvider(BaseProvider):
         """ Get a positive decimal. """
         return self.generator.pydecimal(positive=True, **kwargs)
 
-    def positive_integer(self, max=2147483647): # noqa
+    def positive_integer(self, max=2147483647):  # noqa
         """ Get a positive integer. """
-        return self.random_int(0, max=max) # noqa
+        return self.random_int(0, max=max)  # noqa
 
-    def small_integer(self, min=-32768, max=32768): # noqa
+    def small_integer(self, min=-32768, max=32768):  # noqa
         """ Get a positive integer. """
-        return self.random_int(min=min, max=max) # noqa
+        return self.random_int(min=min, max=max)  # noqa
 
-    def small_positive_integer(self, max=65536): # noqa
+    def small_positive_integer(self, max=65536):  # noqa
         """ Get a positive integer. """
-        return self.random_int(0, max=max) # noqa
+        return self.random_int(0, max=max)  # noqa
 
     @staticmethod
     def uuid():
@@ -131,6 +144,15 @@ class MixerProvider(BaseProvider):
 
     def coordinates(self):
         return (self.generator.latitude(), self.generator.longitude())
+
+    def tld(self):
+        return self.generator.random_element(HOSTZONES)
+
+    def hostname(self):
+        return "%s.%s" % (self.generator.random_element(HOSTNAMES), self.tld)
+
+    def email(self):
+        return "{{username}}@%s.%s" % self.generator.parse()
 
 
 class MixerGenerator(Generator):
