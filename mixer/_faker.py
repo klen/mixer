@@ -1,8 +1,10 @@
-""" Work with faker. """
+""" Integrate Faker to the Mixer. """
 import decimal as dc
 import datetime as dt
+import locale as pylocale
+from collections import defaultdict
 
-from faker import Factory
+from faker import Factory, Generator, DEFAULT_LOCALE, AVAILABLE_LOCALES, DEFAULT_PROVIDERS
 from faker.providers import BaseProvider
 
 
@@ -26,6 +28,21 @@ UTC = UTCZone()
 class MixerProvider(BaseProvider):
 
     """ Implement some mixer methods. """
+
+    def __init__(self, generator):
+        self.providers = []
+        self.generator = generator
+
+    def load(self, providers=DEFAULT_PROVIDERS, locale=None):
+        if locale is None:
+            locale = self.generator.locale
+
+        for pname in providers:
+            pcls, lang_found = Factory._get_provider_class(pname, locale)
+            provider = pcls(self.generator)
+            provider.__provider__ = pname
+            provider.__lang__ = lang_found
+            self.generator.add_provider(provider)
 
     @classmethod
     def choices(cls, elements=('a', 'b', 'c'), length=None):
@@ -116,5 +133,57 @@ class MixerProvider(BaseProvider):
         return (self.generator.latitude(), self.generator.longitude())
 
 
-faker = Factory.create()
-faker.add_provider(MixerProvider)
+class MixerGenerator(Generator):
+
+    """ Support dynamic locales switch. """
+
+    def __init__(self, locale=DEFAULT_LOCALE, providers=DEFAULT_PROVIDERS, **config):
+        self._locale = None
+        self._envs = defaultdict(self.__create_env)
+        self.locale = locale
+        super(MixerGenerator, self).__init__(**config)
+        self.env.load(providers)
+
+    def __create_env(self):
+        return MixerProvider(self)
+
+    def __getattr__(self, name):
+        return getattr(self.env, name)
+
+    @property
+    def providers(self):
+        return self.env.providers
+
+    @providers.setter
+    def providers(self, value):
+        self.env.providers = value
+
+    @property
+    def locale(self):
+        return self._locale
+
+    @locale.setter
+    def locale(self, value):
+        value = pylocale.normalize(value.replace('-', '_')).split('.')[0]
+        if value not in AVAILABLE_LOCALES:
+            value = DEFAULT_LOCALE
+
+        if value == self._locale:
+            return None
+
+        nenv = self._envs[value]
+        senv = self.env
+        self._locale = value
+
+        if senv.providers and not nenv.providers:
+            nenv.load([p.__provider__ for p in senv.providers], value)
+
+    @property
+    def env(self):
+        return self._envs[self._locale]
+
+    def set_formatter(self, name, method):
+        setattr(self.env, name, method)
+
+
+faker = MixerGenerator()

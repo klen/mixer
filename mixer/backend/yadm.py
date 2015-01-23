@@ -16,7 +16,7 @@ from ..main import TypeMixer as BaseTypeMixer, GenFactory as BaseFactory,\
 
 
 def get_list_field(_typemixer, _scheme):
-    fab = _typemixer.make_generator(_scheme.item_field)
+    fab = _typemixer.make_fabric(_scheme.item_field)
     return lambda: [fab() for _ in range(3)]
 
 
@@ -88,7 +88,7 @@ class TypeMixer(BaseTypeMixer):
         """
         return True
 
-    def make_generator(self, yadm_field, field_name=None, fake=None, kwargs=None): # noqa
+    def make_fabric(self, yadm_field, field_name=None, fake=None, kwargs=None): # noqa
         """ Make values generator for field.
 
         :param yadm_field: YADM field's instance
@@ -124,7 +124,7 @@ class TypeMixer(BaseTypeMixer):
         elif ftype in (SetField, ListField):
             kwargs.update({'_typemixer': self, '_scheme': yadm_field})
 
-        return super(TypeMixer, self).make_generator(
+        return super(TypeMixer, self).make_fabric(
             ftype, field_name=field_name, fake=fake, kwargs=kwargs)
 
 

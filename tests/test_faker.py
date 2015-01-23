@@ -24,3 +24,17 @@ def test_faker():
 
     assert faker.percent_decimal()
     assert faker.title()
+    assert faker.coordinates()
+
+    import datetime
+    assert faker.datetime()
+    assert faker.datetime('2010-01-02') > datetime.datetime(2010, 1, 1)
+
+    env = faker.env
+
+    faker.locale = 'ru'
+    assert faker.name()
+
+    faker.locale = 'en'
+    assert faker.name()
+    assert faker.env is env

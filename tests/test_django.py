@@ -211,12 +211,6 @@ def test_invalid_scheme(mixer):
         mixer.blend('django_app.Unknown')
 
 
-# def test_invalid_relation(mixer):
-    # with pytest.raises(ValueError) as e:
-        # mixer.blend('django_app.Hole', unknown__test=1)
-    # assert str(e.value).startswith('Mixer (django_app.Hole):')
-
-
 def test_ctx(mixer):
 
     with mixer.ctx(commit=False):
