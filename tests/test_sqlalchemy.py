@@ -39,7 +39,7 @@ class User(BASE):
     id = Column(Integer, primary_key=True)
     name = Column(String(10), nullable=False)
     role = Column(String(10), default='client', nullable=False)
-    score = Column(SmallInteger, default=50, nullable=False)
+    score = Column(SmallInteger, name='points', default=50, nullable=False)
     updated_at = Column(Boolean)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     enum = Column(Enum('one', 'two'), nullable=False)
