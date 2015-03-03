@@ -223,9 +223,9 @@ class TypeMixer(BaseTypeMixer):
                 relations |= rel.local_columns
                 yield rel.key, t.Field(rel, rel.key)
 
-        for column in mapper.columns:
+        for key, column in mapper.columns.items():
             if column not in relations:
-                yield column.name, t.Field(column, column.name)
+                yield key, t.Field(column, key)
 
 
 class Mixer(BaseMixer):

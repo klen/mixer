@@ -362,6 +362,7 @@ Contributors
 * Antoine Bertin    (https://github.com/Diaoul)
 * Dmitriy Moseev    (https://github.com/DmitriyMoseev)
 * Esteban J. G. Gabancho (https://github.com/egabancho)
+* Felix Dreissig    (https://github.com/F30)
 * Kirill Pavlov     (https://github.com/pavlov99)
 * Kwok-kuen Cheung  (https://github.com/cheungpat)
 * Mahdi Yusuf       (https://github.com/myusuf3)
