@@ -1,4 +1,5 @@
 from peewee import *
+import datetime as dt
 
 
 db = SqliteDatabase(':memory:')
@@ -6,6 +7,7 @@ db = SqliteDatabase(':memory:')
 
 class Person(Model):
     name = CharField()
+    created = DateTimeField(default=dt.datetime.now)
     birthday = DateField()
     is_relative = BooleanField()
 

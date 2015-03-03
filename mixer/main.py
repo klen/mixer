@@ -20,7 +20,7 @@ from collections import defaultdict
 from contextlib import contextmanager
 from copy import deepcopy
 from functools import partial
-from types import FunctionType, MethodType
+from types import FunctionType, MethodType, BuiltinFunctionType
 
 from . import mix_types as t, _compat as _
 from .factory import GenFactory
@@ -177,7 +177,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
         if isinstance(value, GeneratorType):
             return self.get_value(name, next(value))
 
-        if isinstance(value, (FunctionType, MethodType)):
+        if isinstance(value, (FunctionType, MethodType, BuiltinFunctionType)):
             return self.get_value(name, value())
 
         return name, value
