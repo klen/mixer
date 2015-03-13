@@ -129,10 +129,13 @@ class TypeMixer(BaseTypeMixer):
         if isinstance(column, RelationshipProperty):
             column = column.local_remote_pairs[0][0]
 
-        return (
-            bool(field.params)
-            or not column.nullable
-            and not (column.autoincrement and column.primary_key))
+        if field.params:
+            return True
+
+        # According to the SQLAlchemy docs, autoincrement "only has an effect for columns which are
+        # Integer derived (i.e. INT, SMALLINT, BIGINT) [and] Part of the primary key [...]".
+        return not column.nullable and not (column.autoincrement and column.primary_key and
+                                            isinstance(column.type, Integer))
 
     def get_value(self, field_name, field_value):
         """ Get `value` as `field_name`.
