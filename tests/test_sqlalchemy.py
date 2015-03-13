@@ -51,8 +51,7 @@ class User(BASE):
 class Role(BASE):
     __tablename__ = 'role'
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String(20), nullable=False)
+    name = Column(String(20), primary_key=True)
     user_id = Column(Integer, ForeignKey(User.id), nullable=False)
 
     user = relation(User)
