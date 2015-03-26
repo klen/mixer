@@ -123,6 +123,23 @@ class TypeMixer(BaseTypeMixer):
         return super(TypeMixer, self).make_fabric(
             type(field), field_name=field_name, fake=fake, kwargs=kwargs)
 
+    def guard(self, *args, **kwargs):
+        """ Look objects in database.
+
+        :returns: A finded object or False
+
+        """
+        qs = self.__scheme.select().where(*args, **kwargs)
+        count = qs.count()
+
+        if count == 1:
+            return qs.get()
+
+        if count:
+            return list(qs)
+
+        return False
+
 
 class Mixer(BaseMixer):
 

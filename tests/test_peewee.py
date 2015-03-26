@@ -1,5 +1,7 @@
-from peewee import *
 import datetime as dt
+
+import pytest
+from peewee import *
 
 
 db = SqliteDatabase(':memory:')
@@ -28,14 +30,13 @@ Person.create_table()
 Pet.create_table()
 
 
-def test_backend():
+@pytest.fixture
+def mixer():
     from mixer.backend.peewee import mixer
-    assert mixer
+    return mixer
 
 
-def test_mixer():
-    from mixer.backend.peewee import mixer
-
+def test_mixer(mixer):
     person = mixer.blend(Person)
     assert person.name
     assert person.id
@@ -49,3 +50,9 @@ def test_mixer():
     with mixer.ctx(commit=True):
         person = mixer.blend(Person)
         assert person.id == 1
+
+
+def test_guard(mixer):
+    person = mixer.blend(Person)
+    person2 = mixer.guard(Person.name == person.name).blend(Person)
+    assert person.id == person2.id
