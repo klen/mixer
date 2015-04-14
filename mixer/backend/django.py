@@ -54,7 +54,10 @@ def get_image(filepath=MOCK_IMAGE):
 
 def get_relation(_scheme=None, _typemixer=None, **params):
     """ Function description. """
-    scheme = _scheme.related.parent_model
+    if VERSION < (1, 8):
+        scheme = _scheme.related.parent_model
+    else:
+        scheme = _scheme.related_model
 
     if scheme is ContentType:
         choices = [m for m in models.get_models() if m is not ContentType]

@@ -4,6 +4,7 @@ import datetime
 import decimal
 
 import pytest
+from django import VERSION
 from django.core.management import call_command
 
 from .django_app.models import Rabbit, models, Hole, Door, Customer, Simple, Client
@@ -211,6 +212,9 @@ def test_invalid_scheme(mixer):
         mixer.blend('django_app.Unknown')
 
 
+@pytest.mark.skipif(
+    VERSION >= (1, 8, 0),
+    reason='Django 1.8 prevents unsaved model instances from being assigned to a ForeignKey')
 def test_ctx(mixer):
 
     with mixer.ctx(commit=False):
