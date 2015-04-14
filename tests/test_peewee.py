@@ -56,3 +56,11 @@ def test_guard(mixer):
     person = mixer.blend(Person)
     person2 = mixer.guard(Person.name == person.name).blend(Person)
     assert person.id == person2.id
+
+
+def test_reload(mixer):
+    person = mixer.blend(Person, name='true')
+    person.name = 'wrong'
+
+    person = mixer.reload(person)
+    person.name == 'true'

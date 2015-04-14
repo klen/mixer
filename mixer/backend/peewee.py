@@ -140,6 +140,12 @@ class TypeMixer(BaseTypeMixer):
 
         return False
 
+    def reload(self, obj):
+        """ Reload object from database. """
+        if not obj.get_id():
+            raise ValueError("Cannot load the object: %s" % obj)
+        return type(obj).select().where(obj._meta.primary_key == obj.get_id()).get()
+
 
 class Mixer(BaseMixer):
 
