@@ -184,10 +184,7 @@ class TypeMixer(BaseTypeMixer):
             kwargs.update({'_typemixer': self})
 
         elif ftype is DecimalField:
-            sign, (ii,), dd = me_field.precision.as_tuple()
-            kwargs['left_digits'] = abs(dd)
-            kwargs['right_digits'] = ii + 1
-            kwargs['positive'] = not sign
+            kwargs['right_digits'] = me_field.precision
 
         return super(TypeMixer, self).make_fabric(
             ftype, field_name=field_name, fake=fake, kwargs=kwargs)
