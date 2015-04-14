@@ -4,7 +4,8 @@ import datetime as dt
 import locale as pylocale
 from collections import defaultdict
 
-from faker import Factory, Generator, DEFAULT_LOCALE, AVAILABLE_LOCALES, DEFAULT_PROVIDERS
+from faker import Factory, Generator
+from faker.config import DEFAULT_LOCALE, DEFAULT_PROVIDERS, AVAILABLE_LOCALES
 from faker.providers import BaseProvider
 
 
