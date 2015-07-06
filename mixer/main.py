@@ -483,7 +483,7 @@ class Mixer(_.with_metaclass(_MetaMixer)):
         self.params = params
         self.faker = faker
         self.__init_params__(fake=fake, loglevel=loglevel, silence=silence, locale=locale)
-        self.__factory = factory
+        self.__factory = factory or self.type_mixer_cls.factory
 
     def __getattr__(self, name):
         if name in ['f', 'g', 'fake', 'random', 'mix', 'select']:
