@@ -715,6 +715,7 @@ class Mixer(_.with_metaclass(_MetaMixer)):
 
         def wrapper(middleware):
             type_mixer.middlewares.append(middleware)
+            return middleware
 
         return wrapper
 
