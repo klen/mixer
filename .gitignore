@@ -1,7 +1,10 @@
+*.pyc
+*.txt
 /.env3
+/.stuff
+/.tox
 /build
 /todo.txt
 dist
 docs/_build
-*.txt
-/.stuff
+/*.egg-info
