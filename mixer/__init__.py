@@ -14,7 +14,7 @@ from __future__ import unicode_literals
 # Module information
 # ==================
 
-__version__ = "5.1.4"
+__version__ = "5.1.5"
 __project__ = "mixer"
 __author__ = "horneds <horneds@gmail.com>"
 __license__ = "BSD"
