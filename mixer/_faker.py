@@ -178,7 +178,7 @@ class MixerProvider(BaseProvider):
         return self.bothify(self.generator.parse(template))
 
     def pybytes(self, size=20):
-        return bytes(self.pystr(size))
+        return self.pystr(size).encode('utf-8')
 
 
 class MixerGenerator(Generator):
