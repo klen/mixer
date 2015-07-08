@@ -149,6 +149,7 @@ class Migration(migrations.Migration):
                 ('error_code', models.PositiveSmallIntegerField()),
                 ('custom', CustomField(max_length=24)),
                 ('content_type', models.ForeignKey(to='contenttypes.ContentType')),
+                ('binary', models.BinaryField()),
             ],
             options={
             },

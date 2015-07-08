@@ -48,6 +48,8 @@ class Rabbit(models.Model):
     custom = CustomField(max_length=24)
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
+    binary = models.BinaryField()
+
     one2one = models.OneToOneField('django_app.Simple')
 
     def save(self, **kwargs):

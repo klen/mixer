@@ -78,17 +78,18 @@ class GenFactory(BaseFactory):
     """ Map a django classes to simple types. """
 
     types = {
-        models.IntegerField: int,
-        (models.CharField, models.SlugField): str,
+        (models.AutoField, models.PositiveIntegerField): t.PositiveInteger,
         models.BigIntegerField: t.BigInteger,
+        models.BinaryField: bytes,
         models.BooleanField: bool,
+        (models.CharField, models.SlugField): str,
         models.DateField: datetime.date,
         models.DecimalField: decimal.Decimal,
         models.EmailField: t.EmailString,
         models.FloatField: float,
-        models.IPAddressField: t.IP4String,
         models.GenericIPAddressField: t.IPString,
-        (models.AutoField, models.PositiveIntegerField): t.PositiveInteger,
+        models.IPAddressField: t.IP4String,
+        models.IntegerField: int,
         models.PositiveSmallIntegerField: t.PositiveSmallInteger,
         models.SmallIntegerField: t.SmallInteger,
         models.TextField: t.Text,

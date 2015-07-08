@@ -43,3 +43,5 @@ def test_faker():
     assert faker.env is env
 
     assert faker.email()
+
+    assert faker.pybytes()

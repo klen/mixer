@@ -61,6 +61,7 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
         float: faker.pyfloat,
         int: faker.random_int,
         str: faker.pystr,
+        bytes: faker.pybytes,
         list: faker.pylist,
         set: faker.pyset,
         tuple: faker.pytuple,
