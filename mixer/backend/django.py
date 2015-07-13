@@ -80,7 +80,6 @@ class GenFactory(BaseFactory):
     types = {
         (models.AutoField, models.PositiveIntegerField): t.PositiveInteger,
         models.BigIntegerField: t.BigInteger,
-        models.BinaryField: bytes,
         models.BooleanField: bool,
         (models.CharField, models.SlugField): str,
         models.DateField: datetime.date,
@@ -98,13 +97,14 @@ class GenFactory(BaseFactory):
     }
 
     generators = {
+        models.BinaryField: faker.pybytes,
+        models.DateTimeField: get_datetime,
         models.FileField: get_file,
         models.FilePathField: lambda: MOCK_FILE,
-        models.DateTimeField: get_datetime,
-        models.ImageField: get_image,
         models.ForeignKey: get_relation,
-        models.OneToOneField: get_relation,
+        models.ImageField: get_image,
         models.ManyToManyField: get_relation,
+        models.OneToOneField: get_relation,
     }
 
 
