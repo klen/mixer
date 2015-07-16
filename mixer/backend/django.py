@@ -7,8 +7,12 @@ from types import GeneratorType
 
 import decimal
 from django import VERSION
-from django.contrib.contenttypes.generic import (
-    GenericForeignKey, GenericRelation)
+if VERSION < (1, 8):
+    from django.contrib.contenttypes.generic import (
+        GenericForeignKey, GenericRelation)
+else:
+    from django.contrib.contenttypes.generic.fields import (
+        GenericForeignKey, GenericRelation)
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.base import ContentFile
 from django.core.validators import (
