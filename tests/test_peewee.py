@@ -9,6 +9,7 @@ db = SqliteDatabase(':memory:')
 
 class Person(Model):
     name = CharField()
+    status = CharField(choices=(('user', 'user'), ('moderator', 'moderator'), ('admin', 'admin')))
     created = DateTimeField(default=dt.datetime.now)
     birthday = DateField()
     is_relative = BooleanField()
@@ -41,6 +42,7 @@ def test_mixer(mixer):
     assert person.name
     assert person.id
     assert person.birthday
+    assert person.status in ('user', 'moderator', 'admin')
 
     pet = mixer.blend(Pet)
     assert pet.name
@@ -63,4 +65,4 @@ def test_reload(mixer):
     person.name = 'wrong'
 
     person = mixer.reload(person)
-    person.name == 'true'
+    assert person.name == 'true'

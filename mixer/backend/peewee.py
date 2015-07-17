@@ -14,7 +14,7 @@ import decimal
 from .. import mix_types as t
 from ..main import (
     TypeMixer as BaseTypeMixer, Mixer as BaseMixer, SKIP_VALUE,
-    GenFactory as BaseFactory)
+    GenFactory as BaseFactory, partial, faker)
 
 
 def get_relation(_scheme=None, _typemixer=None, **params):
@@ -116,6 +116,13 @@ class TypeMixer(BaseTypeMixer):
 
         """
         kwargs = {} if kwargs is None else kwargs
+
+        if field.choices:
+            try:
+                choices, _ = list(zip(*field.choices))
+                return partial(faker.random_element, choices)
+            except ValueError:
+                pass
 
         if isinstance(field, ForeignKeyField):
             kwargs.update({'_typemixer': self, '_scheme': field})
