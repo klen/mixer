@@ -251,6 +251,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
         except ValueError:
             value = None
         except Exception as exc:
+            LOGGER.exception(exc)
             raise ValueError("Generation for %s (%s) has been stopped. Exception: %s" % (
                 field_name, self.__scheme.__name__, exc))
 
