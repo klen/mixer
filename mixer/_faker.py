@@ -5,7 +5,12 @@ import locale as pylocale
 from collections import defaultdict
 
 from faker import Factory, Generator
-from faker.config import DEFAULT_LOCALE, DEFAULT_PROVIDERS, AVAILABLE_LOCALES
+from faker.config import DEFAULT_LOCALE, AVAILABLE_LOCALES
+try:
+    from faker.config import PROVIDERS
+except ImportError:
+    from faker.config import DEFAULT_PROVIDERS as PROVIDERS
+
 from faker.providers import BaseProvider
 
 
@@ -56,7 +61,7 @@ class MixerProvider(BaseProvider):
         self.providers = []
         self.generator = generator
 
-    def load(self, providers=DEFAULT_PROVIDERS, locale=None):
+    def load(self, providers=PROVIDERS, locale=None):
         if locale is None:
             locale = self.generator.locale
 
@@ -185,7 +190,7 @@ class MixerGenerator(Generator):
 
     """ Support dynamic locales switch. """
 
-    def __init__(self, locale=DEFAULT_LOCALE, providers=DEFAULT_PROVIDERS, **config):
+    def __init__(self, locale=DEFAULT_LOCALE, providers=PROVIDERS, **config):
         self._locale = None
         self._envs = defaultdict(self.__create_env)
         self.locale = locale
