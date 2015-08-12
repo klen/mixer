@@ -23,7 +23,7 @@ GENRES = ('general', 'pop', 'dance', 'traditional', 'rock', 'alternative', 'rap'
 HOSTNAMES = ('facebook', 'google', 'youtube', 'yahoo', 'baidu', 'wikipedia', 'amazon', 'qq',
              'live', 'taobao', 'blogspot', 'linkedin', 'twitter', 'bing', 'yandex', 'vk', 'msn',
              'ebay', '163', 'wordpress', 'ask', 'weibo', 'mail', 'microsoft', 'hao123', 'tumblr',
-             'xvideos', 'googleusercontent', 'fc2')
+             'googleusercontent', 'fc2')
 
 COUNTRY_CODES = 'cn', 'in', 'id', 'de', 'el', 'en', 'es', 'fr', 'it', 'pt', 'ru', 'ua'
 
