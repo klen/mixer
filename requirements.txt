@@ -1,2 +1,2 @@
 # requirements
-fake-factory    == 0.5.0
+fake-factory    == 0.5.2
