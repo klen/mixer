@@ -360,6 +360,7 @@ Contributors
 * Kirill Klenov     (https://github.com/klen, horneds@gmail.com)
 
 * Antoine Bertin    (https://github.com/Diaoul)
+* Benjamin Port     (https://github.com/bport)
 * Dmitriy Moseev    (https://github.com/DmitriyMoseev)
 * Esteban J. G. Gabancho (https://github.com/egabancho)
 * Felix Dreissig    (https://github.com/F30)
@@ -369,6 +370,7 @@ Contributors
 * Marek Baczyński   (https://github.com/imbaczek)
 * Matt Caldwell     (https://github.com/mattcaldwell)
 * Skylar Saveland   (https://github.com/skyl)
+* Suriya Subramanian (https://github.com/suriya)
 
 
 .. _license:

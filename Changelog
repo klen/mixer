@@ -1,3 +1,6 @@
+	* fake-factory 5.0.2
+	* fix deprication warnings (django)
+
 2015-04-14  horneds
 
 	* Version 5.1.0
