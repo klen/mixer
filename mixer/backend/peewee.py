@@ -66,8 +66,8 @@ class TypeMixer(BaseTypeMixer):
     factory = GenFactory
 
     def __load_fields(self):
-        for name, field in self.__scheme._meta.get_sorted_fields():
-            yield name, t.Field(field, name)
+        for field in self.__scheme._meta.sorted_fields:
+            yield field.name, t.Field(field, field.name)
 
     def populate_target(self, values):
         """ Populate target. """

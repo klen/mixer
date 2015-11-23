@@ -1,7 +1,7 @@
-Django              >= 1.8
-flask-sqlalchemy
-mongoengine         >= 0.9.0
-peewee
+Django              >= 1.8.6
+flask-sqlalchemy    >= 2.1
+mongoengine         >= 0.10.1
+peewee              >= 2.7.3
 pony                >= 0.6.1
 pytest
-sqlalchemy          >= 0.9.9
+sqlalchemy          >= 1.0.9
