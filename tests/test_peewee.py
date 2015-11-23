@@ -49,9 +49,9 @@ def test_mixer(mixer):
     assert pet.animal_type
     assert pet.owner
 
-    with mixer.ctx(commit=True):
+    with mixer.ctx(commit=False):
         person = mixer.blend(Person)
-        assert person.id == 1
+        assert person.id
 
 
 def test_guard(mixer):

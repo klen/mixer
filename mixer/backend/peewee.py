@@ -160,6 +160,11 @@ class Mixer(BaseMixer):
 
     type_mixer_cls = TypeMixer
 
+    def __init__(self, **params):
+        """Initialize the Mixer instance."""
+        params.setdefault('commit', True)
+        super(Mixer, self).__init__(**params)
+
     def postprocess(self, target):
         """ Save objects in db.
 
