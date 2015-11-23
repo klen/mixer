@@ -61,13 +61,13 @@ class GenFactory(BaseFactory):
 
 class TypeMixer(BaseTypeMixer):
 
-    """ TypeMixer for Pony ORM. """
+    """ TypeMixer for Peewee ORM. """
 
     factory = GenFactory
 
     def __load_fields(self):
-        for name, field in self.__scheme._meta.get_sorted_fields():
-            yield name, t.Field(field, name)
+        for field in self.__scheme._meta.sorted_fields:
+            yield field.name, t.Field(field, field.name)
 
     def populate_target(self, values):
         """ Populate target. """
@@ -156,9 +156,14 @@ class TypeMixer(BaseTypeMixer):
 
 class Mixer(BaseMixer):
 
-    """ Integration with Pony ORM. """
+    """ Integration with Peewee ORM. """
 
     type_mixer_cls = TypeMixer
+
+    def __init__(self, **params):
+        """Initialize the Mixer instance."""
+        params.setdefault('commit', True)
+        super(Mixer, self).__init__(**params)
 
     def postprocess(self, target):
         """ Save objects in db.
@@ -172,7 +177,7 @@ class Mixer(BaseMixer):
         return target
 
 
-# Default Pony mixer
+# Default Peewee mixer
 mixer = Mixer()
 
 # pylama:ignore=E1120

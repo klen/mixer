@@ -13,6 +13,11 @@ if VERSION < (1, 8):
 else:
     from django.contrib.contenttypes.fields import (
         GenericForeignKey, GenericRelation)
+try:
+    from django.apps import apps
+    get_model = apps.get_model
+except ImportError:
+    from django.db.models.loading import get_model
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.base import ContentFile
 from django.core.validators import (
@@ -133,7 +138,7 @@ class TypeMixerMeta(BaseTypeMixerMeta):
         if isinstance(cls_type, _.string_types):
             if '.' in cls_type:
                 app_label, model_name = cls_type.split(".")
-                return models.get_model(app_label, model_name)
+                return get_model(app_label, model_name)
 
             else:
                 try:
