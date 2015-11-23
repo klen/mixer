@@ -61,7 +61,7 @@ class GenFactory(BaseFactory):
 
 class TypeMixer(BaseTypeMixer):
 
-    """ TypeMixer for Pony ORM. """
+    """ TypeMixer for Peewee ORM. """
 
     factory = GenFactory
 
@@ -156,7 +156,7 @@ class TypeMixer(BaseTypeMixer):
 
 class Mixer(BaseMixer):
 
-    """ Integration with Pony ORM. """
+    """ Integration with Peewee ORM. """
 
     type_mixer_cls = TypeMixer
 
@@ -172,7 +172,7 @@ class Mixer(BaseMixer):
         return target
 
 
-# Default Pony mixer
+# Default Peewee mixer
 mixer = Mixer()
 
 # pylama:ignore=E1120
