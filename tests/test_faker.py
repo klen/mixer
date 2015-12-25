@@ -45,3 +45,5 @@ def test_faker():
     assert faker.email()
 
     assert faker.pybytes()
+
+    assert faker.date_time_this_month()
