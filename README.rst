@@ -39,10 +39,6 @@ Mixer supports:
     :target: https://pypi.python.org/pypi/mixer
     :alt: License
 
-.. image:: http://img.shields.io/gratipay/klen.svg?style=flat-square
-    :target: https://www.gratipay.com/klen/
-    :alt: Donate
-
 
 .. _documentation:
 
@@ -58,20 +54,16 @@ documentation enhancements and/or fixes are awesome and most welcome.**
 .. contents::
 
 
-.. _requirements:
-
 Requirements
 =============
 
 - python (2.6, 2.7, 3.2, 3.3, 3.4)
 - fake-factory >= 0.5.0
-- Django (1.6, 1.7, 1.8) for django ORM suport;
-- SQLAlchemy for SQLAlchemy ORM suport;
+- Django (1.6, 1.7, 1.8) for Django ORM support;
+- SQLAlchemy for SQLAlchemy ORM support;
 - Mongoengine for Mongoengine ODM support;
-- Flask-SQLALchemy for SQLAlchemy ORM suport and integration as Flask application;
+- Flask-SQLALchemy for SQLAlchemy ORM support and integration as Flask application;
 
-
-.. _installation:
 
 Installation
 =============
@@ -81,22 +73,20 @@ Installation
     pip install mixer
 
 
-.. _usage:
-
 Usage
 =====
 
  |   By default Mixer tries to generate a fake (human-friendly) data.
- |   If you want randomize the generated values initialize the Mixer
+ |   If you want to randomize the generated values initialize the Mixer
  |   by manual: Mixer(fake=False)
 
 
- |   By default Mixer saves the generated objects in database. If you want disable
+ |   By default Mixer saves the generated objects in a database. If you want to disable
  |   this, initialize the Mixer by manual like: Mixer(commit=False)
 
 
-Django
-------
+Django workflow
+---------------
 Quick example: ::
 
     from mixer.backend.django import mixer
@@ -165,8 +155,8 @@ For support this scheme, just create your own mixer class, like this: ::
     mixer = MyOwnMixer()
 
 
-SQLAlchemy
-----------
+SQLAlchemy workflow
+-------------------
 
 Example of initialization: ::
 
@@ -180,11 +170,11 @@ Example of initialization: ::
     role = mixer.blend('package.models.Role')
 
 
-Also see `Flask, Flask-SQLALchemy`_.
+Also, see `Flask, Flask-SQLALchemy`_.
 
 
-Mongoengine
------------
+Mongoengine workflow
+--------------------
 
 Example usage: ::
 
@@ -228,7 +218,7 @@ DB commits
 ----------
 
 By default 'django', 'flask', 'mongoengine' backends tries to save objects in
-database. For prevent this behaviour init `mixer` manually: ::
+database. For preventing this behavior init `mixer` manually: ::
 
     from mixer.backend.django import Mixer
 
@@ -252,7 +242,7 @@ Or you can temporary switch context use the mixer as context manager: ::
 Custom fields
 -------------
 
-Mixer allows you to define generators for fields by manualy.
+Mixer allows you to define generators for fields by manually.
 
 Quick example: ::
 
@@ -276,7 +266,7 @@ Quick example: ::
         test = mixer.blend(Test)
         test.name == 'Just John'
 
-Also you can make your own factory for field types: ::
+Also, you can make your own factory for field types: ::
 
     from mixer.backend.django import Mixer, GenFactory
 
@@ -289,8 +279,6 @@ Also you can make your own factory for field types: ::
         }
 
     mixer = Mixer(factory=MyFactory)
-
-.. _middlewares:
 
 Middlewares
 -----------
@@ -344,15 +332,11 @@ annoyances please report them to the issue tracker
 at https://github.com/klen/mixer/issues
 
 
-.. _contributing:
-
 Contributing
 ============
 
-Development of mixer happens at github: https://github.com/klen/mixer
+Development of mixer happens at Github: https://github.com/klen/mixer
 
-
-.. _contributors:
 
 Contributors
 =============
@@ -372,8 +356,6 @@ Contributors
 * Skylar Saveland   (https://github.com/skyl)
 * Suriya Subramanian (https://github.com/suriya)
 
-
-.. _license:
 
 License
 =======
