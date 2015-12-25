@@ -185,6 +185,27 @@ class MixerProvider(BaseProvider):
     def pybytes(self, size=20):
         return self.pystr(size).encode('utf-8')
 
+    # FIXME: Fix Faker datetime provider
+    def date_time_this_month(self, before_now=True, after_now=False):
+        """Get a DateTime object for the current month.
+
+        :param before_now: include days in current month before today
+        :param after_now: include days in current month after today
+        :example DateTime('2012-04-04 11:02:02')
+        :return DateTime
+        """
+        now = dt.datetime.now()
+        this_month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        next_month_start = dt.datetime(now.year, (now.month + 1) % 12, 1)
+
+        if before_now and after_now:
+            return self.generator.date_time_between_dates(this_month_start, next_month_start)
+        if not before_now and after_now:
+            return self.generator.date_time_between_dates(now, next_month_start)
+        if not after_now and before_now:
+            return self.generator.date_time_between_dates(this_month_start, now)
+        return now
+
 
 class MixerGenerator(Generator):
 
@@ -201,10 +222,7 @@ class MixerGenerator(Generator):
         return MixerProvider(self)
 
     def __getattr__(self, name):
-        def wrapper(*args, **kwargs):
-            fab = getattr(self.env, name)
-            return fab(*args, **kwargs)
-        return wrapper
+        return getattr(self.env, name)
 
     @property
     def providers(self):
@@ -239,7 +257,8 @@ class MixerGenerator(Generator):
         return self._envs[self._locale]
 
     def set_formatter(self, name, method):
-        setattr(self.env, name, method)
+        if not hasattr(self.env, name):
+            setattr(self.env, name, method)
 
 
 faker = MixerGenerator()

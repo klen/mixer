@@ -58,7 +58,8 @@ register:
 upload: clean
 	@pip install twine wheel
 	@python setup.py sdist bdist_wheel
-	@twine upload dist/*
+	@twine upload dist/*.whl || true
+	@twine upload dist/*.gz || true
 
 .PHONY: docs
 # target: docs - Compile the docs
