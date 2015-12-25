@@ -77,7 +77,7 @@ $(VIRTUALENV): requirements.txt
 	@$(VIRTUALENV)/bin/pip install -r requirements.txt
 	@touch $(VIRTUALENV)
 
-$(VIRTUALENV)/bin/py.test: requirements-tests.txt
+$(VIRTUALENV)/bin/py.test: $(VIRTUALENV) requirements-tests.txt
 	@$(VIRTUALENV)/bin/pip install -r requirements-tests.txt
 	@touch $(VIRTUALENV)/bin/py.test
 

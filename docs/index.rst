@@ -50,20 +50,20 @@ this part of the documentation is for you.
 .. _bugtracker:
 .. include:: ../README.rst
     :start-after: .. _bugtracker:
-    :end-before: .. _contributing:
+    :end-before: Contributing
 
 
 .. == contributing ==
 .. _contributing:
 .. include:: ../README.rst
-    :start-after: .. _contributing:
-    :end-before: .. _contributors:
+    :start-after: Contributing
+    :end-before: Contributors
 
 
 .. == contributors ==
 .. _contributors:
 .. include:: ../README.rst
-    :start-after: .. _contributors:
+    :start-after: Contributors
     :end-before: .. _license:
 
 

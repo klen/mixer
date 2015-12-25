@@ -1,17 +1,20 @@
+Installation
+============
+
 .. contents::
 
 .. == requirements ==
 .. _requirements:
 .. include:: ../README.rst
-    :start-after: .. _requirements:
-    :end-before: .. _installation:
+    :start-after: Requirements
+    :end-before: Installation
 
 
 .. == installation ==
 .. _installation:
 .. include:: ../README.rst
-    :start-after: .. _installation:
-    :end-before: .. _usage:
+    :start-after: Installation
+    :end-before: Usage
 
 
 .. == links ==
