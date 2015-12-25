@@ -50,7 +50,7 @@ Mixer supports:
 **Docs are available at https://mixer.readthedocs.org/. Pull requests with
 documentation enhancements and/or fixes are awesome and most welcome.**
 
-Описание на русском языке: http://klen.github.io/mixer-ru.html
+Описание на русском языке: http://klen.github.io/mixer.html
 
 
 .. _contents:
