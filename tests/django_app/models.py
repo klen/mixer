@@ -1,9 +1,10 @@
 from django.conf import settings
-from django.contrib.contenttypes import generic, models as ct_models
-from django import VERSION
+from django.contrib.contenttypes import models as ct_models
 
 from django.db import models
 from django.contrib.auth.models import User
+
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 
 
 class CustomField(models.CharField):
@@ -46,7 +47,7 @@ class Rabbit(models.Model):
     object_id = models.PositiveIntegerField()
     error_code = models.PositiveSmallIntegerField()
     custom = CustomField(max_length=24)
-    content_object = generic.GenericForeignKey('content_type', 'object_id')
+    content_object = GenericForeignKey('content_type', 'object_id')
 
     binary = models.BinaryField()
 
@@ -68,9 +69,7 @@ class Hole(models.Model):
     owner = models.ForeignKey(Rabbit)
 
     # FIXME compatibility
-    rabbits = generic.GenericRelation(
-        Rabbit,
-        **({'related_name': 'holes'} if VERSION < (1, 7) else {'related_query_name': 'holes'}))
+    rabbits = GenericRelation(Rabbit, **({'related_query_name': 'holes'}))
 
 
 class Hat(models.Model):

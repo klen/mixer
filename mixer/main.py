@@ -35,15 +35,6 @@ if not LOGGER.handlers and not LOGGER.root.handlers:
     LOGGER.addHandler(logging.StreamHandler())
 
 
-class _Deffered(object):
-
-    """ A type which will be generated later. """
-
-    def __init__(self, value, scheme=None):
-        self.value = value
-        self.scheme = scheme
-
-
 class TypeMixerMeta(type):
 
     """ Cache typemixers by scheme. """
@@ -135,7 +126,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
         values = list()
         postprocess_values = list()
         for name, value in candidates:
-            if isinstance(value, _Deffered):
+            if isinstance(value, t._Deffered):
                 postprocess_values.append((name, value))
             else:
                 values.append((name, value))

@@ -10,3 +10,4 @@ docs/_build
 /*.egg-info
 /.coverage
 /.ropeproject
+/.cache

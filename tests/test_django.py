@@ -13,7 +13,10 @@ from mixer.backend.django import Mixer
 
 @pytest.fixture(autouse=True)
 def mixer(request):
-    call_command('syncdb', interactive=False, verbosity=0)
+    if VERSION > (1, 8):
+        call_command('migrate', interactive=False, verbosity=0)
+    else:
+        call_command('syncdb', interactive=False, verbosity=0)
     request.addfinalizer(lambda: call_command('flush', interactive=False, verbosity=0))
     return Mixer()
 
