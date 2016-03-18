@@ -3,7 +3,6 @@ language: python
 python: 2.7
 
 env:
-    - TOXENV=py34-d16
     - TOXENV=py27-d17
     - TOXENV=py34-d17
     - TOXENV=py27-d18
