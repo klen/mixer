@@ -760,7 +760,7 @@ class Mixer(_.with_metaclass(_MetaMixer)):
                 self.assertFalse(Hole.objects.count())
 
         """
-        _params = deepcopy(self.params)
+        _params = dict((k, v) for k, v in self.params.items() if k in params)
         _params['locale'] = self.faker.locale
 
         try:

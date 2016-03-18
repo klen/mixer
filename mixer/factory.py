@@ -109,14 +109,17 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
         ('lon', float): faker.longitude,
         ('longitude', float): faker.longitude,
         ('name', str): faker.name,
+        ('percent', decimal.Decimal): faker.percent_decimal,
+        ('percent', int): faker.percent,
         ('phone', str): faker.phone_number,
+        ('site', str): faker.url,
         ('slug', str): faker.slug,
         ('street', str): faker.street_name,
+        ('time_zone', str): faker.timezone,
+        ('timezone', str): faker.timezone,
         ('title', str): faker.title,
         ('url', t.URL): faker.uri,
         ('username', str): faker.nickname,
-        ('percent', int): faker.percent,
-        ('percent', decimal.Decimal): faker.percent_decimal,
     }
 
     types = {
