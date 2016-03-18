@@ -119,6 +119,7 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
         ('timezone', str): faker.timezone,
         ('title', str): faker.title,
         ('url', t.URL): faker.uri,
+        ('url', str): faker.uri,
         ('username', str): faker.nickname,
     }
 
