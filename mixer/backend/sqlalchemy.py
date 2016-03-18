@@ -55,11 +55,18 @@ class TypeMixer(BaseTypeMixer):
 
     def postprocess(self, target, postprocess_values):
         """ Fill postprocess values. """
+        mixed = []
         for name, deffered in postprocess_values:
             value = deffered.value
+            if isinstance(value, t.Mix):
+                mixed.append((name, value))
+                continue
             if isinstance(getattr(target, name), InstrumentedList) and not isinstance(value, list):
                 value = [value]
             setattr(target, name, value)
+
+        for name, mix in mixed:
+            setattr(target, name, mix & target)
 
         if self.__mixer:
             target = self.__mixer.postprocess(target)
