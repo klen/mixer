@@ -169,3 +169,11 @@ def test_reload(session):
     u2 = mixer.reload(u1)
     assert u2 == u1
     assert u2.name != 'wrong name'
+
+
+def test_mix22(session):
+    from mixer.backend.sqlalchemy import Mixer
+
+    mixer = Mixer(session=session, commit=True)
+    role = mixer.blend(Role, name=mixer.MIX.user.name)
+    assert role.name == role.user.name

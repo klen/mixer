@@ -2,33 +2,23 @@
 from __future__ import absolute_import
 
 import datetime
+import decimal
 from os import path
 from types import GeneratorType
 
-import decimal
 from django import VERSION
-if VERSION < (1, 8):
-    from django.contrib.contenttypes.generic import (
-        GenericForeignKey, GenericRelation)
-else:
-    from django.contrib.contenttypes.fields import (
-        GenericForeignKey, GenericRelation)
-try:
-    from django.apps import apps
-    get_model = apps.get_model
-except ImportError:
-    from django.db.models.loading import get_model
+from django.apps import apps
+from django.conf import settings
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation   # noqa
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.base import ContentFile
-from django.core.validators import (
-    validate_ipv4_address, validate_ipv6_address)
+from django.core.validators import validate_ipv4_address, validate_ipv6_address
 from django.db import models
-from django.conf import settings
 
 from .. import mix_types as t, _compat as _
 from ..main import (
     SKIP_VALUE, TypeMixerMeta as BaseTypeMixerMeta, TypeMixer as BaseTypeMixer,
-    GenFactory as BaseFactory, Mixer as BaseMixer, _Deffered, partial, faker)
+    GenFactory as BaseFactory, Mixer as BaseMixer, partial, faker)
 
 
 get_contentfile = ContentFile
@@ -69,7 +59,7 @@ def get_relation(_scheme=None, _typemixer=None, **params):
         scheme = _scheme.related_model
 
     if scheme is ContentType:
-        choices = [m for m in models.get_models() if m is not ContentType]
+        choices = [m for m in apps.get_models() if m is not ContentType]
         return ContentType.objects.get_for_model(faker.random_element(choices))
 
     return TypeMixer(scheme, mixer=_typemixer._TypeMixer__mixer,
@@ -138,7 +128,7 @@ class TypeMixerMeta(BaseTypeMixerMeta):
         if isinstance(cls_type, _.string_types):
             if '.' in cls_type:
                 app_label, model_name = cls_type.split(".")
-                return get_model(app_label, model_name)
+                return apps.get_model(app_label, model_name)
 
             else:
                 try:
@@ -155,15 +145,9 @@ class TypeMixerMeta(BaseTypeMixerMeta):
 
     def __update_cache(cls):
         """ Update apps cache for Django < 1.7. """
-        if VERSION < (1, 7):
-            for app_models in models.loading.cache.app_models.values():
-                for name, model in app_models.items():
-                    cls.models_cache[name] = model
-        else:
-            from django.apps import apps
-            for app in apps.all_models:
-                for name, model in apps.all_models[app].items():
-                    cls.models_cache[name] = model
+        for app in apps.all_models:
+            for name, model in apps.all_models[app].items():
+                cls.models_cache[name] = model
 
 
 class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
@@ -220,7 +204,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
             if (field.scheme in self.__scheme._meta.local_many_to_many or
                     type(field.scheme) is GenericForeignKey):
-                return name, _Deffered(value, field.scheme)
+                return name, t._Deffered(value, field.scheme)
 
             return self._get_value(name, value, field)
 
@@ -338,8 +322,6 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
         :return bool:
 
         """
-        if VERSION < (1, 7) and isinstance(field.scheme, models.OneToOneField):
-            return True
         return field.scheme.unique
 
     @staticmethod

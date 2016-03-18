@@ -139,6 +139,8 @@ class Mix(object):
             values = self.__parent & values
         if isinstance(values, dict):
             value = values[self.__value]
+        elif isinstance(values, _Deffered):
+            value = getattr(values.value, self.__value)
         else:
             value = getattr(values, self.__value)
         if self.__func:
@@ -347,3 +349,12 @@ class Select(Random):
 
         """
         return type_mixer.gen_select(name, field)
+
+
+class _Deffered(object):
+
+    """ A type which will be generated later. """
+
+    def __init__(self, value, scheme=None):
+        self.value = value
+        self.scheme = scheme

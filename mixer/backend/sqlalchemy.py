@@ -20,7 +20,7 @@ from sqlalchemy.types import (
 from .. import mix_types as t
 from ..main import (
     SKIP_VALUE, LOGGER, TypeMixer as BaseTypeMixer, GenFactory as BaseFactory,
-    Mixer as BaseMixer, _Deffered, partial, faker)
+    Mixer as BaseMixer, partial, faker)
 
 
 class GenFactory(BaseFactory):
@@ -145,7 +145,7 @@ class TypeMixer(BaseTypeMixer):
         """
         field = self.__fields.get(field_name)
         if field and isinstance(field.scheme, RelationshipProperty):
-            return field_name, _Deffered(field_value, field.scheme)
+            return field_name, t._Deffered(field_value, field.scheme)
 
         return super(TypeMixer, self).get_value(field_name, field_value)
 
