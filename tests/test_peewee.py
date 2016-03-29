@@ -66,3 +66,9 @@ def test_reload(mixer):
 
     person = mixer.reload(person)
     assert person.name == 'true'
+
+
+def test_select(mixer):
+    person = mixer.blend(Person)
+    pet = mixer.blend(Pet, owner=mixer.SELECT)
+    assert person == pet.owner
