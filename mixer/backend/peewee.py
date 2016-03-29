@@ -80,6 +80,22 @@ class TypeMixer(BaseTypeMixer):
             return field.name, SKIP_VALUE
         return super(TypeMixer, self).gen_field(field)
 
+    def gen_select(self, field_name, select):
+        """ Select exists value from database.
+
+        :param field_name: Name of field for generation.
+
+        :return : None or (name, value) for later use
+
+        """
+        field = self.__fields[field_name]
+        if not isinstance(field.scheme, ForeignKeyField):
+            return field_name, SKIP_VALUE
+
+        model = field.scheme.rel_model
+        value = model.select().order_by(fn.Random()).get()
+        return self.get_value(field_name, value)
+
     def is_required(self, field):
         """ Return True is field's value should be defined.
 
