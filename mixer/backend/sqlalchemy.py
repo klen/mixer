@@ -7,6 +7,7 @@ import decimal
 from sqlalchemy import func
 # from sqlalchemy.orm.interfaces import MANYTOONE
 from sqlalchemy.orm.collections import InstrumentedList
+from sqlalchemy.sql.type_api import TypeDecorator
 try:
     from sqlalchemy.orm.relationships import RelationshipProperty
 except ImportError:
@@ -174,6 +175,12 @@ class TypeMixer(BaseTypeMixer):
             ).blend, **kwargs)
 
         ftype = type(column.type)
+
+        # augmented types created with TypeDecorator
+        # don't directly inherit from the base types
+        if TypeDecorator in ftype.__bases__:
+            ftype = ftype.impl
+
         stype = self.__factory.cls_to_simple(ftype)
 
         if stype is str:
