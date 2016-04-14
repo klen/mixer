@@ -15,6 +15,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relation, sessionmaker, relationship, scoped_session
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import types
 from random import randrange
 import pytest
 
@@ -33,6 +34,10 @@ class Profile(BASE):
     user = relationship("User", uselist=False, backref="profile")
 
 
+class AugmentedType(types.TypeDecorator):
+    impl = String
+
+
 class User(BASE):
     __tablename__ = 'user'
 
@@ -44,8 +49,8 @@ class User(BASE):
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     enum = Column(Enum('one', 'two'), nullable=False)
     random = Column(Integer, default=lambda: randrange(993, 995))
-
     profile_id = Column(Integer, ForeignKey('profile.id'), nullable=False)
+    augmented = Column(AugmentedType, default='augmented', nullable=False)
 
 
 class Role(BASE):
@@ -81,6 +86,7 @@ def test_typemixer():
     assert user.profile
     assert user.profile.user == user
     assert user.enum in ('one', 'two')
+    assert user.augmented == 'augmented'
 
     user = mixer.blend(name='John', updated_at=mixer.RANDOM)
     assert user.name == 'John'
