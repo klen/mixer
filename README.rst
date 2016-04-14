@@ -341,13 +341,13 @@ Development of mixer happens at Github: https://github.com/klen/mixer
 Contributors
 =============
 
-* Kirill Klenov     (https://github.com/klen, horneds@gmail.com)
-
 * Antoine Bertin    (https://github.com/Diaoul)
 * Benjamin Port     (https://github.com/bport)
 * Dmitriy Moseev    (https://github.com/DmitriyMoseev)
+* Eelke Hermens     (https://github.com/eelkeh)
 * Esteban J. G. Gabancho (https://github.com/egabancho)
 * Felix Dreissig    (https://github.com/F30)
+* Kirill Klenov     (https://github.com/klen, horneds@gmail.com)
 * Kirill Pavlov     (https://github.com/pavlov99)
 * Kwok-kuen Cheung  (https://github.com/cheungpat)
 * Mahdi Yusuf       (https://github.com/myusuf3)
