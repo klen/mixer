@@ -37,6 +37,12 @@ def mixer():
     return mixer
 
 
+@pytest.fixture(autouse=True)
+def clean_tables():
+    Person.delete().execute()
+    Pet.delete().execute()
+
+
 def test_mixer(mixer):
     person = mixer.blend(Person)
     assert person.name
