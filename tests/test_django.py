@@ -7,7 +7,7 @@ import pytest
 from django import VERSION
 from django.core.management import call_command
 
-from .django_app.models import Rabbit, models, Hole, Door, Customer, Simple, Client
+from .django_app.models import Rabbit, models, Hole, Door, Customer, Simple, Client, Tag, Message
 from mixer.backend.django import Mixer
 
 
@@ -165,6 +165,23 @@ def test_many_to_many_through(mixer):
     pointb = mixer.blend('pointb')
     pointa = mixer.blend('pointa', other=pointb)
     assert list(pointa.other.all()) == [pointb]
+
+def test_many_to_many_random(mixer):
+    messages = mixer.cycle(5).blend('django_app.message')
+    assert Message.objects.all()
+
+    tags = mixer.cycle(10).blend('django_app.tag', messages=mixer.RANDOM)
+    assert Tag.objects.all()
+    assert Tag.objects.all().count() == 10
+
+def test_many_to_many_select(mixer):
+    messages = mixer.cycle(5).blend('django_app.message')
+    assert Message.objects.all()
+    assert Message.objects.all().count() == 5
+
+    tags = mixer.cycle(10).blend('django_app.tag', messages=mixer.SELECT)
+    assert Tag.objects.all()
+    assert Message.objects.all().count() == 5
 
 
 def test_random(mixer):
