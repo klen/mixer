@@ -40,6 +40,7 @@ def test_fields(mixer):
     assert isinstance(rabbit.object_id, int)
     assert rabbit.object_id >= 0
     assert isinstance(rabbit.error_code, int)
+    assert rabbit.error_code >= 0
     assert rabbit.error_code <= 32767
     assert isinstance(rabbit.created_at, datetime.date)
     assert isinstance(rabbit.updated_at, datetime.datetime)
@@ -294,3 +295,4 @@ def test_small_positive_integer_field_not_too_large(mixer):
     for i in range(4):
         rabbit = mixer.blend(Rabbit)
         assert rabbit.error_code <= 32767
+        assert rabbit.error_code > 0
