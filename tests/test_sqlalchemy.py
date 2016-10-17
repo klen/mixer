@@ -121,6 +121,16 @@ def test_mixer(session):
     user = mixer.blend(User, username=lambda: 'callable_value')
     assert user.username == 'callable_value'
 
+def test_cycle(session):
+    from mixer.backend.sqlalchemy import Mixer
+
+    mixer = Mixer(session=session, commit=True)
+    profile1 = mixer.blend('tests.test_sqlalchemy.Profile', name='first')
+    profile2 = mixer.blend('tests.test_sqlalchemy.Profile', name='second')
+    users = mixer.cycle(2).blend(User, profile=(p for p in (profile1, profile2)))
+    assert len(users) == 2
+    assert users[0].profile.name == 'first'
+    assert users[1].profile.name == 'second'
 
 def test_select(session):
     from mixer.backend.sqlalchemy import Mixer

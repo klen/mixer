@@ -118,6 +118,7 @@ class Message(models.Model):
 
 class Tag(models.Model):
     title = models.CharField(max_length=20)
+
     customer = models.ForeignKey(Customer, blank=True, null=True)
     messages = models.ManyToManyField(Message, null=True, blank=True)
 
