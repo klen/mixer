@@ -1,2 +1,1 @@
-# requirements
-fake-factory    == 0.5.7
+Faker==0.7.3
