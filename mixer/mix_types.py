@@ -292,7 +292,7 @@ class Random(ServiceValue):
         user = mixer.blend(User, name=mixer.RANDOM('john', 'mike'))
          print user.name  # mike or john
 
-    .. note:: This is also usefull on ORM model generation for randomize fields
+    .. note:: This is also useful on ORM model generation for randomize fields
               with default values (or null).
 
     ::

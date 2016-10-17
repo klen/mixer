@@ -41,6 +41,7 @@ def test_fields(mixer):
     assert rabbit.object_id >= 0
     assert isinstance(rabbit.error_code, int)
     assert rabbit.error_code >= 0
+    assert rabbit.error_code <= 32767
     assert isinstance(rabbit.created_at, datetime.date)
     assert isinstance(rabbit.updated_at, datetime.datetime)
     assert isinstance(rabbit.opened_at, datetime.time)
@@ -301,3 +302,14 @@ def test_reload(mixer):
     s1 = mixer.blend(Simple)
     r2, s2 = mixer.reload(r1, s1)
     assert s1 == s2
+
+
+def test_small_positive_integer_field_not_too_large(mixer):
+    """
+    Django 1.10 doc spec for maximum allowable value
+    Multiple assertions to account for sufficient randomization
+    """
+    for i in range(4):
+        rabbit = mixer.blend(Rabbit)
+        assert rabbit.error_code <= 32767
+        assert rabbit.error_code > 0
