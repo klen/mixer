@@ -2,6 +2,7 @@
 from __future__ import absolute_import
 
 import datetime
+from types import GeneratorType
 
 import decimal
 from sqlalchemy import func
@@ -59,6 +60,8 @@ class TypeMixer(BaseTypeMixer):
         mixed = []
         for name, deffered in postprocess_values:
             value = deffered.value
+            if isinstance(value, GeneratorType):
+                value = next(value)
             if isinstance(value, t.Mix):
                 mixed.append((name, value))
                 continue
