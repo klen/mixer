@@ -3,12 +3,10 @@ language: python
 python: 2.7
 
 env:
-    - TOXENV=py27-d17
-    - TOXENV=py34-d17
-    - TOXENV=py27-d18
-    - TOXENV=py34-d18
-    - TOXENV=py27-d19
-    - TOXENV=py34-d19
+    - TOXENV=py27-d9
+    - TOXENV=py35-d9
+    - TOXENV=py27-d10
+    - TOXENV=py35-d10
     - TOXENV=cov
 
 branches:
