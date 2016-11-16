@@ -71,7 +71,7 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
         datetime.time: faker.time,
         decimal.Decimal: faker.pydecimal,
         t.BigInteger: faker.big_integer,
-        t.EmailString: faker.email_address,
+        t.EmailString: faker.email,
         t.HostnameString: faker.domain_name,
         t.IP4String: faker.ipv4,
         t.IP6String: faker.ipv6,
@@ -97,7 +97,7 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
         ('country', str): faker.country,
         ('description', str): faker.text,
         ('domain', str): faker.domain_name,
-        ('email', str): faker.email_address,
+        ('email', str): faker.email,
         ('first_name', str): faker.first_name,
         ('firstname', str): faker.first_name,
         ('genre', str): faker.genre,
@@ -105,7 +105,7 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
         ('lastname', str): faker.last_name,
         ('lat', float): faker.latitude,
         ('latitude', float): faker.latitude,
-        ('login', str): faker.nickname,
+        ('login', str): faker.user_name,
         ('lon', float): faker.longitude,
         ('longitude', float): faker.longitude,
         ('name', str): faker.name,
@@ -120,7 +120,7 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
         ('title', str): faker.title,
         ('url', t.URL): faker.uri,
         ('url', str): faker.uri,
-        ('username', str): faker.nickname,
+        ('username', str): faker.user_name,
     }
 
     types = {

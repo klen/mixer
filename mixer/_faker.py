@@ -1,16 +1,10 @@
 """ Integrate Faker to the Mixer. """
 import decimal as dc
-import datetime as dt
 import locale as pylocale
 from collections import defaultdict
 
 from faker import Factory, Generator
-from faker.config import DEFAULT_LOCALE, AVAILABLE_LOCALES
-try:
-    from faker.config import PROVIDERS
-except ImportError:
-    from faker.config import DEFAULT_PROVIDERS as PROVIDERS
-
+from faker.config import DEFAULT_LOCALE, AVAILABLE_LOCALES, PROVIDERS
 from faker.providers import BaseProvider
 
 
@@ -19,38 +13,6 @@ GENRES = ('general', 'pop', 'dance', 'traditional', 'rock', 'alternative', 'rap'
           'documentary', 'family', 'adventure', 'fantasy', 'drama', 'crime', 'horror', 'music',
           'mystery', 'romance', 'sport', 'thriller', 'war', 'western', 'fiction', 'epic',
           'tragedy', 'parody', 'pastoral', 'culture', 'art', 'dance', 'drugs', 'social')
-
-HOSTNAMES = ('facebook', 'google', 'youtube', 'yahoo', 'baidu', 'wikipedia', 'amazon', 'qq',
-             'live', 'taobao', 'blogspot', 'linkedin', 'twitter', 'bing', 'yandex', 'vk', 'msn',
-             'ebay', '163', 'wordpress', 'ask', 'weibo', 'mail', 'microsoft', 'hao123', 'tumblr',
-             'googleusercontent', 'fc2')
-
-COUNTRY_CODES = 'cn', 'in', 'id', 'de', 'el', 'en', 'es', 'fr', 'it', 'pt', 'ru', 'ua'
-
-HOSTZONES = ("aero", "asia", "biz", "cat", "com", "coop", "info", "int", "jobs", "mobi", "museum",
-             "name", "net", "org", "post", "pro", "tel", "travel", "xxx", "edu", "gov", "mil",
-             "eu", "ee", "dk", "ch", "bg", "vn", "tw", "tr", "tm", "su", "si", "sh", "se", "pt",
-             "ar", "pl", "pe", "nz", "my", "gr", "pm", "re", "tf", "wf", "yt", "fi", "br", "ac") \
-    + COUNTRY_CODES
-
-USERNAMES = ('admin', 'akholic', 'ass', 'bear', 'bee', 'beep', 'blood', 'bone', 'boots', 'boss',
-             'boy', 'boyscouts', 'briefs', 'candy', 'cat', 'cave', 'climb', 'cookie', 'cop',
-             'crunching', 'daddy', 'diller', 'dog', 'fancy', 'gamer', 'garlic', 'gnu', 'hot',
-             'jack', 'job', 'kicker', 'kitty', 'lemin', 'lol', 'lover', 'low', 'mix', 'mom',
-             'monkey', 'nasty', 'new', 'nut', 'nutjob', 'owner', 'park', 'peppermint', 'pitch',
-             'poor', 'potato', 'prune', 'raider', 'raiser', 'ride', 'root', 'scull', 'shattered',
-             'show', 'sleep', 'sneak', 'spamalot', 'star', 'table', 'test', 'tips', 'user',
-             'ustink', 'weak')
-
-
-class UTCZone(dt.tzinfo):
-
-    """ Implement UTC timezone. """
-
-    utcoffset = dst = lambda s, d: dt.timedelta(0)
-    tzname = lambda s, d: "UTC"
-
-UTC = UTCZone()
 
 
 class MixerProvider(BaseProvider):
@@ -151,60 +113,11 @@ class MixerProvider(BaseProvider):
         words = self.generator.words(6)
         return " ".join(words).title()
 
-    def datetime(self, start_date='-30y', end_date='now', tzinfo=False):
-        dt = self.generator.date_time_between(start_date, end_date)
-        if tzinfo:
-            dt = dt.replace(tzinfo=UTC)
-        return dt
-
     def coordinates(self):
         return (self.generator.latitude(), self.generator.longitude())
 
-    def hostzone(self):
-        return self.generator.random_element(HOSTZONES)
-
-    def hostname(self):
-        return "%s.%s" % (self.generator.random_element(HOSTNAMES), self.hostzone())
-
-    def email_address(self):
-        return self.generator.parse("{{nickname}}@{{hostname}}")
-
-    def alias(self):
-        return self.random_element(USERNAMES)
-
-    def nickname(self):
-        template = self.random_element((
-            '{{alias}}.{{alias}}',
-            '{{alias}}_{{alias}}',
-            '{{alias}}{{alias}}#',
-            '{{alias}}##',
-            '?{{alias}}',
-        ))
-        return self.bothify(self.generator.parse(template))
-
     def pybytes(self, size=20):
         return self.pystr(size).encode('utf-8')
-
-    # FIXME: Fix Faker datetime provider
-    def date_time_this_month(self, before_now=True, after_now=False):
-        """Get a DateTime object for the current month.
-
-        :param before_now: include days in current month before today
-        :param after_now: include days in current month after today
-        :example DateTime('2012-04-04 11:02:02')
-        :return DateTime
-        """
-        now = dt.datetime.now()
-        this_month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-        next_month_start = dt.datetime(now.year, (now.month + 1) % 12, 1)
-
-        if before_now and after_now:
-            return self.generator.date_time_between_dates(this_month_start, next_month_start)
-        if not before_now and after_now:
-            return self.generator.date_time_between_dates(now, next_month_start)
-        if not after_now and before_now:
-            return self.generator.date_time_between_dates(this_month_start, now)
-        return now
 
 
 class MixerGenerator(Generator):

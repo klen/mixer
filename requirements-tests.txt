@@ -1,7 +1,10 @@
-Django              >= 1.8.6
+Django              >= 1.10.3
+Flask               >= 0.11.1
+SQLAlchemy          >= 1.1.4
 flask-sqlalchemy    >= 2.1
 mongoengine         >= 0.10.1
-peewee              >= 2.7.3
-pony                >= 0.6.1
-pytest
-sqlalchemy          >= 1.0.9
+peewee              >= 2.8.5
+pony                >= 0.7
+pytest              >= 3.0.4
+pytest-sugar        >= 0.7.1
+Marshmallow         >= 2.10.3

@@ -208,13 +208,13 @@ def test_custom():
         Test,
         name='Mike',
         one=mixer.faker.pyfloat,
-        body=lambda: mixer.faker.datetime('1980-01-01'),
+        body=mixer.faker.date_time,
     )
 
     test = mixer.blend(Test)
     assert test.name == 'Mike Done'
     assert isinstance(test.one, float)
-    assert test.body >= datetime.datetime(1980, 1, 1)
+    assert isinstance(test.body, datetime.datetime)
 
     from mixer.main import GenFactory
 

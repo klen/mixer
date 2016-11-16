@@ -1,7 +1,7 @@
 """ Django support. """
 from __future__ import absolute_import
 
-import datetime
+import datetime as dt
 import decimal
 from os import path
 from types import GeneratorType
@@ -29,6 +29,16 @@ MOCK_FILE = path.abspath(path.join(
 MOCK_IMAGE = path.abspath(path.join(
     path.dirname(path.dirname(__file__)), 'resources', 'image.jpg'
 ))
+
+
+class UTCZone(dt.tzinfo):
+
+    """ Implement UTC timezone. """
+
+    utcoffset = dst = lambda s, d: dt.timedelta(0)
+    tzname = lambda s, d: "UTC"
+
+UTC = UTCZone()
 
 
 def get_file(filepath=MOCK_FILE, **kwargs):
@@ -69,7 +79,7 @@ def get_relation(_scheme=None, _typemixer=None, **params):
 
 def get_datetime(**params):
     """ Support Django TZ support. """
-    return faker.datetime(tzinfo=settings.USE_TZ)
+    return faker.date_time(tzinfo=UTC if settings.USE_TZ else None)
 
 
 class GenFactory(BaseFactory):
@@ -81,7 +91,7 @@ class GenFactory(BaseFactory):
         models.BigIntegerField: t.BigInteger,
         models.BooleanField: bool,
         (models.CharField, models.SlugField): str,
-        models.DateField: datetime.date,
+        models.DateField: dt.date,
         models.DecimalField: decimal.Decimal,
         models.EmailField: t.EmailString,
         models.FloatField: float,
@@ -91,7 +101,7 @@ class GenFactory(BaseFactory):
         models.PositiveSmallIntegerField: t.PositiveSmallInteger,
         models.SmallIntegerField: t.SmallInteger,
         models.TextField: t.Text,
-        models.TimeField: datetime.time,
+        models.TimeField: dt.time,
         models.URLField: t.URL,
     }
 
@@ -161,7 +171,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
     def postprocess(self, target, postprocess_values):
         """ Fill postprocess_values. """
         for name, deffered in postprocess_values:
-            if not type(deffered.scheme) is GenericForeignKey:
+            if not isinstance(deffered.scheme, GenericForeignKey):
                 continue
 
             name, value = self._get_value(name, deffered.value)
@@ -172,7 +182,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
         for name, deffered in postprocess_values:
 
-            if type(deffered.scheme) is GenericForeignKey or not target.pk:
+            if isinstance(deffered.scheme, GenericForeignKey) or not target.pk:
                 continue
 
             name, value = self._get_value(name, deffered.value)
@@ -203,7 +213,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
         if field:
 
             if (field.scheme in self.__scheme._meta.local_many_to_many or
-                    type(field.scheme) is GenericForeignKey):
+                    isinstance(field.scheme, GenericForeignKey)):
                 return name, t._Deffered(value, field.scheme)
 
             return self._get_value(name, value, field)
