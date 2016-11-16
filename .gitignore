@@ -11,3 +11,4 @@ docs/_build
 /.coverage
 /.ropeproject
 /.cache
+/.python-version
