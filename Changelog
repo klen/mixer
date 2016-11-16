@@ -1,3 +1,10 @@
+2016-11-16  horneds
+
+	* Basic Marshmallow support
+	* Faker 0.7.3
+	* Add Django 1.10 support
+	* Drop Django 1.7 support
+
 2016-03-18  horneds
 
 	* fake-factory 5.0.7

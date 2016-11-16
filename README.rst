@@ -1,8 +1,6 @@
 |logo| Mixer
 ############
 
-.. _description:
-
 Mixer is an application to generate instances of Django or SQLAlchemy models.
 It's useful for testing and fixtures replacement. Fast and convenient test-data
 generation.
@@ -15,6 +13,7 @@ Mixer supports:
 * Peewee_;
 * Pony_;
 * Mongoengine_;
+* Marshmallow_;
 * Custom schemes;
 
 .. _badges:
@@ -185,6 +184,7 @@ Example usage: ::
         email = EmailField(required=True)
         first_name = StringField(max_length=50)
         last_name = StringField(max_length=50)
+        username = StringField(max_length=50)
 
     class Post(Document):
         title = StringField(max_length=120, required=True)
@@ -193,25 +193,46 @@ Example usage: ::
 
     post = mixer.blend(Post, author__username='foo')
 
+Marshmallow workflow
+--------------------
+
+Example usage: ::
+
+    from mixer.main import mixer
+    import marshmallow as ma
+
+    class User(ma.Schema):
+        created_at = ma.fields.DateTime(required=True)
+        email = ma.fields.Email(required=True)
+        first_name = ma.fields.String(required=True)
+        last_name = ma.fields.String(required=True)
+        username = ma.fields.String(required=True)
+
+    class Post(ma.Schema):
+        title = ma.fields.String(required=True)
+        author = ma.fields.Nested(User, required=True)
+
+    post = mixer.blend(Post, author__username='foo')
+
 
 Common usage
 ------------
 Quick example: ::
 
-        from mixer.main import mixer
+    from mixer.main import mixer
 
-        class Test:
-            one = int
-            two = int
-            name = str
+    class Test:
+        one = int
+        two = int
+        name = str
 
-        class Scheme:
-            name = str
-            money = int
-            male = bool
-            prop = Test
+    class Scheme:
+        name = str
+        money = int
+        male = bool
+        prop = Test
 
-        scheme = mixer.blend(Scheme, prop__one=1)
+    scheme = mixer.blend(Scheme, prop__one=1)
 
 
 DB commits
@@ -366,13 +387,14 @@ Licensed under a `BSD license`_.
 .. _links:
 
 .. _BSD license: http://www.linfo.org/bsdlicense.html
-.. _klen: http://klen.github.io
-.. _SQLAlchemy: http://www.sqlalchemy.org/
-.. _Flask: http://flask.pocoo.org/
+.. _Django: http://djangoproject.com/
 .. _Flask-SQLAlchemy: http://flask-sqlalchemy.pocoo.org/
+.. _Flask: http://flask.pocoo.org/
+.. _Marshmallow: http://marshmallow.readthedocs.io/en/latest/
+.. _Mongoengine: http://mongoengine.org/
 .. _Peewee: http://peewee.readthedocs.org/en/latest/
 .. _Pony: http://ponyorm.com/
-.. _Django: http://djangoproject.com/
-.. _Mongoengine: http://mongoengine.org/
+.. _SQLAlchemy: http://www.sqlalchemy.org/
+.. _klen: http://klen.github.io
 .. |logo| image:: https://raw.github.com/klen/mixer/develop/docs/_static/logo.png
                   :width: 100
