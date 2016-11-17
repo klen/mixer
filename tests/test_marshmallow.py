@@ -39,5 +39,4 @@ def test_mixer(mixer):
     assert pet['name']
     assert pet['animal_type'] == 'cat'
     assert pet['owner']
-    import ipdb; ipdb.set_trace()  # XXX BREAKPOINT
     assert pet['awards']
