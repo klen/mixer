@@ -18,6 +18,7 @@ class Pet(ma.Schema):
     name = ma.fields.String(required=True)
     animal_type = ma.fields.String(default='cat')
     owner = ma.fields.Nested(Person, required=True, many=True)
+    awards = ma.fields.List(ma.fields.Str, required=True)
 
 
 @pytest.fixture
@@ -38,3 +39,5 @@ def test_mixer(mixer):
     assert pet['name']
     assert pet['animal_type'] == 'cat'
     assert pet['owner']
+    import ipdb; ipdb.set_trace()  # XXX BREAKPOINT
+    assert pet['awards']

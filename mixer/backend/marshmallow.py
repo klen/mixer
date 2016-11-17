@@ -102,6 +102,11 @@ class TypeMixer(BaseTypeMixer):
         if isinstance(field, fields.Nested):
             kwargs.update({'_typemixer': self, '_scheme': type(field.schema), '_many': field.many})
 
+        if isinstance(field, fields.List):
+            fab = self.make_fabric(
+                field.container, field_name=field_name, fake=fake, kwargs=kwargs)
+            return lambda: [fab() for _ in range(faker.small_positive_integer(4))]
+
         for validator in field.validators:
             if isinstance(validator, validate.OneOf):
                 return partial(faker.random_element, validator.choices)
