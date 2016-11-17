@@ -78,7 +78,8 @@ class TypeMixer(BaseTypeMixer):
         :return bool:
 
         """
-        return field.scheme.required
+        return field.scheme.required or (
+            self.__mixer.params['required'] and not field.scheme.dump_only)
 
     @staticmethod
     def get_default(field):
@@ -120,6 +121,12 @@ class Mixer(BaseMixer):
     """ Integration with Marshmallow. """
 
     type_mixer_cls = TypeMixer
+
+    def __init__(self, *args, **kwargs):
+        super(Mixer, self).__init__(*args, **kwargs)
+
+        # All fields is required by default
+        self.params.setdefault('required', True)
 
 
 mixer = Mixer()
