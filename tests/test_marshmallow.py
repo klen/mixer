@@ -39,4 +39,4 @@ def test_mixer(mixer):
     assert pet['name']
     assert pet['animal_type'] == 'cat'
     assert pet['owner']
-    assert pet['awards']
+    assert pet['awards'] is not None
