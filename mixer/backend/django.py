@@ -27,7 +27,7 @@ MOCK_FILE = path.abspath(path.join(
     path.dirname(path.dirname(__file__)), 'resources', 'file.txt'
 ))
 MOCK_IMAGE = path.abspath(path.join(
-    path.dirname(path.dirname(__file__)), 'resources', 'image.jpg'
+    path.dirname(path.dirname(__file__)), 'resources', 'image.gif'
 ))
 
 
