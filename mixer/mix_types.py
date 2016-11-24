@@ -337,7 +337,7 @@ class Select(Random):
         from mixer.backend.django import mixer
 
         mixer.generate(Role, user=mixer.SELECT(
-            username='test'
+            username=='test'
         ))
 
     """
