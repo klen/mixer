@@ -34,6 +34,15 @@ class Profile(BASE):
     user = relationship("User", uselist=False, backref="profile")
 
 
+class ProfileNonIncremental(BASE):
+    __tablename__ = 'profile_nonincremental'
+
+    id = Column(Integer, primary_key=True, autoincrement=False, nullable=False)
+    name = Column(String(20), nullable=False)
+
+    user = relationship("User", uselist=False, backref="profile_nonincremental")
+
+
 class AugmentedType(types.TypeDecorator):
     impl = String
 
@@ -50,6 +59,7 @@ class User(BASE):
     enum = Column(Enum('one', 'two'), nullable=False)
     random = Column(Integer, default=lambda: randrange(993, 995))
     profile_id = Column(Integer, ForeignKey('profile.id'), nullable=False)
+    profile_id_nonincremental = Column(Integer, ForeignKey('profile_nonincremental.id'), nullable=False)
     augmented = Column(AugmentedType, default='augmented', nullable=False)
 
 
@@ -193,3 +203,10 @@ def test_mix22(session):
     mixer = Mixer(session=session, commit=True)
     role = mixer.blend(Role, name=mixer.MIX.user.name)
     assert role.name == role.user.name
+
+
+def test_nonincremental_primary_key(session):
+    from mixer.backend.sqlalchemy import mixer
+
+    test = mixer.blend(ProfileNonIncremental, id=42)
+    assert test.name
