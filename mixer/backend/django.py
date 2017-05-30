@@ -383,7 +383,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
     def __load_fields(self):
 
-        for field in self.__scheme._meta.virtual_fields:
+        for field in self.__scheme._meta.private_fields:
             yield field.name, t.Field(field, field.name)
 
         for field in self.__scheme._meta.fields:
