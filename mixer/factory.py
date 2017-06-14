@@ -141,11 +141,11 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
         for type_ in cls.types:
             if type_.__name__ == fcls.__name__:
                 if issubclass(fcls, type_):
-                    ret = type_
+                    ret = cls.types.get(type_)
                     break
             else:
                 if issubclass(fcls, type_):
-                    ret = type_
+                    ret = cls.types.get(type_)
         return ret or (
             fcls if fcls in cls.generators
             else None
