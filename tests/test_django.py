@@ -314,5 +314,5 @@ def test_small_positive_integer_field_not_too_large(mixer):
     """
     for _ in range(4):
         rabbit = mixer.blend(Rabbit)
-        assert rabbit.error_code <= 70000
+        assert rabbit.error_code <= 32767
         assert rabbit.error_code > 0
