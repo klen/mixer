@@ -17,6 +17,7 @@ def test_faker():
 
     assert faker.small_positive_integer()
     assert faker.small_positive_integer() > 0
+    assert faker.small_positive_integer() <= 32767
 
     assert faker.uuid()
 
