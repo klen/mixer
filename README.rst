@@ -375,9 +375,9 @@ Contributors
 * Mahdi Yusuf         (https://github.com/myusuf3)
 * Marek Baczyński     (https://github.com/imbaczek)
 * Matt Caldwell       (https://github.com/mattcaldwell)
+* Mikhail Porokhovnichenko (https://github.com/marazmiki)
 * Skylar Saveland     (https://github.com/skyl)
 * Suriya Subramanian  (https://github.com/suriya)
-
 
 License
 =======
