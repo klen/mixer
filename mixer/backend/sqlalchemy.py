@@ -275,7 +275,7 @@ class Mixer(BaseMixer):
         if self.params.get('commit'):
             session = self.params.get('session')
             if not session:
-                LOGGER.warn("'commit' set true but session not initialized.")
+                LOGGER.warning("'commit' set true but session not initialized.")
             else:
                 session.add(target)
                 session.commit()
