@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Customer',
             fields=[
-                ('user_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to=settings.AUTH_USER_MODEL)),
+                ('user_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
                 ('name', models.CharField(max_length=100)),
             ],
             options={
@@ -79,7 +79,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('content', models.TextField()),
-                ('client', models.ForeignKey(to='django_app.Client')),
+                ('client', models.ForeignKey(to='django_app.Client', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -97,7 +97,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ColorNumber',
             fields=[
-                ('number_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='django_app.Number')),
+                ('number_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='django_app.Number', on_delete=models.CASCADE)),
                 ('color', models.CharField(max_length=20)),
             ],
             options={
@@ -148,7 +148,7 @@ class Migration(migrations.Migration):
                 ('object_id', models.PositiveIntegerField()),
                 ('error_code', models.PositiveSmallIntegerField()),
                 ('custom', CustomField(max_length=24)),
-                ('content_type', models.ForeignKey(to='contenttypes.ContentType')),
+                ('content_type', models.ForeignKey(to='contenttypes.ContentType', on_delete=models.CASCADE)),
                 ('binary', models.BinaryField()),
             ],
             options={
@@ -160,7 +160,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('color', models.CharField(max_length=20)),
-                ('hat', models.ForeignKey(to='django_app.Hat')),
+                ('hat', models.ForeignKey(to='django_app.Hat', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -181,7 +181,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('title', models.CharField(max_length=20)),
-                ('customer', models.ForeignKey(blank=True, to='django_app.Customer', null=True)),
+                ('customer', models.ForeignKey(blank=True, to='django_app.Customer', on_delete=models.CASCADE, null=True)),
                 ('messages', models.ManyToManyField(to='django_app.Message', null=True, blank=True)),
             ],
             options={
@@ -192,8 +192,8 @@ class Migration(migrations.Migration):
             name='Through',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('pointas', models.ForeignKey(to='django_app.PointA')),
-                ('pointbs', models.ForeignKey(to='django_app.PointB')),
+                ('pointas', models.ForeignKey(to='django_app.PointA', on_delete=models.CASCADE)),
+                ('pointbs', models.ForeignKey(to='django_app.PointB', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -202,7 +202,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='rabbit',
             name='one2one',
-            field=models.OneToOneField(to='django_app.Simple'),
+            field=models.OneToOneField(to='django_app.Simple', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
@@ -226,25 +226,25 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='hole',
             name='owner',
-            field=models.ForeignKey(to='django_app.Rabbit'),
+            field=models.ForeignKey(to='django_app.Rabbit', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='hat',
             name='owner',
-            field=models.ForeignKey(blank=True, to='django_app.Rabbit', null=True),
+            field=models.ForeignKey(blank=True, to='django_app.Rabbit', on_delete=models.CASCADE, null=True),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='door',
             name='hole',
-            field=models.ForeignKey(to='django_app.Hole'),
+            field=models.ForeignKey(to='django_app.Hole', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='door',
             name='owner',
-            field=models.ForeignKey(blank=True, to='django_app.Rabbit', null=True),
+            field=models.ForeignKey(blank=True, to='django_app.Rabbit', on_delete=models.CASCADE, null=True),
             preserve_default=True,
         ),
     ]

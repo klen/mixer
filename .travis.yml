@@ -7,6 +7,10 @@ env:
     - TOXENV=py35-d9
     - TOXENV=py27-d10
     - TOXENV=py35-d10
+    - TOXENV=py35-d11
+    - TOXENV=py36-d10
+    - TOXENV=py36-d11
+    - TOXENV=py36-d20
     - TOXENV=cov
 
 branches:
