@@ -56,7 +56,7 @@ branches:
 
 install: pip install --quiet tox
 
-script: tox
+script: tox -e ${TOXENV}
 
 after_script:
     - if [ $TOXENV == "cov" ]; then
