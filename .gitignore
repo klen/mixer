@@ -1,5 +1,7 @@
 *.pyc
 *.txt
+/.env
+/.idea
 /.env3
 /.stuff
 /.tox
