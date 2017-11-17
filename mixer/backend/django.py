@@ -189,9 +189,14 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
             # # If the ManyToMany relation has an intermediary model,
             # # the add and remove methods do not exist.
-            if not deffered.scheme.rel.through._meta.auto_created and self.__mixer: # noqa
+            if VERSION < (2, 0):
+                through = deffered.scheme.rel.through
+            else:
+                through = deffered.scheme.remote_field.through
+
+            if not through._meta.auto_created and self.__mixer: # noqa
                 self.__mixer.blend(
-                    deffered.scheme.rel.through, **{
+                    through, **{
                         deffered.scheme.m2m_field_name(): target,
                         deffered.scheme.m2m_reverse_field_name(): value})
                 continue
@@ -199,7 +204,10 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
             if not isinstance(value, (list, tuple)):
                 value = [value]
 
-            setattr(target, name, value)
+            if VERSION < (2, 0):
+                setattr(target, name, value)
+            else:
+                getattr(target, name).set(value)
 
         return target
 
@@ -248,7 +256,10 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
         try:
             field = self.__fields[field_name]
-            return field.name, field.scheme.rel.to.objects.filter(**select.params).order_by('?')[0]
+            if VERSION < (2, 0):
+                return field.name, field.scheme.rel.to.objects.filter(**select.params).order_by('?')[0]
+            else:
+                return field.name, field.scheme.remote_field.model.objects.filter(**select.params).order_by('?')[0]
 
         except Exception:
             raise Exception("Cannot find a value for the field: '{0}'".format(field_name))
@@ -382,8 +393,12 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
         return self.__scheme._default_manager.get(pk=obj.pk)
 
     def __load_fields(self):
+        if VERSION < (2, 0):
+            private_fields = self.__scheme._meta.virtual_fields
+        else:
+            private_fields = self.__scheme._meta.private_fields
 
-        for field in self.__scheme._meta.virtual_fields:
+        for field in private_fields:
             yield field.name, t.Field(field, field.name)
 
         for field in self.__scheme._meta.fields:

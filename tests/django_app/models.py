@@ -43,7 +43,7 @@ class Rabbit(models.Model):
     url = models.URLField(null=True, blank=True, default='')
 
     file_path = models.FilePathField()
-    content_type = models.ForeignKey(ct_models.ContentType)
+    content_type = models.ForeignKey(ct_models.ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     error_code = models.PositiveSmallIntegerField()
     custom = CustomField(max_length=24)
@@ -51,7 +51,7 @@ class Rabbit(models.Model):
 
     binary = models.BinaryField()
 
-    one2one = models.OneToOneField('django_app.Simple')
+    one2one = models.OneToOneField('django_app.Simple', on_delete=models.CASCADE)
 
     def save(self, **kwargs):
         """ Custom save. """
@@ -66,7 +66,7 @@ class Rabbit(models.Model):
 class Hole(models.Model):
     title = models.CharField(max_length=16)
     size = models.SmallIntegerField()
-    owner = models.ForeignKey(Rabbit)
+    owner = models.ForeignKey(Rabbit, on_delete=models.CASCADE)
 
     # FIXME compatibility
     rabbits = GenericRelation(Rabbit, **({'related_query_name': 'holes'}))
@@ -79,17 +79,17 @@ class Hat(models.Model):
         ('BL', 'blue'),
     ))
     brend = models.CharField(max_length=10, default='wood')
-    owner = models.ForeignKey(Rabbit, null=True, blank=True)
+    owner = models.ForeignKey(Rabbit, on_delete=models.CASCADE, null=True, blank=True)
 
 
 class Silk(models.Model):
     color = models.CharField(max_length=20)
-    hat = models.ForeignKey(Hat)
+    hat = models.ForeignKey(Hat, on_delete=models.CASCADE)
 
 
 class Door(models.Model):
-    hole = models.ForeignKey(Hole)
-    owner = models.ForeignKey(Rabbit, null=True, blank=True)
+    hole = models.ForeignKey(Hole, on_delete=models.CASCADE)
+    owner = models.ForeignKey(Rabbit, on_delete=models.CASCADE, null=True, blank=True)
     size = models.PositiveIntegerField()
 
 
@@ -113,13 +113,13 @@ class Client(models.Model):
 
 class Message(models.Model):
     content = models.TextField()
-    client = models.ForeignKey(Client)
+    client = models.ForeignKey(Client, on_delete=models.CASCADE)
 
 
 class Tag(models.Model):
     title = models.CharField(max_length=20)
 
-    customer = models.ForeignKey(Customer, blank=True, null=True)
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, blank=True, null=True)
     messages = models.ManyToManyField(Message, null=True, blank=True)
 
 
@@ -133,8 +133,8 @@ class PointA(models.Model):
 
 
 class Through(models.Model):
-    pointas = models.ForeignKey(PointA)
-    pointbs = models.ForeignKey(PointB)
+    pointas = models.ForeignKey(PointA, on_delete=models.CASCADE)
+    pointbs = models.ForeignKey(PointB, on_delete=models.CASCADE)
 
 
 class Simple(models.Model):
