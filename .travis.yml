@@ -3,6 +3,7 @@ language: python
 python:
   - 2.7
   - 3.5
+  - 3.6
 
 env:
   - TOXENV=cov
@@ -14,10 +15,6 @@ matrix:
     - python: 2.7
       env: TOXENV=py27-d10
     - python: 2.7
-      env: TOXENV=py36-d11
-    - python: 2.7
-      env: TOXENV=py36-d20
-    - python: 2.7
       env: TOXENV=cov
 
     - python: 3.5
@@ -27,6 +24,13 @@ matrix:
     - python: 3.5
       env: TOXENV=py35-d11
     - python: 3.5
+      env: TOXENV=cov
+
+    - python: 3.6
+      env: TOXENV=py36-d11
+    - python: 3.6
+      env: TOXENV=py36-d20
+    - python: 3.6
       env: TOXENV=cov
 
   exlcude:
@@ -36,6 +40,10 @@ matrix:
       env: TOXENV=py35-d10
     - python: 2.7
       env: TOXENV=py35-d11
+    - python: 2.7
+      env: TOXENV=py36-d11
+    - python: 2.7
+      env: TOXENV=py36-d20
 
     - python: 3.5
       env: TOXENV=py27-d9
@@ -45,6 +53,17 @@ matrix:
       env: TOXENV=py36-d11
     - python: 3.5
       env: TOXENV=py36-d20
+
+    - python: 3.6
+      env: TOXENV=py27-d9
+    - python: 3.6
+      env: TOXENV=py27-d10
+    - python: 3.6
+      env: TOXENV=py35-d9
+    - python: 3.6
+      env: TOXENV=py35-d10
+    - python: 3.6
+      env: TOXENV=py35-d11
 
 
 branches:
