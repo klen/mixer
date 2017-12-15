@@ -189,9 +189,9 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
             # # If the ManyToMany relation has an intermediary model,
             # # the add and remove methods do not exist.
-            if not deffered.scheme.rel.through._meta.auto_created and self.__mixer: # noqa
+            if not deffered.scheme.remote_field.through._meta.auto_created and self.__mixer: # noqa
                 self.__mixer.blend(
-                    deffered.scheme.rel.through, **{
+                    deffered.scheme.remote_field.through, **{
                         deffered.scheme.m2m_field_name(): target,
                         deffered.scheme.m2m_reverse_field_name(): value})
                 continue
@@ -199,7 +199,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
             if not isinstance(value, (list, tuple)):
                 value = [value]
 
-            setattr(target, name, value)
+            getattr(target, name).set(value)
 
         return target
 
@@ -248,7 +248,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
         try:
             field = self.__fields[field_name]
-            return field.name, field.scheme.rel.to.objects.filter(**select.params).order_by('?')[0]
+            return field.name, field.scheme.remote_field.model.objects.filter(**select.params).order_by('?')[0]
 
         except Exception:
             raise Exception("Cannot find a value for the field: '{0}'".format(field_name))
@@ -383,7 +383,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
     def __load_fields(self):
 
-        for field in self.__scheme._meta.virtual_fields:
+        for field in self.__scheme._meta.private_fields:
             yield field.name, t.Field(field, field.name)
 
         for field in self.__scheme._meta.fields:
