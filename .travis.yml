@@ -1,22 +1,32 @@
 language: python
 
-python: 2.7
+python:
+  - 2.7
+  - 3.5
 
 env:
-    - TOXENV=py27-d9
-    - TOXENV=py35-d9
-    - TOXENV=py27-d10
-    - TOXENV=py35-d10
-    - TOXENV=cov
+  - TOXENV=cov
 
-branches:
-    only:
-        - master
-        - develop
+matrix:
+  include:
+    - python: 2.7
+      env: TOXENV=py27-d10
+    - python: 2.7
+      env: TOXENV=py27-d11
+
+    - python: 3.5
+      env: TOXENV=py35-d10
+    - python: 3.5
+      env: TOXENV=py35-d11
+    - python: 3.5
+      env: TOXENV=py35-d20
+
 
 install: pip install --quiet tox
 
-script: tox
+
+script: tox -e ${TOXENV}
+
 
 after_script:
     - if [ $TOXENV == "cov" ]; then
