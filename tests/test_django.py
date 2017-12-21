@@ -4,7 +4,6 @@ import datetime
 import decimal
 
 import pytest
-from django import VERSION
 from django.core.management import call_command
 
 from .django_app.models import Rabbit, models, Hole, Door, Customer, Simple, Client, Tag, Message
@@ -13,10 +12,7 @@ from mixer.backend.django import Mixer
 
 @pytest.fixture(autouse=True)
 def mixer(request):
-    if VERSION > (1, 8):
-        call_command('migrate', interactive=False, verbosity=0)
-    else:
-        call_command('syncdb', interactive=False, verbosity=0)
+    call_command('migrate', interactive=False, verbosity=0)
     request.addfinalizer(lambda: call_command('flush', interactive=False, verbosity=0))
     return Mixer()
 
@@ -234,22 +230,6 @@ def test_contrib(mixer):
 def test_invalid_scheme(mixer):
     with pytest.raises(ValueError):
         mixer.blend('django_app.Unknown')
-
-
-@pytest.mark.skipif(
-    VERSION >= (1, 8, 0),
-    reason='Django 1.8 prevents unsaved model instances from being assigned to a ForeignKey')
-def test_ctx(mixer):
-
-    with mixer.ctx(commit=False):
-        hole = mixer.blend(Hole)
-        assert hole
-        assert not Hole.objects.count()
-
-    with mixer.ctx(commit=True):
-        hole = mixer.blend(Hole)
-        assert hole
-        assert Hole.objects.count()
 
 
 def test_skip(mixer):
