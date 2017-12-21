@@ -6,7 +6,6 @@ import decimal
 from os import path
 from types import GeneratorType
 
-from django import VERSION
 from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation   # noqa
@@ -38,6 +37,7 @@ class UTCZone(dt.tzinfo):
     utcoffset = dst = lambda s, d: dt.timedelta(0)
     tzname = lambda s, d: "UTC"
 
+
 UTC = UTCZone()
 
 
@@ -63,10 +63,7 @@ def get_image(filepath=MOCK_IMAGE):
 
 def get_relation(_scheme=None, _typemixer=None, **params):
     """ Function description. """
-    if VERSION < (1, 8):
-        scheme = _scheme.related.parent_model
-    else:
-        scheme = _scheme.related_model
+    scheme = _scheme.related_model
 
     if scheme is ContentType:
         choices = [m for m in apps.get_models() if m is not ContentType]
@@ -189,10 +186,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
             # # If the ManyToMany relation has an intermediary model,
             # # the add and remove methods do not exist.
-            if VERSION < (2, 0):
-                through = deffered.scheme.rel.through
-            else:
-                through = deffered.scheme.remote_field.through
+            through = deffered.scheme.remote_field.through
 
             if not through._meta.auto_created and self.__mixer: # noqa
                 self.__mixer.blend(
@@ -204,10 +198,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
             if not isinstance(value, (list, tuple)):
                 value = [value]
 
-            if VERSION < (2, 0):
-                setattr(target, name, value)
-            else:
-                getattr(target, name).set(value)
+            getattr(target, name).set(value)
 
         return target
 
@@ -256,10 +247,8 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
 
         try:
             field = self.__fields[field_name]
-            if VERSION < (2, 0):
-                return field.name, field.scheme.rel.to.objects.filter(**select.params).order_by('?')[0]
-            else:
-                return field.name, field.scheme.remote_field.model.objects.filter(**select.params).order_by('?')[0]
+            return field.name, field.scheme.remote_field.model.objects.filter(**select.params).\
+                order_by('?')[0]
 
         except Exception:
             raise Exception("Cannot find a value for the field: '{0}'".format(field_name))
@@ -393,10 +382,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
         return self.__scheme._default_manager.get(pk=obj.pk)
 
     def __load_fields(self):
-        if VERSION < (2, 0):
-            private_fields = self.__scheme._meta.virtual_fields
-        else:
-            private_fields = self.__scheme._meta.private_fields
+        private_fields = self.__scheme._meta.private_fields
 
         for field in private_fields:
             yield field.name, t.Field(field, field.name)
