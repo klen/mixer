@@ -3,6 +3,7 @@
 	* Added Django 2.0 support for Python 3.6;
 	* Added Django 1.10 support for Python 3.6;
 	* Added Django 1.11 support for Python 3.5+.
+	* Droped support for Django 1.9-
 
 2016-11-16  horneds
 
