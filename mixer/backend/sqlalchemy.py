@@ -193,7 +193,10 @@ class TypeMixer(BaseTypeMixer):
             mixer = Mixer( Model, mixer=self.__mixer, fake=self.__fake, factory=self.__factory)
             return partial(mixer.blend, **kwargs)
 
-        ftype = type(column.type)
+        if column.type.__class__.__name__ == 'TINYINT' and column.type.display_width == 1:
+            ftype = BOOLEAN
+        else:
+            ftype = type(column.type)
 
         # augmented types created with TypeDecorator
         # don't directly inherit from the base types

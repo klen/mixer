@@ -135,7 +135,18 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
         :return type: A simple type for generation
 
         """
-        return cls.types.get(fcls) or (
+        if cls.types.get(fcls):
+            return cls.types.get(fcls)
+        ret = None
+        for type_ in cls.types:
+            if type_.__name__ == fcls.__name__:
+                if issubclass(fcls, type_):
+                    ret = cls.types.get(type_)
+                    break
+            else:
+                if issubclass(fcls, type_):
+                    ret = cls.types.get(type_)
+        return ret or (
             fcls if fcls in cls.generators
             else None
         )
