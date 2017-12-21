@@ -1,9 +1,6 @@
 def test_faker():
     from mixer._faker import faker
 
-    assert faker.choices()
-    assert len(faker.choices(length=5)) == 5
-
     assert faker.big_integer()
     assert faker.ip_generic()
 

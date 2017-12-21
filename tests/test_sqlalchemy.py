@@ -112,7 +112,8 @@ def test_mixer(session):
     from mixer.backend.sqlalchemy import Mixer
 
     mixer = Mixer(session=session, commit=True)
-    role = mixer.blend('tests.test_sqlalchemy.Role')
+    p = mixer.blend('tests.test_sqlalchemy.ProfileNonIncremental', id=5)
+    role = mixer.blend('tests.test_sqlalchemy.Role', user__profile_id_nonincremental=p)
     assert role and role.user
 
     role = mixer.blend(Role, user__name='test2')

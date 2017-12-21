@@ -8,6 +8,7 @@ import decimal
 from sqlalchemy import func
 # from sqlalchemy.orm.interfaces import MANYTOONE
 from sqlalchemy.orm.collections import InstrumentedList
+from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.sql.type_api import TypeDecorator
 try:
     from sqlalchemy.orm.relationships import RelationshipProperty
@@ -58,6 +59,7 @@ class TypeMixer(BaseTypeMixer):
     def postprocess(self, target, postprocess_values):
         """ Fill postprocess values. """
         mixed = []
+
         for name, deffered in postprocess_values:
             value = deffered.value
             if isinstance(value, GeneratorType):
@@ -88,6 +90,9 @@ class TypeMixer(BaseTypeMixer):
 
         if isinstance(column, RelationshipProperty):
             column = column.local_remote_pairs[0][0]
+
+        if column is None:
+            return SKIP_VALUE
 
         if not column.default:
             return SKIP_VALUE
@@ -127,26 +132,30 @@ class TypeMixer(BaseTypeMixer):
         if isinstance(scheme, RelationshipProperty):
             scheme = scheme.local_remote_pairs[0][0]
 
+        if scheme is None:
+            return False
+
         return scheme.unique
 
-    @staticmethod
-    def is_required(field):
+    def is_required(self, field):
         """ Return True is field's value should be defined.
 
         :return bool:
 
         """
-        column = field.scheme
-        if isinstance(column, RelationshipProperty):
-            return False
-
         if field.params:
             return True
 
+        column = field.scheme
+        if isinstance(column, RelationshipProperty):
+            column = column.local_remote_pairs[0][0]
+
         # According to the SQLAlchemy docs, autoincrement "only has an effect for columns which are
         # Integer derived (i.e. INT, SMALLINT, BIGINT) [and] Part of the primary key [...]".
-        return not column.nullable and not (column.autoincrement and column.primary_key and
-                                            isinstance(column.type, Integer))
+        autoincrement = column.autoincrement and column.primary_key and \
+            isinstance(column.type, Integer)
+
+        return not (column.nullable or autoincrement)
 
     def get_value(self, field_name, field_value):
         """ Get `value` as `field_name`.
@@ -172,10 +181,17 @@ class TypeMixer(BaseTypeMixer):
         """
         kwargs = {} if kwargs is None else kwargs
 
+        if column is None:
+            column = getattr(self.__scheme, field_name, None)
+
+        if isinstance(column, InstrumentedAttribute):
+            column = column.prop
+
         if isinstance(column, RelationshipProperty):
-            return partial(type(self)(
-                column.mapper.class_, mixer=self.__mixer, fake=self.__fake, factory=self.__factory
-            ).blend, **kwargs)
+            Mixer = type(self)
+            Model = column.mapper.class_
+            mixer = Mixer( Model, mixer=self.__mixer, fake=self.__fake, factory=self.__factory)
+            return partial(mixer.blend, **kwargs)
 
         ftype = type(column.type)
 
@@ -230,6 +246,14 @@ class TypeMixer(BaseTypeMixer):
         except (AttributeError, AssertionError):
             raise ValueError('Cannot make request to DB.')
 
+    def populate_target(self, values):
+        target = self.__scheme()
+        for n, v in values:
+            if isinstance(getattr(target, n, None), InstrumentedList) and not isinstance(v, list):
+                v = [v]
+            setattr(target, n, v)
+        return target
+
     def __load_fields(self):
         """ Prepare SQLALchemyTypeMixer.
 
@@ -240,6 +264,9 @@ class TypeMixer(BaseTypeMixer):
         relations = set()
         if hasattr(mapper, 'relationships'):
             for rel in mapper.relationships:
+                fkeys = any(c.foreign_keys for c in rel.local_columns)
+                if not fkeys:
+                    continue
                 relations |= rel.local_columns
                 yield rel.key, t.Field(rel, rel.key)
 

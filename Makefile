@@ -1,10 +1,10 @@
-VIRTUALENV=$(shell echo "$${VDIR:-'.env'}")
+VIRTUAL_ENV 	?= $(CURDIR)/env
 MODULE=mixer
 SPHINXBUILD=sphinx-build
 ALLSPHINXOPTS= -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 BUILDDIR=_build
 
-all: $(VIRTUALENV)
+all: $(VIRTUAL_ENV)
 
 .PHONY: help
 # target: help - Display callable targets
@@ -64,7 +64,7 @@ upload: clean
 .PHONY: docs
 # target: docs - Compile the docs
 docs: docs
-	@$(VIRTUALENV)/bin/pip install sphinx
+	@$(VIRTUAL_ENV)/bin/pip install sphinx
 	python setup.py build_sphinx --source-dir=docs/ --build-dir=docs/_build --all-files
 	# python setup.py upload_sphinx --upload-dir=docs/_build/html
 
@@ -73,20 +73,20 @@ docs: docs
 #  Development
 # =============
 
-$(VIRTUALENV): requirements.txt
-	@[ -d $(VIRTUALENV) ]	|| virtualenv --no-site-packages $(VIRTUALENV)
-	@$(VIRTUALENV)/bin/pip install -r requirements.txt
-	@touch $(VIRTUALENV)
+$(VIRTUAL_ENV): requirements.txt
+	@[ -d $(VIRTUAL_ENV) ]	|| virtualenv --no-site-packages $(VIRTUAL_ENV) --python=python3
+	@$(VIRTUAL_ENV)/bin/pip install -r requirements.txt
+	@touch $(VIRTUAL_ENV)
 
-$(VIRTUALENV)/bin/py.test: $(VIRTUALENV) requirements-tests.txt
-	@$(VIRTUALENV)/bin/pip install -r requirements-tests.txt
-	@touch $(VIRTUALENV)/bin/py.test
+$(VIRTUAL_ENV)/bin/py.test: $(VIRTUAL_ENV) requirements-tests.txt
+	@$(VIRTUAL_ENV)/bin/pip install -r requirements-tests.txt
+	@touch $(VIRTUAL_ENV)/bin/py.test
 
 TEST=tests
 .PHONY: t
 # target: t - Runs tests
-t: clean $(VIRTUALENV)/bin/py.test
-	$(VIRTUALENV)/bin/py.test $(TEST) -s
+t: clean $(VIRTUAL_ENV)/bin/py.test
+	$(VIRTUAL_ENV)/bin/py.test $(TEST) -s
 
 .PHONY: audit
 # target: audit - Audit code
