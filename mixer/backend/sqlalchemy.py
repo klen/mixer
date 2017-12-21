@@ -138,7 +138,7 @@ class TypeMixer(BaseTypeMixer):
         """
         column = field.scheme
         if isinstance(column, RelationshipProperty):
-            column = column.local_remote_pairs[0][0]
+            return False
 
         if field.params:
             return True
