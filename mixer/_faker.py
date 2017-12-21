@@ -7,6 +7,7 @@ from faker import Factory, Generator
 from faker.config import DEFAULT_LOCALE, AVAILABLE_LOCALES, PROVIDERS
 from faker.providers import BaseProvider
 
+SMALLINT = 32768  # Safe in most databases according to Django docs
 
 GENRES = ('general', 'pop', 'dance', 'traditional', 'rock', 'alternative', 'rap', 'country',
           'jazz', 'gospel', 'latin', 'reggae', 'comedy', 'historical', 'action', 'animation',
@@ -84,11 +85,11 @@ class MixerProvider(BaseProvider):
         """ Get a positive integer. """
         return self.random_int(0, max=max)  # noqa
 
-    def small_integer(self, min=-32768, max=32768):  # noqa
+    def small_integer(self, min=-SMALLINT, max=SMALLINT):  # noqa
         """ Get a positive integer. """
         return self.random_int(min=min, max=max)  # noqa
 
-    def small_positive_integer(self, max=65536):  # noqa
+    def small_positive_integer(self, max=SMALLINT):  # noqa
         """ Get a positive integer. """
         return self.random_int(0, max=max)  # noqa
 
