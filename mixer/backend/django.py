@@ -296,7 +296,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
         stype = self.__factory.cls_to_simple(fcls)
 
         if fcls is models.CommaSeparatedIntegerField:
-            return partial(faker.choices, range(0, 10), length=field.max_length)
+            return partial(faker.random_sample, range(0, 10), length=field.max_length)
 
         if field and field.choices:
             try:

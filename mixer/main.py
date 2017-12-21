@@ -232,10 +232,10 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
 
         """
         fake = self.__fake if fake is None else fake
-        if field:
-            fab = self.get_fabric(field, field_name, fake=fake)
-        else:
-            fab = self.__factory.get_fabric(type(field))()
+        if not field:
+            field = t.Field(getattr(self.__scheme, field_name, None), field_name)
+
+        fab = self.get_fabric(field, field_name, fake=fake)
 
         try:
             value = fab()

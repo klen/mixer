@@ -35,24 +35,6 @@ class MixerProvider(BaseProvider):
             provider.__lang__ = lang_found
             self.generator.add_provider(provider)
 
-    @classmethod
-    def choices(cls, elements=('a', 'b', 'c'), length=None):
-        """ Get a pack of random elements from collection.
-
-        :param elements: A collection
-        :param length: Number of elements. By default len(collection).
-
-        :return tuple:
-
-        ::
-
-            print get_choices([1, 2, 3], 2)  # -> [1, 1] or [2, 1] and etc...
-
-        """
-        if length is None:
-            length = len(elements)
-        return tuple(cls.random_element(elements) for _ in range(length))
-
     def big_integer(self):
         """ Get a big integer.
 
@@ -98,17 +80,14 @@ class MixerProvider(BaseProvider):
         import uuid
         return str(uuid.uuid1())
 
-    @classmethod
-    def genre(cls):
-        return cls.random_element(GENRES)
+    def genre(self):
+        return self.random_element(GENRES)
 
-    @classmethod
-    def percent(cls):
-        return cls.random_int(0, 100)
+    def percent(self):
+        return self.random_int(0, 100)
 
-    @classmethod
-    def percent_decimal(cls):
-        return dc.Decimal("0.%d" % cls.random_int(0, 99)) + dc.Decimal('0.01')
+    def percent_decimal(self):
+        return dc.Decimal("0.%d" % self.random_int(0, 99)) + dc.Decimal('0.01')
 
     def title(self):
         words = self.generator.words(6)
