@@ -135,10 +135,17 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
         :return type: A simple type for generation
 
         """
-        return cls.types.get(fcls) or (
-            fcls if fcls in cls.generators
-            else None
-        )
+        if fcls in cls.types:
+            return cls.types[fcls]
+
+        if fcls in cls.generators:
+            return fcls
+
+        for stype in cls.types:
+            if issubclass(fcls, stype):
+                return cls.types[stype]
+
+        return None
 
     @staticmethod
     def name_to_simple(fname):

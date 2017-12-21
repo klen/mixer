@@ -44,6 +44,10 @@ class GenFactory(BaseFactory):
         (SmallInteger, SMALLINT): t.SmallInteger,
     }
 
+    generators = {
+        Enum: None
+    }
+
 
 class TypeMixer(BaseTypeMixer):
 
