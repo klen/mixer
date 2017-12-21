@@ -712,7 +712,7 @@ class Mixer(_.with_metaclass(_MetaMixer)):
         return wrapper
 
     def register(self, scheme, **params):
-        """ Manualy register a function as value's generator for class.field.
+        """ Manually register a function as value's generator for class.field.
 
         :param scheme: Scheme for generation (class or class path)
         :param params: Kwargs with generator's definitions (field_name=field_generator)
