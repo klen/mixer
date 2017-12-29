@@ -2,6 +2,7 @@
 
 import datetime
 import decimal
+import inspect
 
 from . import _compat as _, mix_types as t
 from ._faker import faker
@@ -141,9 +142,10 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
         if fcls in cls.generators:
             return fcls
 
-        for stype in cls.types:
-            if issubclass(fcls, stype):
-                return cls.types[stype]
+        if inspect.isclass(fcls):
+            for stype in cls.types:
+                if issubclass(fcls, stype):
+                    return cls.types[stype]
 
         return None
 
