@@ -186,7 +186,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta)):
         if default is not SKIP_VALUE:
             return self.get_value(field.name, default)
 
-        if not self.is_required(field):
+        if not self.is_required(field) and not self.get_fabric(field, field.name, fake=self.__fake):
             return field.name, SKIP_VALUE
 
         unique = self.is_unique(field)
