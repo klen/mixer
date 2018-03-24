@@ -7,7 +7,7 @@ Quickstart
 
 .. currentmodule:: mixer.main
 
-Mixer is easy to use and realy fun for testing applications.
+Mixer is easy to use and really fun for testing applications.
 Module has a common api for all backends (Django_, Flask_).
 
 Django ORM
@@ -43,10 +43,10 @@ Base Usage
 
 You can use class or string with model name.
 
-.. [1] Model name supports two formats. Use 'app_name.model_name' for prevent conflicts.
+.. [1] Model name supports two formats. Use 'app_name.model_name' for preventing conflicts.
        Or you can use just 'model_name' for models with unique names.
 
-.. [2] `model_name` is case insensitive.
+.. [2] `model_name` is case-insensitive.
 
 .. code-block:: python
 
@@ -130,7 +130,7 @@ SQLAlchemy ORM
 Support for Flask-SQLAlchemy models that have `__init__` arguments
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-For support this scheme, just create your own mixer class, like this: ::
+To support this scheme, just create your own mixer class, like this: ::
 
     from mixer.backend.sqlalchemy import Mixer
 
