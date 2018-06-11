@@ -556,10 +556,10 @@ class Mixer(_.with_metaclass(_MetaMixer)):
 
             mixer = Mixer()
 
-            mixer.blend(SomeSheme, active=True)
+            mixer.blend(SomeScheme, active=True)
             print scheme.active  # True
 
-            mixer.blend('module.SomeSheme', active=True)
+            mixer.blend('module.SomeScheme', active=True)
             print scheme.active  # True
 
         """
