@@ -147,6 +147,10 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
                 if issubclass(fcls, stype):
                     return cls.types[stype]
 
+        for generator in cls.generators:
+            if isinstance(fcls, generator):
+                return generator
+
         return None
 
     @staticmethod
