@@ -711,6 +711,14 @@ class Mixer(_.with_metaclass(_MetaMixer)):
 
         return wrapper
 
+    def unregister_middleware(self, scheme, middleware):
+        """Remove middleware from scheme
+        """
+        type_mixer = self.type_mixer_cls(
+            scheme, mixer=self, fake=self.params.get('fake'),
+            factory=self.__factory)
+        type_mixer.middlewares.remove(middleware)
+
     def register(self, scheme, **params):
         """ Manualy register a function as value's generator for class.field.
 
