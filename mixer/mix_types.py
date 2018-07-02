@@ -98,11 +98,6 @@ class UUID:
 
     """ Type for UUIDs. """
 
-    def __subclasshook__(cls, other):
-        if hasattr(other, '__name__') and 'UUID' in other.__name__:
-            return True
-        return NotImplemented
-
 
 class Mix(object):
 
