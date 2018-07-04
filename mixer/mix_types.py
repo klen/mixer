@@ -98,6 +98,8 @@ class UUID:
 
     """ Type for UUIDs. """
 
+    pass
+
 
 class Mix(object):
 
