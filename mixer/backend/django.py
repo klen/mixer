@@ -230,7 +230,11 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
                 return self._get_value(name, value(), field)
 
             if field:
-                value = field.scheme.to_python(value)
+                try:
+                    _ = int(value)
+                    value = field.scheme.to_python(value)
+                except (TypeError, ValueError):
+                    pass
 
         return name, value
 
