@@ -1,6 +1,7 @@
 """ Django support. """
 from __future__ import absolute_import
 
+import django
 import datetime as dt
 import decimal
 from os import path
@@ -229,7 +230,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
             if callable(value):
                 return self._get_value(name, value(), field)
 
-            if field:
+            if field and not (django.VERSION[0] >= 2 and django.VERSION[1] >= 1):
                 value = field.scheme.to_python(value)
 
         return name, value
@@ -382,10 +383,11 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
         return self.__scheme._default_manager.get(pk=obj.pk)
 
     def __load_fields(self):
-        private_fields = self.__scheme._meta.private_fields
+        if hasattr(self.__scheme._meta, 'private_fields'):
+            private_fields = self.__scheme._meta.private_fields
 
-        for field in private_fields:
-            yield field.name, t.Field(field, field.name)
+            for field in private_fields:
+                yield field.name, t.Field(field, field.name)
 
         for field in self.__scheme._meta.fields:
 
