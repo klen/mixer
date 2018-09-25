@@ -130,6 +130,10 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
         _.integer_types: int,
     }
 
+    name_hooks = {
+        'UUID': t.UUID,
+    }
+
     @classmethod
     def cls_to_simple(cls, fcls):
         """ Translate class to one of simple base types.
@@ -147,6 +151,10 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
             for stype in cls.types:
                 if issubclass(fcls, stype):
                     return cls.types[stype]
+
+        for name, generator in cls.name_hooks.items():
+            if name in fcls.__name__:
+                return generator
 
         return None
 
