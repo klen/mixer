@@ -119,9 +119,10 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
         ('time_zone', str): faker.timezone,
         ('timezone', str): faker.timezone,
         ('title', str): faker.title,
-        ('url', t.URL): faker.uri,
         ('url', str): faker.uri,
+        ('url', t.URL): faker.uri,
         ('username', str): faker.user_name,
+        ('uuid', None): faker.uuid,
     }
 
     types = {
@@ -169,7 +170,7 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
         simple = cls.cls_to_simple(fcls)
         func = cls.generators.get(fcls) or cls.generators.get(simple)
 
-        if not func and fcls.__bases__:
+        if not func and fcls and fcls.__bases__:
             func = cls.generators.get(fcls.__bases__[0])
 
         if fname and fake and (fname, simple) in cls.fakers:

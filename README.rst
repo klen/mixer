@@ -319,6 +319,11 @@ You can add middleware layers to process generation: ::
 You can add several middlewares. Each middleware should get one argument
 (generated value) and return them.
 
+It's also possible to unregister a middleware: ::
+
+    mixer.unregister_middleware(encrypt_password)
+
+
 Locales
 -------
 
@@ -381,6 +386,7 @@ Contributors
 * Mikhail Porokhovnichenko (https://github.com/marazmiki)
 * Skylar Saveland     (https://github.com/skyl)
 * Suriya Subramanian  (https://github.com/suriya)
+* Gram                (https://github.com/orsinium)
 
 License
 =======

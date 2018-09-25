@@ -7,5 +7,6 @@ ipdb                >= 0.10.3
 mongoengine         >= 0.10.1
 peewee              >= 2.8.5
 pony                >= 0.7
+psycopg2            >= 2.7.5
 pytest              >= 3.0.4
 pytest-sugar        >= 0.7.1

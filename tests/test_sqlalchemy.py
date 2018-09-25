@@ -59,7 +59,8 @@ class User(BASE):
     enum = Column(Enum('one', 'two'), nullable=False)
     random = Column(Integer, default=lambda: randrange(993, 995))
     profile_id = Column(Integer, ForeignKey('profile.id'), nullable=False)
-    profile_id_nonincremental = Column(Integer, ForeignKey('profile_nonincremental.id'), nullable=False)
+    profile_id_nonincremental = Column(
+        Integer, ForeignKey('profile_nonincremental.id'), nullable=False)
     augmented = Column(AugmentedType, default='augmented', nullable=False)
 
 
@@ -132,6 +133,7 @@ def test_mixer(session):
     user = mixer.blend(User, username=lambda: 'callable_value')
     assert user.username == 'callable_value'
 
+
 def test_cycle(session):
     from mixer.backend.sqlalchemy import Mixer
 
@@ -142,6 +144,7 @@ def test_cycle(session):
     assert len(users) == 2
     assert users[0].profile.name == 'first'
     assert users[1].profile.name == 'second'
+
 
 def test_select(session):
     from mixer.backend.sqlalchemy import Mixer
@@ -211,3 +214,20 @@ def test_nonincremental_primary_key(session):
 
     test = mixer.blend(ProfileNonIncremental, id=42)
     assert test.name
+
+
+def test_postgresql():
+    from mixer.backend.sqlalchemy import TypeMixer
+    from sqlalchemy.dialects.postgresql import UUID
+
+    base = declarative_base()
+
+    class Test(base):
+        __tablename__ = 'test'
+
+        id = Column(Integer, primary_key=True)
+        uuid = Column(UUID, nullable=False)
+
+    mixer = TypeMixer(Test)
+    test = mixer.blend()
+    assert test.uuid

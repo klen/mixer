@@ -1,3 +1,7 @@
+2018-09-25
+
+	* mixer.unregister_middleware
+
 2017-11-06  marazmiki
 
 	* Added Django 2.0 support for Python 3.6;
