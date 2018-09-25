@@ -261,15 +261,21 @@ def test_locale():
 def test_silence():
     mixer = Mixer()
 
+    class CustomException(Exception):
+        pass
+
     @mixer.middleware(Test)
     def falsed(test): # noqa
-        raise Exception('Unhandled')
+        raise CustomException('Unhandled')
 
-    with pytest.raises(Exception):
+    with pytest.raises(CustomException):
         mixer.blend(Test)
 
     with mixer.ctx(silence=True):
         mixer.blend(Test)
+
+    mixer.unregister_middleware(Test, falsed)
+    mixer.blend(Test)  # does not raise any exceptions
 
 
 def test_guard():
