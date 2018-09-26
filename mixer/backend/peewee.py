@@ -8,6 +8,11 @@
 from __future__ import absolute_import
 
 from peewee import * # noqa
+try:
+    from peewee import AutoField
+except ImportError:
+    from peewee import PrimaryKeyField as AutoField
+
 import datetime
 import decimal
 
@@ -39,7 +44,7 @@ class GenFactory(BaseFactory):
     """ Map a peewee classes to simple types. """
 
     types = {
-        PrimaryKeyField: t.PositiveInteger,
+        AutoField: t.PositiveInteger,
         IntegerField: int,
         BigIntegerField: t.BigInteger,
         (FloatField, DoubleField): float,
@@ -75,7 +80,7 @@ class TypeMixer(BaseTypeMixer):
 
     def gen_field(self, field):
         """ Function description. """
-        if isinstance(field.scheme, PrimaryKeyField)\
+        if isinstance(field.scheme, AutoField)\
                 and self.__mixer and self.__mixer.params.get('commit'):
             return field.name, SKIP_VALUE
         return super(TypeMixer, self).gen_field(field)
