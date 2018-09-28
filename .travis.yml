@@ -15,7 +15,7 @@ matrix:
     - python: 3.6
       env: TOXENV=py36-d11
     - python: 3.6
-      env: TOXENV=py36-d20
+      env: TOXENV=py36-d21
 
 branches:
     only:
