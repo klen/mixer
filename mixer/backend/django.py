@@ -383,7 +383,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
         return self.__scheme._default_manager.get(pk=obj.pk)
 
     def __load_fields(self):
-        private_fields = self.__scheme._meta.private_fields
+        private_fields = getattr(self.__scheme._meta, 'private_fields', [])
 
         for field in private_fields:
             yield field.name, t.Field(field, field.name)
