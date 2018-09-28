@@ -556,10 +556,10 @@ class Mixer(_.with_metaclass(_MetaMixer)):
 
             mixer = Mixer()
 
-            mixer.blend(SomeSheme, active=True)
+            mixer.blend(SomeScheme, active=True)
             print scheme.active  # True
 
-            mixer.blend('module.SomeSheme', active=True)
+            mixer.blend('module.SomeScheme', active=True)
             print scheme.active  # True
 
         """
@@ -710,6 +710,14 @@ class Mixer(_.with_metaclass(_MetaMixer)):
             return middleware
 
         return wrapper
+
+    def unregister_middleware(self, scheme, middleware):
+        """Remove middleware from scheme
+        """
+        type_mixer = self.type_mixer_cls(
+            scheme, mixer=self, fake=self.params.get('fake'),
+            factory=self.__factory)
+        type_mixer.middlewares.remove(middleware)
 
     def register(self, scheme, **params):
         """ Manualy register a function as value's generator for class.field.

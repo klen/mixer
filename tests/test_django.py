@@ -30,7 +30,6 @@ def test_fields(mixer):
     assert isinstance(rabbit, Rabbit)
     assert rabbit.id
     assert rabbit.pk
-    assert rabbit.pk == 1
     assert len(rabbit.title) <= 16
     assert isinstance(rabbit.active, bool)
     assert isinstance(rabbit.object_id, int)

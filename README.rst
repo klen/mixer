@@ -56,11 +56,12 @@ documentation enhancements and/or fixes are awesome and most welcome.**
 Requirements
 =============
 
-- Django (1.10, 1.11, 2.0) for Django ORM support;
+- Django (1.11, 2.1) for Django ORM support;
 - Faker >= 0.7.3
 - Flask-SQLALchemy for SQLAlchemy ORM support and integration as Flask application;
 - Mongoengine for Mongoengine ODM support;
 - SQLAlchemy for SQLAlchemy ORM support;
+- Peewee ORM support;
 - fake-factory >= 0.5.0
 - faker == 0.7.3
 - python 2.7 or 3.6+
@@ -319,6 +320,11 @@ You can add middleware layers to process generation: ::
 You can add several middlewares. Each middleware should get one argument
 (generated value) and return them.
 
+It's also possible to unregister a middleware: ::
+
+    mixer.unregister_middleware(encrypt_password)
+
+
 Locales
 -------
 
@@ -381,6 +387,7 @@ Contributors
 * Mikhail Porokhovnichenko (https://github.com/marazmiki)
 * Skylar Saveland     (https://github.com/skyl)
 * Suriya Subramanian  (https://github.com/suriya)
+* Gram                (https://github.com/orsinium)
 
 License
 =======

@@ -6,52 +6,54 @@ def test_main():
 
     assert mixer
 
-    # def test_django(self):
-        # from django.core.management import call_command
-        # from mixer.auto import mixer
 
-        # from .django_app.models import Rabbit
+def test_django():
+    from django.core.management import call_command
+    from mixer.auto import mixer
 
-        # call_command('syncdb', interactive=False)
+    from .django_app.models import Rabbit
 
-        # rabbit = mixer.blend(Rabbit)
-        # self.assertTrue(rabbit)
+    call_command('migrate', interactive=False)
 
-        # rabbit = mixer.blend('tests.django_app.models.Rabbit')
-        # self.assertTrue(rabbit)
+    rabbit = mixer.blend(Rabbit)
+    assert rabbit
 
-        # rabbits = mixer.cycle(2).blend(Rabbit)
-        # self.assertTrue(all(rabbits))
+    rabbit = mixer.blend('tests.django_app.models.Rabbit')
+    assert rabbit
 
-        # call_command('flush', interactive=False)
+    rabbits = mixer.cycle(2).blend(Rabbit)
+    assert all(rabbits)
 
-    # def test_sqlalchemy(self):
-        # from mixer.auto import mixer
+    call_command('flush', interactive=False)
 
-        # from .test_sqlalchemy import User
 
-        # user = mixer.blend(User)
-        # self.assertTrue(user)
+def test_sqlalchemy():
+    from mixer.auto import mixer
+    from .test_sqlalchemy import User
 
-        # user = mixer.blend('tests.test_sqlalchemy.User')
-        # self.assertTrue(user)
+    user = mixer.blend(User)
+    assert user
 
-        # users = mixer.cycle(2).blend(User)
-        # self.assertTrue(all(users))
+    user = mixer.blend('tests.test_sqlalchemy.User')
+    assert user
 
-    # def test_mongoengine(self):
-        # from mixer.backend.mongoengine import mixer as m
-        # m.params['commit'] = False
+    users = mixer.cycle(2).blend(User)
+    assert all(users)
 
-        # from mixer.auto import mixer
 
-        # from .test_mongoengine import User
+def test_mongoengine():
+    from mixer.backend.mongoengine import mixer as m
+    m.params['commit'] = False
 
-        # user = mixer.blend(User)
-        # self.assertTrue(user)
+    from mixer.auto import mixer
 
-        # user = mixer.blend('tests.test_mongoengine.User')
-        # self.assertTrue(user)
+    from .test_mongoengine import User
 
-        # users = mixer.cycle(2).blend(User)
-        # self.assertTrue(all(users))
+    user = mixer.blend(User)
+    assert user
+
+    user = mixer.blend('tests.test_mongoengine.User')
+    assert user
+
+    users = mixer.cycle(2).blend(User)
+    assert all(users)
