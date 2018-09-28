@@ -6,6 +6,7 @@ import decimal
 from os import path
 from types import GeneratorType
 
+import django
 from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation   # noqa
@@ -229,7 +230,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
             if callable(value):
                 return self._get_value(name, value(), field)
 
-            if field:
+            if field and not (django.VERSION[0] >= 2 and django.VERSION[1] >= 1):
                 value = field.scheme.to_python(value)
 
         return name, value
