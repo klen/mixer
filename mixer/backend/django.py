@@ -229,7 +229,7 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
             if callable(value):
                 return self._get_value(name, value(), field)
 
-            if field:
+            if field and not isinstance(field.scheme, models.ForeignKey):
                 value = field.scheme.to_python(value)
 
         return name, value

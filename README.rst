@@ -56,11 +56,12 @@ documentation enhancements and/or fixes are awesome and most welcome.**
 Requirements
 =============
 
-- Django (1.10, 1.11, 2.0) for Django ORM support;
+- Django (1.11, 2.1) for Django ORM support;
 - Faker >= 0.7.3
 - Flask-SQLALchemy for SQLAlchemy ORM support and integration as Flask application;
 - Mongoengine for Mongoengine ODM support;
 - SQLAlchemy for SQLAlchemy ORM support;
+- Peewee ORM support;
 - fake-factory >= 0.5.0
 - faker == 0.7.3
 - python 2.7 or 3.6+
