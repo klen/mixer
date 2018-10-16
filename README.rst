@@ -278,7 +278,7 @@ Quick example: ::
 
         mixer.register(Test,
             name=lambda: 'John',
-            id=lambda: str(mixer.g.get_positive_integer())
+            id=lambda: str(mixer.faker.small_positive_integer())
         )
 
         test = mixer.blend(Test)
