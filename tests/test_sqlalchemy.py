@@ -1,24 +1,25 @@
 from __future__ import absolute_import
 
 from datetime import datetime
+from random import randrange
 
+import pytest
 from sqlalchemy import (
     Boolean,
     Column,
     DateTime,
+    Enum,
+    ForeignKey,
     Integer,
     SmallInteger,
     String,
     create_engine,
-    ForeignKey,
-    Enum,
+    types
 )
-from sqlalchemy.orm import relation, sessionmaker, relationship, scoped_session
+from sqlalchemy.dialects import mssql, mysql, oracle, postgresql, sqlite
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import types
-from random import randrange
-import pytest
-
+from sqlalchemy.orm import relation, relationship, scoped_session, sessionmaker
+from sqlalchemy.util import text_type
 
 ENGINE = create_engine('sqlite:///:memory:')
 BASE = declarative_base()
@@ -231,3 +232,16 @@ def test_postgresql():
     mixer = TypeMixer(Test)
     test = mixer.blend()
     assert test.uuid
+
+
+@pytest.mark.parametrize('dialect, expected', [
+    (mssql.dialect(), 'RAND()'),
+    (mysql.dialect(), 'RAND()'),
+    (oracle.dialect(), 'DBMS_RANDOM.VALUE'),
+    (postgresql.dialect(), 'RANDOM()'),
+    (sqlite.dialect(), 'RANDOM()'),
+])
+def test_random_compiled(dialect, expected):
+    from mixer.backend.sqlalchemy import random
+    compiled = random().compile(dialect=dialect)
+    assert text_type(compiled) == expected
