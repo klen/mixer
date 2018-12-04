@@ -101,6 +101,13 @@ class UUID:
     pass
 
 
+class JSON:
+
+    """ Type for JSON and JSONB fields. """
+
+    pass
+
+
 class Mix(object):
 
     """ Virtual link on the mixed object.
