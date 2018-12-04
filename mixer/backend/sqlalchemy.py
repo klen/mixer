@@ -214,7 +214,7 @@ class TypeMixer(BaseTypeMixer):
         if ftype is Enum:
             return partial(faker.random_element, column.type.enums)
 
-        if stype is None:
+        if fake and stype is None:
             msg = 'cannot make fabric for field {fname} ({ftype})'.format(
                 fname=field_name,
                 ftype=ftype,
