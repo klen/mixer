@@ -80,6 +80,11 @@ class MixerProvider(BaseProvider):
         import uuid
         return str(uuid.uuid1())
 
+    def json(self):
+        """Generate random dict with str keys and int values.
+        """
+        return dict((self.pystr(), self.random_int()) for _ in range(10))
+
     def genre(self):
         return self.random_element(GENRES)
 
