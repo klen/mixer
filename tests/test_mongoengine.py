@@ -95,4 +95,17 @@ def test_relation():
     assert bookmark.bookmark
 
 
+def test_embedded_document_list_field():
+    from mixer.backend.mongoengine import Mixer
+
+    class NewPost(Post):
+        comments = EmbeddedDocumentListField(Comment, required=True)
+
+    mixer = Mixer(commit=False)
+
+    post = mixer.blend(NewPost)
+    assert post.validate() is None
+    assert len(post.comments) > 0
+
+
 # pylama:ignore=W0401,W0614

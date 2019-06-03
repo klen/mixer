@@ -33,6 +33,7 @@ from mongoengine import (
     Document,
     EmailField,
     EmbeddedDocumentField,
+    EmbeddedDocumentListField,
     FloatField,
     GenericReferenceField,
     GeoPointField,
@@ -173,7 +174,7 @@ class TypeMixer(BaseTypeMixer):
                 ftype, field_name=field_name, fake=fake, kwargs=kwargs)
             return lambda: fab()[:me_field.max_length]
 
-        if ftype is ListField:
+        if ftype in (ListField, EmbeddedDocumentListField):
             fab = self.make_fabric(me_field.field, kwargs=kwargs)
             return lambda: [fab() for _ in range(3)]
 
@@ -200,7 +201,8 @@ class TypeMixer(BaseTypeMixer):
             return SKIP_VALUE
 
         if callable(field.scheme.default):
-            return field.scheme.default()
+            default = field.scheme.default()
+            return default or SKIP_VALUE
 
         return field.scheme.default
 
