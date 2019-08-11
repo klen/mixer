@@ -201,7 +201,7 @@ Marshmallow workflow
 
 Example usage: ::
 
-    from mixer.main import mixer
+    from mixer.backend.marshmallow import mixer
     import marshmallow as ma
 
     class User(ma.Schema):
