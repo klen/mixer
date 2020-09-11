@@ -1,6 +1,8 @@
 include LICENSE
 include MANIFEST.in
 include README.rst
+include Changelog
+include DESCRIPTION
 include requirements.txt
 include requirements-tests.txt
 include mixer/resources/file.txt
@@ -11,3 +13,7 @@ recursive-include mixer *
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
 recursive-exclude * *.orig
+
+include tox.ini
+recursive-include docs *.rst
+recursive-include tests *.py
