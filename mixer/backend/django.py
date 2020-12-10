@@ -183,7 +183,10 @@ class TypeMixer(_.with_metaclass(TypeMixerMeta, BaseTypeMixer)):
                 continue
 
             name, value = self._get_value(name, deffered.value)
-
+            # # if the value ist the skip value
+            # # stop further processing
+            if value == SKIP_VALUE:
+                continue
             # # If the ManyToMany relation has an intermediary model,
             # # the add and remove methods do not exist.
             through = deffered.scheme.remote_field.through
