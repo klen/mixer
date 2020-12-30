@@ -387,6 +387,7 @@ Contributors
 * Suriya Subramanian        (https://github.com/suriya)
 * Gram                      (https://github.com/orsinium)
 * Joshua                    (https://github.com/jomasti)
+* Lucas Rangel Cezimbra     (https://github.com/lucasrcezimbra)
 
 License
 ========
