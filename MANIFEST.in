@@ -14,6 +14,5 @@ recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
 recursive-exclude * *.orig
 
-include tox.ini
 recursive-include docs *.rst
 recursive-include tests *.py
