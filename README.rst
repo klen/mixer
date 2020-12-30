@@ -87,7 +87,9 @@ Usage
 
 Django workflow
 ---------------
-Quick example: ::
+Quick example:
+
+.. code-block:: python
 
     from mixer.backend.django import mixer
     from customapp.models import User, UserMessage
@@ -113,7 +115,9 @@ Quick example: ::
 
 Flask, Flask-SQLAlchemy
 -----------------------
-Quick example: ::
+Quick example:
+
+.. code-block:: python
 
     from mixer.backend.flask import mixer
     from models import User, UserMessage
@@ -142,7 +146,9 @@ Quick example: ::
 Support for Flask-SQLAlchemy models that have `__init__` arguments
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-For support this scheme, just create your own mixer class, like this: ::
+For support this scheme, just create your own mixer class, like this:
+
+.. code-block:: python
 
     from mixer.backend.sqlalchemy import Mixer
 
@@ -158,7 +164,9 @@ For support this scheme, just create your own mixer class, like this: ::
 SQLAlchemy workflow
 -------------------
 
-Example of initialization: ::
+Example of initialization:
+
+.. code-block:: python
 
     from mixer.backend.sqlalchemy import Mixer
 
@@ -176,7 +184,9 @@ Also, see `Flask, Flask-SQLALchemy`_.
 Mongoengine workflow
 --------------------
 
-Example usage: ::
+Example usage:
+
+.. code-block:: python
 
     from mixer.backend.mongoengine import mixer
 
@@ -197,7 +207,9 @@ Example usage: ::
 Marshmallow workflow
 --------------------
 
-Example usage: ::
+Example usage:
+
+.. code-block:: python
 
     from mixer.main import mixer
     import marshmallow as ma
@@ -218,7 +230,9 @@ Example usage: ::
 
 Common usage
 ------------
-Quick example: ::
+Quick example:
+
+.. code-block:: python
 
     from mixer.main import mixer
 
@@ -240,14 +254,18 @@ DB commits
 ----------
 
 By default 'django', 'flask', 'mongoengine' backends tries to save objects in
-database. For preventing this behavior init `mixer` manually: ::
+database. For preventing this behavior init `mixer` manually:
+
+.. code-block:: python
 
     from mixer.backend.django import Mixer
 
     mixer = Mixer(commit=False)
 
 
-Or you can temporary switch context use the mixer as context manager: ::
+Or you can temporary switch context use the mixer as context manager:
+
+.. code-block:: python
 
     from mixer.backend.django import mixer
 
@@ -266,7 +284,9 @@ Custom fields
 
 The mixer allows you to define generators for fields by manually.
 
-Quick example: ::
+Quick example:
+
+.. code-block:: python
 
         from mixer.main import mixer
 
@@ -288,7 +308,9 @@ Quick example: ::
         test = mixer.blend(Test)
         test.name == 'Just John'
 
-Also, you can make your own factory for field types: ::
+Also, you can make your own factory for field types:
+
+.. code-block:: python
 
     from mixer.backend.django import Mixer, GenFactory
 
@@ -305,7 +327,9 @@ Also, you can make your own factory for field types: ::
 Middlewares
 -----------
 
-You can add middleware layers to process generation: ::
+You can add middleware layers to process generation:
+
+.. code-block:: python
 
     from mixer.backend.django import mixer
 
@@ -318,7 +342,9 @@ You can add middleware layers to process generation: ::
 You can add several middlewares. Each middleware should get one argument
 (generated value) and return them.
 
-It's also possible to unregister a middleware: ::
+It's also possible to unregister a middleware:
+
+.. code-block:: python
 
     mixer.unregister_middleware(encrypt_password)
 
@@ -326,15 +352,19 @@ It's also possible to unregister a middleware: ::
 Locales
 -------
 
-By default, mixer uses 'en' locale. You could switch mixer default locale by
-creating your own mixer: ::
+By default mixer uses 'en' locale. You could switch mixer default locale by
+creating your own mixer:
+
+.. code-block:: python
 
     from mixer.backend.django import Mixer
 
     mixer = Mixer(locale='it')
     mixer.faker.name()          ## u'Acchisio Conte'
 
-At any time you could switch mixer current locale: ::
+At any time you could switch mixer current locale:
+
+.. code-block:: python
 
     mixer.faker.locale = 'cz'
     mixer.faker.name()          ## u'Miloslava Urbanov\xe1 CSc.'
