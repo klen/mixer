@@ -95,4 +95,28 @@ def test_relation():
     assert bookmark.bookmark
 
 
+def test_decimal_field_min_value():
+    from mixer.backend.mongoengine import Mixer
+
+    class NewPost(Post):
+        rating = DecimalField(required=True, min_value=0)
+
+    mixer = Mixer(commit=False)
+
+    post = mixer.blend(NewPost)
+    assert post.rating > 0
+
+
+def test_decimal_field_max_value():
+    from mixer.backend.mongoengine import Mixer
+
+    class NewPost(Post):
+        rating = DecimalField(required=True, max_value=0)
+
+    mixer = Mixer(commit=False)
+
+    post = mixer.blend(NewPost)
+    assert post.rating < 0
+
+
 # pylama:ignore=W0401,W0614

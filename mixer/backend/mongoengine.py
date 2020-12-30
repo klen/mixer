@@ -185,6 +185,8 @@ class TypeMixer(BaseTypeMixer):
 
         elif ftype is DecimalField:
             kwargs['right_digits'] = me_field.precision
+            kwargs['min_value'] = me_field.min_value
+            kwargs['max_value'] = me_field.max_value
 
         return super(TypeMixer, self).make_fabric(
             ftype, field_name=field_name, fake=fake, kwargs=kwargs)
