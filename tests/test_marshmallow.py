@@ -1,4 +1,5 @@
 import marshmallow as ma
+import datetime as dt
 import pytest
 
 
@@ -17,8 +18,8 @@ class Pet(ma.Schema):
 
     name = ma.fields.String()
     animal_type = ma.fields.String(default='cat')
-    owner = ma.fields.Nested(Person, many=True)
     awards = ma.fields.List(ma.fields.Str)
+    owner = ma.fields.Nested(Person, many=True)
 
 
 @pytest.fixture
@@ -30,7 +31,6 @@ def mixer():
 def test_mixer(mixer):
     person = mixer.blend(Person)
     assert person['name']
-    assert person['birthday']
     assert person['created']
     assert isinstance(person['is_relative'], bool)
     assert person['status'] in ('user', 'moderator', 'admin')
@@ -38,5 +38,6 @@ def test_mixer(mixer):
     pet = mixer.blend(Pet)
     assert pet['name']
     assert pet['animal_type'] == 'cat'
-    assert pet['owner']
     assert pet['awards'] is not None
+    assert pet['owner']
+    assert pet['owner'][0]['name']

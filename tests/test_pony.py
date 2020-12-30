@@ -1,95 +1,93 @@
-import sys
-
-import pytest
 from decimal import Decimal
 from datetime import datetime
 
-pytestmark = pytest.mark.skipif(
-    sys.version_info > (2, 8), reason='Pony doesnt support python3')
+from pony import orm
 
-try:
+db = orm.Database("sqlite", ":memory:", create_db=True)
 
-    from pony.orm import * # noqa
 
-    db = Database("sqlite", ":memory:", create_db=True)
+class Customer(db.Entity):
+    address = orm.Required(str)
+    country = orm.Required(str)
+    email = orm.Required(str, unique=True)
+    name = orm.Required(str)
+    password = orm.Required(str)
 
-    class Customer(db.Entity):
-        address = Required(unicode)
-        country = Required(unicode)
-        email = Required(unicode, unique=True)
-        name = Required(unicode)
-        password = Required(unicode)
+    cart_items = orm.Set("CartItem")
+    orders = orm.Set("Order")
 
-        cart_items = Set("CartItem")
-        orders = Set("Order")
 
-    class Product(db.Entity):
-        id = PrimaryKey(int, auto=True)
-        name = Required(unicode)
-        categories = Set("Category")
-        description = Optional(unicode)
-        picture = Optional(buffer)
-        price = Required(Decimal)
-        quantity = Required(int)
-        cart_items = Set("CartItem")
-        order_items = Set("OrderItem")
+class Product(db.Entity):
+    id = orm.PrimaryKey(int, auto=True)
+    name = orm.Required(str)
+    categories = orm.Set("Category")
+    description = orm.Optional(str)
+    picture = orm.Optional(bytes)
+    price = orm.Required(Decimal)
+    quantity = orm.Required(int)
+    cart_items = orm.Set("CartItem")
+    order_items = orm.Set("OrderItem")
 
-    class CartItem(db.Entity):
-        quantity = Required(int)
-        customer = Required(Customer)
-        product = Required(Product)
 
-    class OrderItem(db.Entity):
-        quantity = Required(int, default=1)
-        price = Required(Decimal)
-        order = Required("Order")
-        product = Required(Product)
-        PrimaryKey(order, product)
+class CartItem(db.Entity):
+    quantity = orm.Required(int)
+    customer = orm.Required(Customer)
+    product = orm.Required(Product)
 
-    class Order(db.Entity):
-        id = PrimaryKey(int, auto=True)
-        state = Required(unicode)
-        date_created = Required(datetime)
-        date_shipped = Optional(datetime)
-        date_delivered = Optional(datetime)
-        total_price = Required(Decimal)
-        customer = Required(Customer)
-        items = Set(OrderItem)
 
-    class Category(db.Entity):
-        name = Required(unicode, unique=True)
-        products = Set(Product)
+class OrderItem(db.Entity):
+    quantity = orm.Required(int, default=1)
+    price = orm.Required(Decimal)
+    order = orm.Required("Order")
+    product = orm.Required(Product)
+    orm.PrimaryKey(order, product)
 
-    db.generate_mapping(create_tables=True)
 
-    def test_backend():
-        from mixer.backend.pony import mixer
-        assert mixer
+class Order(db.Entity):
+    id = orm.PrimaryKey(int, auto=True)
+    state = orm.Required(str)
+    date_created = orm.Required(datetime)
+    date_shipped = orm.Optional(datetime)
+    date_delivered = orm.Optional(datetime)
+    total_price = orm.Required(Decimal)
+    customer = orm.Required(Customer)
+    items = orm.Set(OrderItem)
 
-    @db_session
-    def test_mixer():
-        from mixer.backend.pony import mixer
 
-        customer = mixer.blend(Customer)
-        assert customer.name
-        assert customer.email
+class Category(db.Entity):
+    name = orm.Required(str, unique=True)
+    products = orm.Set(Product)
 
-        product = mixer.blend(Product)
-        assert product.price
 
+db.generate_mapping(create_tables=True)
+
+
+def test_backend():
+    from mixer.backend.pony import mixer
+    assert mixer
+
+
+@orm.db_session
+def test_mixer():
+    from mixer.backend.pony import mixer
+
+    customer = mixer.blend(Customer)
+    assert customer.name
+    assert customer.email
+
+    product = mixer.blend(Product)
+    assert product.price
+
+    order = mixer.blend(Order)
+    assert order.customer
+
+    orderitem = mixer.blend(OrderItem, product=product)
+    assert orderitem.quantity == 1
+    assert orderitem.order
+
+    order = mixer.blend(Order, customer__name='John Snow')
+    assert order.customer.name == 'John Snow'
+
+    with mixer.ctx(commit=True):
         order = mixer.blend(Order)
-        assert order.customer
-
-        orderitem = mixer.blend(OrderItem, product=product)
-        assert orderitem.quantity == 1
-        assert orderitem.order
-
-        order = mixer.blend(Order, customer__name='John Snow')
-        assert order.customer.name == 'John Snow'
-
-        with mixer.ctx(commit=True):
-            order = mixer.blend(Order)
-            assert order.id
-
-except ImportError:
-    pass
+        assert order.id

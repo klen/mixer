@@ -1,4 +1,4 @@
-""" Support for Marshmallow.
+"""Support for Marshmallow.
 
 ::
 
@@ -11,7 +11,7 @@ from __future__ import absolute_import
 import datetime as dt
 import decimal
 
-from marshmallow import fields, validate, missing
+from marshmallow import fields, validate, missing, ValidationError
 
 from .. import mix_types as t
 from ..main import (
@@ -27,13 +27,14 @@ def get_nested(_scheme=None, _typemixer=None, _many=False, **kwargs):
         factory=_typemixer._TypeMixer__factory,
         fake=_typemixer._TypeMixer__fake,
     ).blend(**kwargs)
+
     if _many:
-        return [obj]
-    return obj
+        obj = [obj]
+
+    return _scheme().dump(obj, many=_many)
 
 
 class GenFactory(BaseFactory):
-
     """Support for Marshmallow fields."""
 
     types = {
@@ -43,7 +44,7 @@ class GenFactory(BaseFactory):
         fields.Decimal: decimal.Decimal,
         (fields.Bool, fields.Boolean): bool,
         fields.Float: float,
-        (fields.DateTime, fields.LocalDateTime): dt.datetime,
+        #  (fields.DateTime, fields.AwareDateTime): dt.datetime,
         fields.Time: dt.time,
         fields.Date: dt.date,
         (fields.URL, fields.Url): t.URL,
@@ -58,6 +59,7 @@ class GenFactory(BaseFactory):
 
     generators = {
         fields.DateTime: lambda: faker.date_time().isoformat(),
+        fields.AwareDateTime: lambda: faker.date_time().isoformat(),
         fields.Nested: get_nested,
     }
 
@@ -92,10 +94,11 @@ class TypeMixer(BaseTypeMixer):
 
     def populate_target(self, values):
         """ Populate target. """
-        data, errors = self.__scheme().load(dict(values))
-        if errors:
-            LOGGER.error("Mixer-marshmallow: %r", errors)
-        return data
+        try:
+            return self.__scheme().load(dict(values))
+        except ValidationError as exc:
+            LOGGER.error("Mixer-marshmallow: %r", exc.messages)
+            return
 
     def make_fabric(self, field, field_name=None, fake=False, kwargs=None): # noqa
         kwargs = {} if kwargs is None else kwargs
@@ -105,7 +108,7 @@ class TypeMixer(BaseTypeMixer):
 
         if isinstance(field, fields.List):
             fab = self.make_fabric(
-                field.container, field_name=field_name, fake=fake, kwargs=kwargs)
+                field.inner, field_name=field_name, fake=fake, kwargs=kwargs)
             return lambda: [fab() for _ in range(faker.small_positive_integer(4))]
 
         for validator in field.validators:

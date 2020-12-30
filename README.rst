@@ -1,8 +1,8 @@
 |logo| Mixer
 ############
 
-Mixer is an application to generate instances of Django or SQLAlchemy models.
-It's useful for testing and fixtures replacement. Fast and convenient test-data
+The Mixer is an application to generate instances of Django or SQLAlchemy models.
+It's useful for testing and fixture replacement. Fast and convenient test-data
 generation.
 
 Mixer supports:
@@ -18,13 +18,9 @@ Mixer supports:
 
 .. _badges:
 
-.. image:: http://img.shields.io/travis/klen/mixer.svg?style=flat-square
-    :target: http://travis-ci.org/klen/mixer
-    :alt: Build Status
-
-.. image:: http://img.shields.io/coveralls/klen/mixer.svg?style=flat-square
-    :target: https://coveralls.io/r/klen/mixer
-    :alt: Coverals
+.. image:: https://github.com/klen/mixer/workflows/tests/badge.svg?style=flat-square
+    :target: https://github.com/klen/mixer/actions
+    :alt: Tests Status
 
 .. image:: http://img.shields.io/pypi/v/mixer.svg?style=flat-square
     :target: https://pypi.python.org/pypi/mixer
@@ -38,7 +34,6 @@ Mixer supports:
     :target: https://pypi.python.org/pypi/mixer
     :alt: License
 
-
 .. _documentation:
 
 
@@ -46,6 +41,11 @@ Mixer supports:
 documentation enhancements and/or fixes are awesome and most welcome.**
 
 Описание на русском языке: http://klen.github.io/mixer.html
+
+.. important::
+
+   From version 6.2 the Mixer library doesn't support Python 2.
+   The latest version with python<3 support is mixer 6.1.3
 
 
 .. _contents:
@@ -56,15 +56,13 @@ documentation enhancements and/or fixes are awesome and most welcome.**
 Requirements
 =============
 
-- Django (1.11, 2.1) for Django ORM support;
-- Faker >= 0.7.3
+- Python 3.7+
+- Django (3.0, 3.1) for Django ORM support;
 - Flask-SQLALchemy for SQLAlchemy ORM support and integration as Flask application;
+- Faker >= 0.7.3
 - Mongoengine for Mongoengine ODM support;
 - SQLAlchemy for SQLAlchemy ORM support;
 - Peewee ORM support;
-- fake-factory >= 0.5.0
-- faker == 0.7.3
-- python 2.7 or 3.6+
 
 
 Installation
@@ -78,13 +76,13 @@ Installation
 Usage
 =====
 
- |   By default Mixer tries to generate a fake (human-friendly) data.
+ |   By default Mixer tries to generate fake (human-friendly) data.
  |   If you want to randomize the generated values initialize the Mixer
  |   by manual: Mixer(fake=False)
 
 
  |   By default Mixer saves the generated objects in a database. If you want to disable
- |   this, initialize the Mixer by manual like: Mixer(commit=False)
+ |   this, initialize the Mixer by manual like Mixer(commit=False)
 
 
 Django workflow
@@ -266,7 +264,7 @@ Or you can temporary switch context use the mixer as context manager: ::
 Custom fields
 -------------
 
-Mixer allows you to define generators for fields by manually.
+The mixer allows you to define generators for fields by manually.
 
 Quick example: ::
 
@@ -328,7 +326,7 @@ It's also possible to unregister a middleware: ::
 Locales
 -------
 
-By default mixer uses 'en' locale. You could switch mixer default locale by
+By default, mixer uses 'en' locale. You could switch mixer default locale by
 creating your own mixer: ::
 
     from mixer.backend.django import Mixer
@@ -370,42 +368,43 @@ Development of mixer happens at Github: https://github.com/klen/mixer
 Contributors
 =============
 
-* Antoine Bertin      (https://github.com/Diaoul)
-* Benjamin Port       (https://github.com/bport)
-* Dmitriy Moseev      (https://github.com/DmitriyMoseev)
-* Eelke Hermens       (https://github.com/eelkeh)
-* Esteban J. G. Gabancho (https://github.com/egabancho)
-* Felix Dreissig      (https://github.com/F30)
-* Illia Volochii      (https://github.com/illia-v)
-* Jannis              (https://github.com/jnns)
-* Kirill Pavlov       (https://github.com/pavlov99)
-* Kwok-kuen Cheung    (https://github.com/cheungpat)
-* Mahdi Yusuf         (https://github.com/myusuf3)
-* Marek Baczyński     (https://github.com/imbaczek)
-* Marigold            (https://github.com/Marigold)
-* Matt Caldwell       (https://github.com/mattcaldwell)
-* Mikhail Porokhovnichenko (https://github.com/marazmiki)
-* Skylar Saveland     (https://github.com/skyl)
-* Suriya Subramanian  (https://github.com/suriya)
-* Gram                (https://github.com/orsinium)
+* Antoine Bertin            (https://github.com/Diaoul)
+* Benjamin Port             (https://github.com/bport)
+* Dmitriy Moseev            (https://github.com/DmitriyMoseev)
+* Eelke Hermens             (https://github.com/eelkeh)
+* Esteban J. G. Gabancho    (https://github.com/egabancho)
+* Felix Dreissig            (https://github.com/F30)
+* Illia Volochii            (https://github.com/illia-v)
+* Jannis                    (https://github.com/jnns)
+* Kirill Pavlov             (https://github.com/pavlov99)
+* Kwok-kuen Cheung          (https://github.com/cheungpat)
+* Mahdi Yusuf               (https://github.com/myusuf3)
+* Marek Baczyński           (https://github.com/imbaczek)
+* Marigold                  (https://github.com/Marigold)
+* Matt Caldwell             (https://github.com/mattcaldwell)
+* Mikhail Porokhovnichenko  (https://github.com/marazmiki)
+* Skylar Saveland           (https://github.com/skyl)
+* Suriya Subramanian        (https://github.com/suriya)
+* Gram                      (https://github.com/orsinium)
+* Joshua                    (https://github.com/jomasti)
 
 License
-=======
+========
 
 Licensed under a `BSD license`_.
 
 
 .. _links:
 
-.. _BSD license: http://www.linfo.org/bsdlicense.html
 .. _Django: http://djangoproject.com/
 .. _Flask-SQLAlchemy: http://flask-sqlalchemy.pocoo.org/
+.. _SQLAlchemy: http://www.sqlalchemy.org/
 .. _Flask: http://flask.pocoo.org/
 .. _Marshmallow: http://marshmallow.readthedocs.io/en/latest/
 .. _Mongoengine: http://mongoengine.org/
 .. _Peewee: http://peewee.readthedocs.org/en/latest/
 .. _Pony: http://ponyorm.com/
-.. _SQLAlchemy: http://www.sqlalchemy.org/
 .. _klen: http://klen.github.io
+.. _BSD license: http://www.linfo.org/bsdlicense.html
 .. |logo| image:: https://raw.github.com/klen/mixer/develop/docs/_static/logo.png
                   :width: 100

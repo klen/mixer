@@ -6,9 +6,11 @@ from types import GeneratorType
 
 import decimal
 from sqlalchemy import func
+from sqlalchemy.ext.compiler import compiles
 # from sqlalchemy.orm.interfaces import MANYTOONE
 from sqlalchemy.orm.collections import InstrumentedList
 from sqlalchemy.orm.attributes import InstrumentedAttribute
+from sqlalchemy.sql import expression
 from sqlalchemy.sql.type_api import TypeDecorator
 try:
     from sqlalchemy.orm.relationships import RelationshipProperty
@@ -25,6 +27,23 @@ from ..main import (
     SKIP_VALUE, LOGGER, TypeMixer as BaseTypeMixer, GenFactory as BaseFactory,
     Mixer as BaseMixer, partial, faker)
 
+
+class random(expression.FunctionElement):
+    type = Numeric()
+    name = 'random'
+
+@compiles(random)
+def rand_random(element, compiler, **kw):
+    return 'RAND()'
+
+@compiles(random, 'postgresql')
+@compiles(random, 'sqlite')
+def random_random(element, compiler, **kw):
+    return 'RANDOM()'
+
+@compiles(random, 'oracle')
+def oracle_random(element, compiler, **kw):
+    return 'DBMS_RANDOM.VALUE'
 
 class GenFactory(BaseFactory):
 
@@ -121,7 +140,7 @@ class TypeMixer(BaseTypeMixer):
         session = self.__mixer.params.get('session')
         value = session.query(
             relation.mapper.class_
-        ).filter(*select.choices).order_by(func.random()).first()
+        ).filter(*select.choices).order_by(random()).first()
         return self.get_value(field_name, value)
 
     @staticmethod
