@@ -44,7 +44,7 @@ documentation enhancements and/or fixes are awesome and most welcome.**
 
 .. important::
 
-   From version 7 the Mixer library doesn't support Python 2.
+   From version 6.2 the Mixer library doesn't support Python 2.
    The latest version with python<3 support is mixer 6.1.3
 
 
@@ -368,24 +368,25 @@ Development of mixer happens at Github: https://github.com/klen/mixer
 Contributors
 =============
 
-* Antoine Bertin      (https://github.com/Diaoul)
-* Benjamin Port       (https://github.com/bport)
-* Dmitriy Moseev      (https://github.com/DmitriyMoseev)
-* Eelke Hermens       (https://github.com/eelkeh)
-* Esteban J. G. Gabancho (https://github.com/egabancho)
-* Felix Dreissig      (https://github.com/F30)
-* Illia Volochii      (https://github.com/illia-v)
-* Jannis              (https://github.com/jnns)
-* Kirill Pavlov       (https://github.com/pavlov99)
-* Kwok-kuen Cheung    (https://github.com/cheungpat)
-* Mahdi Yusuf         (https://github.com/myusuf3)
-* Marek Baczyński     (https://github.com/imbaczek)
-* Marigold            (https://github.com/Marigold)
-* Matt Caldwell       (https://github.com/mattcaldwell)
-* Mikhail Porokhovnichenko (https://github.com/marazmiki)
-* Skylar Saveland     (https://github.com/skyl)
-* Suriya Subramanian  (https://github.com/suriya)
-* Gram                (https://github.com/orsinium)
+* Antoine Bertin            (https://github.com/Diaoul)
+* Benjamin Port             (https://github.com/bport)
+* Dmitriy Moseev            (https://github.com/DmitriyMoseev)
+* Eelke Hermens             (https://github.com/eelkeh)
+* Esteban J. G. Gabancho    (https://github.com/egabancho)
+* Felix Dreissig            (https://github.com/F30)
+* Illia Volochii            (https://github.com/illia-v)
+* Jannis                    (https://github.com/jnns)
+* Kirill Pavlov             (https://github.com/pavlov99)
+* Kwok-kuen Cheung          (https://github.com/cheungpat)
+* Mahdi Yusuf               (https://github.com/myusuf3)
+* Marek Baczyński           (https://github.com/imbaczek)
+* Marigold                  (https://github.com/Marigold)
+* Matt Caldwell             (https://github.com/mattcaldwell)
+* Mikhail Porokhovnichenko  (https://github.com/marazmiki)
+* Skylar Saveland           (https://github.com/skyl)
+* Suriya Subramanian        (https://github.com/suriya)
+* Gram                      (https://github.com/orsinium)
+* Joshua                    (https://github.com/jomasti)
 
 License
 ========
