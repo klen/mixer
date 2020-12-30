@@ -140,7 +140,7 @@ class MarkovChain(object):
         maxprobword = ""
         for candidate in probmap:
             # remember which word had the highest probability
-            # this is the word we'll default to if we can't find anythin else
+            # this is the word we'll default to if we can't find anything else
             if probmap[candidate] > maxprob:
                 maxprob = probmap[candidate]
                 maxprobword = candidate
