@@ -34,11 +34,6 @@ Mixer supports:
     :target: https://pypi.python.org/pypi/mixer
     :alt: License
 
-.. _important:
-
-   From version 7 the Mixer library doesn't support Python 2.
-   The latest version with python<3 support is mixer 6.1.3
-
 .. _documentation:
 
 
@@ -46,6 +41,11 @@ Mixer supports:
 documentation enhancements and/or fixes are awesome and most welcome.**
 
 Описание на русском языке: http://klen.github.io/mixer.html
+
+.. _important:
+
+   From version 7 the Mixer library doesn't support Python 2.
+   The latest version with python<3 support is mixer 6.1.3
 
 
 .. _contents:
