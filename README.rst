@@ -42,7 +42,7 @@ documentation enhancements and/or fixes are awesome and most welcome.**
 
 Описание на русском языке: http://klen.github.io/mixer.html
 
-.. warning::
+.. important::
 
    From version 7 the Mixer library doesn't support Python 2.
    The latest version with python<3 support is mixer 6.1.3
