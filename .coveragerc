@@ -1,7 +1,0 @@
-[report]
-omit=mixer/six.py,mixer/markov.py
-
-[run]
-omit=mixer/six.py,mixer/markov.py
-source=mixer
-
