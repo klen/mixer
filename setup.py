@@ -21,17 +21,11 @@ install_requires = [
     d for d in _read('requirements.txt').split('\n')
     if d and not d.startswith('#')]
 
-tests_require = [
-    d for d in _read('requirements-tests.txt').split('\n')
-    if d and not d.startswith('#')]
-
 
 setup(
     packages=['mixer', 'mixer.backend'],
     include_package_data=True,
     install_requires=install_requires,
-    tests_require=tests_require,
-    test_suite='tests',
 )
 
 # lint_ignore=F0401

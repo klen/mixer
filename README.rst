@@ -18,13 +18,9 @@ Mixer supports:
 
 .. _badges:
 
-.. image:: http://img.shields.io/travis/klen/mixer.svg?style=flat-square
-    :target: http://travis-ci.org/klen/mixer
-    :alt: Build Status
-
-.. image:: http://img.shields.io/coveralls/klen/mixer.svg?style=flat-square
-    :target: https://coveralls.io/r/klen/mixer
-    :alt: Coverals
+.. image:: https://github.com/klen/mixer/workflows/tests/badge.svg?style=flat-square
+    :target: https://github.com/klen/mixer/actions
+    :alt: Tests Status
 
 .. image:: http://img.shields.io/pypi/v/mixer.svg?style=flat-square
     :target: https://pypi.python.org/pypi/mixer
