@@ -283,7 +283,6 @@ Custom fields
 -------------
 
 The mixer allows you to define generators for fields by manually.
-
 Quick example:
 
 .. code-block:: python
