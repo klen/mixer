@@ -1,3 +1,8 @@
+2020-12-30
+
+	* Drop Python2 Support
+	* Update Faker to 4.0.0
+
 2018-09-25
 
 	* mixer.unregister_middleware

@@ -417,6 +417,7 @@ Contributors
 * Gram                      (https://github.com/orsinium)
 * Joshua                    (https://github.com/jomasti)
 * Lucas Rangel Cezimbra     (https://github.com/lucasrcezimbra)
+* avi-pomicell              (https://github.com/avi-pomicell)
 
 License
 ========
