@@ -28,11 +28,16 @@ def test_faker():
 
     name = faker.name
     faker.locale = 'ru'
+    assert faker.day_of_week() in {
+        "Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"}
 
     assert name()
     assert faker.name()
 
     faker.locale = 'en'
+    assert faker.day_of_week() in {
+        "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"}
+
     assert faker.name()
     assert faker.env is env
 

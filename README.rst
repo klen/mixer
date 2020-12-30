@@ -38,6 +38,10 @@ Mixer supports:
     :target: https://pypi.python.org/pypi/mixer
     :alt: License
 
+.. _important:
+
+   From version 7 the Mixer library doesn't support Python 2.
+   The latest version with python<3 support is mixer 6.1.3
 
 .. _documentation:
 
@@ -46,6 +50,11 @@ Mixer supports:
 documentation enhancements and/or fixes are awesome and most welcome.**
 
 Описание на русском языке: http://klen.github.io/mixer.html
+
+.. _important:
+
+    The library dropped support of Python2. For Python2 use `Mixer==6.1.3` or
+    consider to upgrade your program to Python3.
 
 
 .. _contents:
@@ -56,15 +65,13 @@ documentation enhancements and/or fixes are awesome and most welcome.**
 Requirements
 =============
 
-- Django (1.11, 2.1) for Django ORM support;
-- Faker >= 0.7.3
+- Python 3.7+
+- Django (3.0, 3.1) for Django ORM support;
 - Flask-SQLALchemy for SQLAlchemy ORM support and integration as Flask application;
+- Faker >= 0.7.3
 - Mongoengine for Mongoengine ODM support;
 - SQLAlchemy for SQLAlchemy ORM support;
 - Peewee ORM support;
-- fake-factory >= 0.5.0
-- faker == 0.7.3
-- python 2.7 or 3.6+
 
 
 Installation
@@ -390,7 +397,7 @@ Contributors
 * Gram                (https://github.com/orsinium)
 
 License
-=======
+========
 
 Licensed under a `BSD license`_.
 

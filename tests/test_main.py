@@ -237,8 +237,8 @@ def test_ctx():
         assert LOGGER.level != level
 
     with mixer.ctx(locale='ru'):
-        phone = mixer.faker.phone_number()
-        assert phone.startswith('+7')
+        dw = mixer.faker.day_of_week()
+        assert dw[0] in 'ПВСЧ'
 
     assert LOGGER.level == level
 

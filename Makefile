@@ -1,4 +1,3 @@
-VIRTUAL_ENV 	?= $(CURDIR)/env
 MODULE=mixer
 SPHINXBUILD=sphinx-build
 ALLSPHINXOPTS= -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
@@ -28,8 +27,8 @@ clean:
 VERSION?=minor
 # target: release - Bump version
 release:
-	@pip install bumpversion
-	@bumpversion $(VERSION)
+	@pip install bump2version
+	@bump2version $(VERSION)
 	@git checkout master
 	@git merge develop
 	@git checkout develop
@@ -73,8 +72,9 @@ docs: docs
 #  Development
 # =============
 
+VIRTUAL_ENV 	?= $(CURDIR)/env
 $(VIRTUAL_ENV): requirements.txt
-	@[ -d $(VIRTUAL_ENV) ]	|| virtualenv --no-site-packages $(VIRTUAL_ENV) --python=python3
+	@[ -d $(VIRTUAL_ENV) ]	|| python -m venv $(VIRTUAL_ENV)
 	@$(VIRTUAL_ENV)/bin/pip install -r requirements.txt
 	@touch $(VIRTUAL_ENV)
 
