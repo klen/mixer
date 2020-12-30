@@ -42,7 +42,7 @@ documentation enhancements and/or fixes are awesome and most welcome.**
 
 Описание на русском языке: http://klen.github.io/mixer.html
 
-.. warning::
+.. important::
 
    From version 7 the Mixer library doesn't support Python 2.
    The latest version with python<3 support is mixer 6.1.3
@@ -395,15 +395,15 @@ Licensed under a `BSD license`_.
 
 .. _links:
 
-.. _BSD license: http://www.linfo.org/bsdlicense.html
 .. _Django: http://djangoproject.com/
 .. _Flask-SQLAlchemy: http://flask-sqlalchemy.pocoo.org/
+.. _SQLAlchemy: http://www.sqlalchemy.org/
 .. _Flask: http://flask.pocoo.org/
 .. _Marshmallow: http://marshmallow.readthedocs.io/en/latest/
 .. _Mongoengine: http://mongoengine.org/
 .. _Peewee: http://peewee.readthedocs.org/en/latest/
 .. _Pony: http://ponyorm.com/
-.. _SQLAlchemy: http://www.sqlalchemy.org/
 .. _klen: http://klen.github.io
+.. _BSD license: http://www.linfo.org/bsdlicense.html
 .. |logo| image:: https://raw.github.com/klen/mixer/develop/docs/_static/logo.png
                   :width: 100
