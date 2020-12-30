@@ -1,8 +1,8 @@
 |logo| Mixer
 ############
 
-Mixer is an application to generate instances of Django or SQLAlchemy models.
-It's useful for testing and fixtures replacement. Fast and convenient test-data
+The Mixer is an application to generate instances of Django or SQLAlchemy models.
+It's useful for testing and fixture replacement. Fast and convenient test-data
 generation.
 
 Mixer supports:
@@ -78,13 +78,13 @@ Installation
 Usage
 =====
 
- |   By default Mixer tries to generate a fake (human-friendly) data.
+ |   By default Mixer tries to generate fake (human-friendly) data.
  |   If you want to randomize the generated values initialize the Mixer
  |   by manual: Mixer(fake=False)
 
 
  |   By default Mixer saves the generated objects in a database. If you want to disable
- |   this, initialize the Mixer by manual like: Mixer(commit=False)
+ |   this, initialize the Mixer by manual like Mixer(commit=False)
 
 
 Django workflow
@@ -266,7 +266,7 @@ Or you can temporary switch context use the mixer as context manager: ::
 Custom fields
 -------------
 
-Mixer allows you to define generators for fields by manually.
+The mixer allows you to define generators for fields by manually.
 
 Quick example: ::
 
@@ -328,7 +328,7 @@ It's also possible to unregister a middleware: ::
 Locales
 -------
 
-By default mixer uses 'en' locale. You could switch mixer default locale by
+By default, mixer uses 'en' locale. You could switch mixer default locale by
 creating your own mixer: ::
 
     from mixer.backend.django import Mixer
