@@ -7,7 +7,7 @@ from faker import Factory, Generator
 from faker.config import DEFAULT_LOCALE, AVAILABLE_LOCALES, PROVIDERS
 from faker.providers import BaseProvider
 
-SMALLINT = 32768  # Safe in most databases according to Django docs
+SMALLINT = 32767  # Safe in most databases according to Django docs
 
 GENRES = ('general', 'pop', 'dance', 'traditional', 'rock', 'alternative', 'rap', 'country',
           'jazz', 'gospel', 'latin', 'reggae', 'comedy', 'historical', 'action', 'animation',
