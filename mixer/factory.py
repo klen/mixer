@@ -85,6 +85,7 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
         t.Text: faker.text,
         t.URL: faker.url,
         t.UUID: faker.uuid,
+        t.JSON: faker.json,
         type(None): '',
     }
 
@@ -123,6 +124,8 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
         ('url', t.URL): faker.uri,
         ('username', str): faker.user_name,
         ('uuid', None): faker.uuid,
+        ('json', None): faker.json,
+        ('jsonb', None): faker.json,
     }
 
     types = {

@@ -219,7 +219,7 @@ def test_nonincremental_primary_key(session):
 
 def test_postgresql():
     from mixer.backend.sqlalchemy import TypeMixer
-    from sqlalchemy.dialects.postgresql import UUID
+    from sqlalchemy.dialects.postgresql import UUID, JSONB
 
     base = declarative_base()
 
@@ -228,6 +228,7 @@ def test_postgresql():
 
         id = Column(Integer, primary_key=True)
         uuid = Column(UUID, nullable=False)
+        jsonb = Column(JSONB, nullable=False)
 
     mixer = TypeMixer(Test)
     test = mixer.blend()
