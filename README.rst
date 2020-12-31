@@ -178,7 +178,7 @@ Example of initialization:
     role = mixer.blend('package.models.Role')
 
 
-Also, see `Flask, Flask-SQLALchemy`_.
+Also, see `Flask`_, `Flask-SQLAlchemy`_.
 
 
 Mongoengine workflow
@@ -418,7 +418,7 @@ Contributors
 * Joshua                    (https://github.com/jomasti)
 * Lucas Rangel Cezimbra     (https://github.com/lucasrcezimbra)
 * avi-pomicell              (https://github.com/avi-pomicell)
-* Jochen Brissier           (https://github.com/jbrissier)
+* Jochen Brissier
 
 
 License
@@ -430,9 +430,9 @@ Licensed under a `BSD license`_.
 .. _links:
 
 .. _Django: http://djangoproject.com/
+.. _Flask: https://flask.palletsprojects.com/en/1.1.x/
 .. _Flask-SQLAlchemy: http://flask-sqlalchemy.pocoo.org/
 .. _SQLAlchemy: http://www.sqlalchemy.org/
-.. _Flask: http://flask.pocoo.org/
 .. _Marshmallow: http://marshmallow.readthedocs.io/en/latest/
 .. _Mongoengine: http://mongoengine.org/
 .. _Peewee: http://peewee.readthedocs.org/en/latest/
