@@ -1,5 +1,5 @@
 .. image:: https://raw.github.com/klen/mixer/develop/docs/_static/logo.png
-    :width: 100
+    :width: 100px
 
 The **Mixer** is a helper to generate instances of Django or SQLAlchemy models.
 It's useful for testing and fixture replacement. Fast and convenient test-data
