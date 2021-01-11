@@ -1,5 +1,10 @@
-|logo| Mixer
-############
+.. raw:: html
+
+    <p align="center">
+        <a href="https://mixer.readthedocs.org"><img width="100" src="https://raw.github.com/klen/mixer/develop/docs/_static/logo.png"></a>
+    </p>
+
+    <p align="center"><strong>Mixer</strong> <em>- Generates test data for you.</em></p>
 
 The Mixer is an application to generate instances of Django or SQLAlchemy models.
 It's useful for testing and fixture replacement. Fast and convenient test-data
@@ -418,7 +423,7 @@ Contributors
 * Joshua                    (https://github.com/jomasti)
 * Lucas Rangel Cezimbra     (https://github.com/lucasrcezimbra)
 * avi-pomicell              (https://github.com/avi-pomicell)
-* Jochen Brissier
+* Jochen Brissier           (https://github.com/jbrissier)
 
 
 License
@@ -439,5 +444,3 @@ Licensed under a `BSD license`_.
 .. _Pony: http://ponyorm.com/
 .. _klen: http://klen.github.io
 .. _BSD license: http://www.linfo.org/bsdlicense.html
-.. |logo| image:: https://raw.github.com/klen/mixer/develop/docs/_static/logo.png
-                  :width: 100
