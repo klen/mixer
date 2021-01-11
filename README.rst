@@ -1,12 +1,7 @@
-.. raw:: html
+.. image:: https://raw.github.com/klen/mixer/develop/docs/_static/logo.png
+    :width: 100
 
-    <p align="center">
-        <a href="https://mixer.readthedocs.org"><img width="100" src="https://raw.github.com/klen/mixer/develop/docs/_static/logo.png"></a>
-    </p>
-
-    <p align="center"><strong>Mixer</strong> <em>- Generates test data for you.</em></p>
-
-The Mixer is an application to generate instances of Django or SQLAlchemy models.
+The **Mixer** is a helper to generate instances of Django or SQLAlchemy models.
 It's useful for testing and fixture replacement. Fast and convenient test-data
 generation.
 
