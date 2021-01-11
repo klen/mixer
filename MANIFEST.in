@@ -2,7 +2,6 @@ include LICENSE
 include MANIFEST.in
 include README.rst
 include Changelog
-include DESCRIPTION
 include requirements.txt
 include requirements-tests.txt
 include mixer/resources/file.txt
