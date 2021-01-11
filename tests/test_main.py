@@ -236,6 +236,9 @@ def test_ctx():
         mixer.blend(Test)
         assert LOGGER.level != level
 
+    dw = mixer.faker.day_of_week()
+    assert dw[0] in 'MTWFS'
+
     with mixer.ctx(locale='ru'):
         dw = mixer.faker.day_of_week()
         assert dw[0] in 'ПВСЧ'
