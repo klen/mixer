@@ -108,6 +108,9 @@ Quick example:
 
     # Generate SomeModel from SomeApp and force a value of money field from default to random
     some = mixer.blend('someapp.somemodel', money=mixer.RANDOM)
+    
+    # Generate SomeModel from SomeApp and skip the generation of money field
+    some = mixer.blend('someapp.somemodel', money=mixer.SKIP)
 
     # Generate 5 SomeModel's instances and take company field's values from custom generator
     some_models = mixer.cycle(5).blend('somemodel', company=(name for name in company_names))
@@ -138,6 +141,9 @@ Quick example:
 
     # Generate SomeModel from SomeApp and force a value of money field from default to random
     some = mixer.blend('project.models.SomeModel', money=mixer.RANDOM)
+    
+    # Generate SomeModel from SomeApp and skip the generation of money field
+    some = mixer.blend('project.models.SomeModel', money=mixer.SKIP)
 
     # Generate 5 SomeModel's instances and take company field's values from custom generator
     some_models = mixer.cycle(5).blend('project.models.SomeModel', company=(company for company in companies))
