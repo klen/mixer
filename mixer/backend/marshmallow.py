@@ -99,7 +99,7 @@ class TypeMixer(BaseTypeMixer):
         :return value:
 
         """
-        return field.scheme.default is missing and SKIP_VALUE or field.scheme.default # noqa
+        return (field.scheme.default is missing or field.scheme.default is None) and SKIP_VALUE or field.scheme.default  # noqa
 
     def populate_target(self, values):
         """ Populate target. """
