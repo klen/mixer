@@ -72,6 +72,7 @@ class TypeMixer(BaseTypeMixer):
 
     def __load_fields(self):
         for name, field in self.__scheme._declared_fields.items():
+            name = field.data_key if field.data_key is not None else name
             yield name, t.Field(field, name)
 
     def is_required(self, field):
