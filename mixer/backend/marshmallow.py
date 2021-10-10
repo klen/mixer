@@ -123,6 +123,16 @@ class TypeMixer(BaseTypeMixer):
                 field.inner, field_name=field_name, fake=fake, kwargs=kwargs)
             return lambda: [fab() for _ in range(faker.small_positive_integer(4))]
 
+        if isinstance(field, fields.Raw):
+            return dict
+
+        if isinstance(field, fields.Dict):
+            fab_key = self.make_fabric(
+                field.key_field, field_name=field_name, fake=fake, kwargs=kwargs)
+            fab_value = self.make_fabric(
+                field.value_field, field_name=field_name, fake=fake, kwargs=kwargs)
+            return lambda: {fab_key(): fab_value() for _ in range(faker.small_positive_integer(4))}
+
         for validator in field.validators:
             if isinstance(validator, validate.OneOf):
                 return partial(faker.random_element, validator.choices)
