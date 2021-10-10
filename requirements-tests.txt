@@ -1,6 +1,7 @@
 Django              >= 3.0
 Flask               >= 1.0
 Marshmallow         >= 3.9
+marshmallow_enum    >= 1.5.1
 SQLAlchemy          >= 1.1.4
 flask-sqlalchemy    >= 2.1
 mongoengine         >= 0.10.1

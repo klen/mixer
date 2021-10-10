@@ -12,6 +12,7 @@ import datetime as dt
 import decimal
 
 from marshmallow import fields, validate, missing, ValidationError
+from marshmallow_enum import EnumField
 
 from .. import mix_types as t
 from ..main import (
@@ -32,6 +33,12 @@ def get_nested(_scheme=None, _typemixer=None, _many=False, **kwargs):
         obj = [obj]
 
     return _scheme().dump(obj, many=_many)
+
+
+def to_enum(enum_field):
+    """Get a random enum."""
+    random_enum = faker.random_element(list(enum_field.enum))
+    return random_enum.value if enum_field.by_value else random_enum.name
 
 
 class GenFactory(BaseFactory):
@@ -61,6 +68,7 @@ class GenFactory(BaseFactory):
         fields.DateTime: lambda: faker.date_time().isoformat(),
         fields.AwareDateTime: lambda: faker.date_time().isoformat(),
         fields.Nested: get_nested,
+        EnumField: to_enum
     }
 
 
@@ -72,6 +80,7 @@ class TypeMixer(BaseTypeMixer):
 
     def __load_fields(self):
         for name, field in self.__scheme._declared_fields.items():
+            name = field.data_key if field.data_key is not None else name
             yield name, t.Field(field, name)
 
     def is_required(self, field):
@@ -81,7 +90,7 @@ class TypeMixer(BaseTypeMixer):
 
         """
         return field.scheme.required or (
-            self.__mixer.params['required'] and not field.scheme.dump_only)
+                self.__mixer.params['required'] and not field.scheme.dump_only)
 
     @staticmethod
     def get_default(field):
@@ -105,6 +114,9 @@ class TypeMixer(BaseTypeMixer):
 
         if isinstance(field, fields.Nested):
             kwargs.update({'_typemixer': self, '_scheme': type(field.schema), '_many': field.many})
+
+        if isinstance(field, EnumField):
+            kwargs.update({'enum_field': field})
 
         if isinstance(field, fields.List):
             fab = self.make_fabric(
