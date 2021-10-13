@@ -10,6 +10,7 @@ from __future__ import absolute_import
 
 import datetime as dt
 import decimal
+import typing
 
 from marshmallow import fields, validate, missing, ValidationError
 
@@ -51,7 +52,8 @@ class GenFactory(BaseFactory):
         fields.Email: t.EmailString,
         # fields.FormattedString
         # fields.TimeDelta
-        # fields.Dict
+        fields.Dict: dict,
+        fields.Raw: typing.Any,
         # fields.Method
         # fields.Function
         # fields.Constant

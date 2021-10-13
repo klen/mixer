@@ -12,6 +12,8 @@ class Person(ma.Schema):
     created_ = ma.fields.DateTime(data_key='created')
     birthday = ma.fields.Date()
     is_relative = ma.fields.Bool()
+    meta = ma.fields.Dict()
+    raw = ma.fields.Raw()
 
 
 class Pet(ma.Schema):
@@ -19,6 +21,7 @@ class Pet(ma.Schema):
     name = ma.fields.String()
     animal_type = ma.fields.String(dump_default='cat')
     awards = ma.fields.List(ma.fields.Str)
+
     owner = ma.fields.Nested(Person, many=True)
 
 
@@ -32,6 +35,8 @@ def test_mixer(mixer):
     person = mixer.blend(Person)
     assert person['name']
     assert person['created_']
+    assert person['meta']
+    assert person['raw']
     assert isinstance(person['is_relative'], bool)
     assert person['status'] in ('user', 'moderator', 'admin')
 
