@@ -1,3 +1,7 @@
+2021-10-13
+	* Support latest libraries
+	* Marshmallow: support Dict and Raw fields
+
 2020-12-30
 
 	* Drop Python2 Support
