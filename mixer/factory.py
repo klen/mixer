@@ -3,6 +3,7 @@
 import datetime
 import decimal
 import inspect
+from random import randint
 
 from . import _compat as _, mix_types as t
 from ._faker import faker
@@ -70,7 +71,7 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
         datetime.date: faker.date,
         datetime.datetime: faker.date_time,
         datetime.time: faker.time,
-        decimal.Decimal: faker.pydecimal,
+        decimal.Decimal: faker.small_decimal,
         t.BigInteger: faker.big_integer,
         t.EmailString: faker.email,
         t.HostnameString: faker.domain_name,

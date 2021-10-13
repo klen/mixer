@@ -73,19 +73,15 @@ docs: docs
 # =============
 
 VIRTUAL_ENV 	?= $(CURDIR)/env
-$(VIRTUAL_ENV): requirements.txt
+$(VIRTUAL_ENV): requirements.txt requirements-tests.txt
 	@[ -d $(VIRTUAL_ENV) ]	|| python -m venv $(VIRTUAL_ENV)
-	@$(VIRTUAL_ENV)/bin/pip install -r requirements.txt
+	@$(VIRTUAL_ENV)/bin/pip install -e .[tests]
 	@touch $(VIRTUAL_ENV)
-
-$(VIRTUAL_ENV)/bin/py.test: $(VIRTUAL_ENV) requirements-tests.txt
-	@$(VIRTUAL_ENV)/bin/pip install -r requirements-tests.txt
-	@touch $(VIRTUAL_ENV)/bin/py.test
 
 TEST=tests
 .PHONY: t
 # target: t - Runs tests
-t: clean $(VIRTUAL_ENV)/bin/py.test
+t: clean $(VIRTUAL_ENV)
 	$(VIRTUAL_ENV)/bin/py.test $(TEST) -s
 
 .PHONY: audit

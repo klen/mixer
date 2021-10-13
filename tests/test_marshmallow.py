@@ -1,6 +1,6 @@
-import marshmallow as ma
-import datetime as dt
 import pytest
+
+import marshmallow as ma
 
 
 class Person(ma.Schema):
@@ -9,7 +9,7 @@ class Person(ma.Schema):
     status = ma.fields.String(
         required=True,
         validate=ma.validate.OneOf(choices=('user', 'moderator', 'admin')))
-    created = ma.fields.DateTime()
+    created_ = ma.fields.DateTime(data_key='created')
     birthday = ma.fields.Date()
     is_relative = ma.fields.Bool()
 
@@ -17,7 +17,7 @@ class Person(ma.Schema):
 class Pet(ma.Schema):
 
     name = ma.fields.String()
-    animal_type = ma.fields.String(default='cat')
+    animal_type = ma.fields.String(dump_default='cat')
     awards = ma.fields.List(ma.fields.Str)
     owner = ma.fields.Nested(Person, many=True)
 
@@ -31,7 +31,7 @@ def mixer():
 def test_mixer(mixer):
     person = mixer.blend(Person)
     assert person['name']
-    assert person['created']
+    assert person['created_']
     assert isinstance(person['is_relative'], bool)
     assert person['status'] in ('user', 'moderator', 'admin')
 

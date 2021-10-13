@@ -33,7 +33,7 @@ class Rabbit(models.Model):
     money = models.IntegerField()
     ip = models.IPAddressField()
     ip6 = models.GenericIPAddressField(protocol='ipv6')
-    picture = models.FileField(upload_to=settings.TMPDIR)
+    picture = models.FileField()
 
     some_field = models.CommaSeparatedIntegerField(max_length=12)
     funny = models.NullBooleanField(null=False, blank=False)

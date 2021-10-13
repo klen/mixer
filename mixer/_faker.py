@@ -4,6 +4,7 @@ import locale as pylocale
 from collections import defaultdict
 
 from faker import Factory, Generator
+from random import randint
 from faker.config import DEFAULT_LOCALE, AVAILABLE_LOCALES, PROVIDERS
 from faker.providers import BaseProvider
 
@@ -59,9 +60,15 @@ class MixerProvider(BaseProvider):
 
         return self.generator.ipv4() if self.generator.boolean() else self.generator.ipv6()
 
+    def small_decimal(self, left_digits=None, right_digits=None, **kwargs):
+        return self.generator.pydecimal(
+            left_digits=left_digits or randint(1, 10),
+            right_digits=right_digits or randint(1, 10),
+            **kwargs)
+
     def positive_decimal(self, **kwargs):
         """ Get a positive decimal. """
-        return self.generator.pydecimal(positive=True, **kwargs)
+        return self.small_decimal(positive=True, **kwargs)
 
     def positive_integer(self, max=2147483647):  # noqa
         """ Get a positive integer. """

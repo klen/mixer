@@ -19,7 +19,7 @@ class Person(Model):
 
 
 class Pet(Model):
-    owner = ForeignKeyField(Person, related_name='pets')
+    owner = ForeignKeyField(Person, backref='pets')
     name = CharField()
     animal_type = CharField()
 
