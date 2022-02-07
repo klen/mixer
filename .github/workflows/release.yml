@@ -13,11 +13,11 @@ jobs:
     if: github.event.workflow_run.conclusion == 'success'
     steps:
 
-    - uses: actions/checkout@v2.3.4
+    - uses: actions/checkout@main
       with:
         fetch-depth: 5
 
-    - uses: actions/setup-python@v2.2.2
+    - uses: actions/setup-python@main
       with:
         python-version: 3.9
 
