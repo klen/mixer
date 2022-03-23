@@ -1,3 +1,6 @@
+2022-03-23
+	* Django: Support for UUIDField
+
 2021-10-13
 	* Support latest libraries
 	* Marshmallow: support Dict and Raw fields
