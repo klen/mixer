@@ -100,6 +100,7 @@ class GenFactory(BaseFactory):
         models.TextField: t.Text,
         models.TimeField: dt.time,
         models.URLField: t.URL,
+        models.UUIDField: t.UUID,
     }
 
     generators = {
