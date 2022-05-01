@@ -29,7 +29,7 @@ jobs:
 
     - name: Use cache
       id: cache-env
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: env
         key: ${{ runner.os }}-env-${{ matrix.python-version }}-${{ hashFiles('requirements.txt', 'requirements-tests.txt') }}
