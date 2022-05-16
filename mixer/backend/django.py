@@ -95,6 +95,7 @@ class GenFactory(BaseFactory):
         models.GenericIPAddressField: t.IPString,
         models.IPAddressField: t.IP4String,
         models.IntegerField: int,
+        models.JSONField: t.JSON,
         models.PositiveSmallIntegerField: t.PositiveSmallInteger,
         models.SmallIntegerField: t.SmallInteger,
         models.TextField: t.Text,
