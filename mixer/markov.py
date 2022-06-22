@@ -53,7 +53,7 @@ class MarkovChain(object):
             with open(self.dbFilePath, 'rb') as dbfile:
                 self.db = pickle.load(dbfile)
         except (IOError, ValueError):
-            logging.warn('Database file corrupt or not found, using empty database')
+            logging.warning('Database file corrupt or not found, using empty database')
             self.db = defaultdict(lambda: defaultdict(lambda: 1.0))
 
     def generateDatabase(self, textSample, sentenceSep='[.!?\n]', n=2):
@@ -97,7 +97,7 @@ class MarkovChain(object):
             # It looks like db was written successfully
             return True
         except IOError:
-            logging.warn('Database file could not be written')
+            logging.warning('Database file could not be written')
             return False
 
     def generateString(self):
