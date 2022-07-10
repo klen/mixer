@@ -3,10 +3,11 @@ import typing
 import mixer.mix_types as t
 import sys
 import random
+import dataclasses
 
 
 class GenFactory(BaseGenFactory):
-    
+
     @classmethod
     def cls_to_simple(cls, fcls):
         if hasattr(fcls, "__origin__"):
@@ -19,11 +20,10 @@ class GenFactory(BaseGenFactory):
 class TypeMixer(BaseTypeMixer):
     factory = GenFactory
 
-
     def populate_target(self, values):
-        if issubclass(self.__scheme, dict):
-            return self.__scheme(**{k: v for k,v in values})
-        
+        if issubclass(self.__scheme, dict) or dataclasses.is_dataclass(self.__scheme):
+            return self.__scheme(**{k: v for k, v in values})
+
         return super().populate_target(values)
 
     def __load_fields(self):
@@ -35,16 +35,15 @@ class TypeMixer(BaseTypeMixer):
         for fname, prop in annotations.items():
             if fname.startswith("_"):
                 continue
-            
 
             try:
                 obj_globals = sys.modules[self.__scheme.__module__].__dict__
             except (AttributeError, KeyError):
                 obj_globals = None
-            
+
             if isinstance(prop, typing.ForwardRef):
                 prop = prop.__forward_arg__
-            
+
             prop_type = eval(prop, obj_globals, dict(vars(self.__scheme)))
 
             yield fname, t.Field(

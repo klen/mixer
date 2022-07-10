@@ -255,7 +255,7 @@ Quick example:
 
     scheme = mixer.blend(Scheme, prop__one=1)
 
-Type annotations and typing.TypedDict
+Type annotations, typing.TypedDict and python dataclasses
 ------------
 Example:
 
@@ -277,7 +277,7 @@ Example:
 
     scheme = mixer.blend(Scheme, name="John", male=True) # {"name": "John", "male": True, ...}
 
-
+It works the same with python dataclasses.
 
 DB commits
 ----------

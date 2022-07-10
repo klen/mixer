@@ -1,5 +1,5 @@
 2022-07-10
-	* Add support for type annotations and typing.TypedDict
+	* Add support for type annotations, typing.TypedDict and dataclasses
 
 2022-03-23
 	* Django: Support for UUIDField
