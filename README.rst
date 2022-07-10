@@ -255,6 +255,29 @@ Quick example:
 
     scheme = mixer.blend(Scheme, prop__one=1)
 
+Type annotations and typing.TypedDict
+------------
+Example:
+
+.. code-block:: python
+
+    from mixer.backend.annotated import mixer
+    from typing import TypedDict
+
+    class Test:
+        one: int
+        two: int
+        name: str
+
+    class Scheme(TypedDict):
+        name: str
+        money: int
+        male: bool
+        prop: Test
+
+    scheme = mixer.blend(Scheme, name="John", male=True) # {"name": "John", "male": True, ...}
+
+
 
 DB commits
 ----------
