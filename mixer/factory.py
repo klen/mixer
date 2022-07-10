@@ -88,7 +88,7 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
         t.URL: faker.url,
         t.UUID: faker.uuid,
         t.JSON: faker.json,
-        type(None): '',
+        type(None): lambda: None,
     }
 
     fakers = {

@@ -9,3 +9,4 @@ pony                >= 0.7
 psycopg2-binary     >= 2.8.4
 
 pytest
+typing_extensions

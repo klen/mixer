@@ -1,15 +1,20 @@
 """ Test mixer base functionality. """
+from __future__ import annotations
 import datetime
 
 import pytest
 from decimal import Decimal
 
 from mixer.main import Mixer, TypeMixer
+from mixer.backend.annotated import (
+    Mixer as AnnotationMixer,
+    TypeMixer as AnnotationTypeMixer,
+)
 
 
 class Test:
 
-    """ Model scheme for base tests. """
+    """Model scheme for base tests."""
 
     one = int
     two = int
@@ -22,8 +27,36 @@ class Test:
     scheme = dict
 
 
+class AnnotationTest:
+    one: int
+    two: int
+    name: str
+    title: str
+    body: str
+    price: Decimal
+    choices: list
+    parts: set
+    scheme: dict
+
+
+class Scheme:
+    id = int
+    name = str
+    money = int
+    male = bool
+    prop = Test
+
+
+class AnnotationScheme:
+    id: int
+    name: str
+    money: int
+    male: bool
+    prop: AnnotationTest
+
+
 def test_factory():
-    """ Test base generator's factory. """
+    """Test base generator's factory."""
     from mixer.main import GenFactory
 
     g = GenFactory()
@@ -34,59 +67,59 @@ def test_factory():
     assert test() in (True, False)
 
 
-def test_typemixer_meta():
-    """ Tests that typemixer is a singleton for current class. """
-    mixer1 = TypeMixer(Test)
-    mixer2 = TypeMixer(Test, fake=False)
-    mixer3 = TypeMixer(Test, fake=False)
+@pytest.mark.parametrize(
+    "typemixer_cls, scheme", [(TypeMixer, Test), (AnnotationTypeMixer, AnnotationTest)]
+)
+def test_typemixer_meta(typemixer_cls, scheme):
+    """Tests that typemixer is a singleton for current class."""
+    mixer1 = typemixer_cls(scheme)
+    mixer2 = typemixer_cls(scheme, fake=False)
+    mixer3 = typemixer_cls(scheme, fake=False)
 
     assert mixer1 is not mixer2
     assert mixer2 is mixer3
 
 
-def test_typemixer():
+@pytest.mark.parametrize(
+    "mixer", [TypeMixer(Scheme), AnnotationTypeMixer(AnnotationScheme)]
+)
+def test_typemixer(mixer):
 
-    class Scheme:
-        id = int
-        name = str
-        money = int
-        male = bool
-        prop = Test
-
-    mixer = TypeMixer(Scheme)
-    test = mixer.blend(prop__two=2, prop__one=1, prop__name='sigil', name='RJ')
+    test = mixer.blend(prop__two=2, prop__one=1, prop__name="sigil", name="RJ")
     assert test.male in (True, False)
-    assert test.name == 'RJ'
+    assert test.name == "RJ"
     assert test.prop.two == 2
-    assert test.prop.name == 'sigil'
+    assert test.prop.name == "sigil"
 
-    test = mixer.blend(prop__two=4, unknown=lambda: '?')
+    test = mixer.blend(prop__two=4, unknown=lambda: "?")
     assert test.prop.two == 4
-    assert test.unknown == '?'
+    assert test.unknown == "?"
 
 
-def test_fake():
-    from mixer.main import mixer
+@pytest.mark.parametrize(
+    "mixer, scheme", [(Mixer(), Test), (AnnotationMixer(), AnnotationTest)]
+)
+def test_fake(mixer, scheme):
 
-    test = mixer.blend(Test, name=mixer.FAKE, title=mixer.FAKE)
-    assert ' ' in test.name
-    assert ' ' in test.title
+    test = mixer.blend(scheme, name=mixer.FAKE, title=mixer.FAKE)
+    assert " " in test.name
+    assert " " in test.title
 
-    test = mixer.blend(Test, name=mixer.FAKE(bool))
+    test = mixer.blend(scheme, name=mixer.FAKE(bool))
     assert test.name in (True, False)
 
 
-def test_random():
+@pytest.mark.parametrize("mixer", [TypeMixer(Test), AnnotationTypeMixer(Test)])
+def test_random(mixer):
     from mixer._compat import string_types
 
-    mixer = TypeMixer(Test)
     test = mixer.blend(name=mixer.RANDOM)
     assert isinstance(test.name, string_types)
 
     test = mixer.blend(name=mixer.RANDOM(int))
     assert isinstance(test.name, int)
 
-    names = ['john_', 'kenn_', 'lenny_']
+    names = ["john_", "kenn_", "lenny_"]
     test = mixer.blend(name=mixer.RANDOM(*names))
     assert test.name in names
 
@@ -94,10 +127,7 @@ def test_random():
 def test_mix():
     from mixer.main import mixer
 
-    lama = type('One', tuple(), dict(
-        two=int,
-        one=type('Two', tuple(), dict(two=2.1))
-    ))
+    lama = type("One", tuple(), dict(two=int, one=type("Two", tuple(), dict(two=2.1))))
     mix = mixer.MIX.one.two
     assert mix & lama == 2.1
 
@@ -109,82 +139,92 @@ def test_mix():
     assert test.two == test.one.two
 
 
-def test_mixer():
-    mixer = Mixer()
+@pytest.mark.parametrize(
+    "mixer, scheme", [(Mixer(), Test), (AnnotationMixer(), AnnotationTest)]
+)
+def test_mixer(mixer, scheme):
 
     assert Mixer.SKIP == mixer.SKIP
     try:
         Mixer.SKIP = 111
-        raise AssertionError('test are failed')
+        raise AssertionError("test are failed")
     except AttributeError:
         pass
     try:
         mixer.SKIP = 111
-        raise AssertionError('test are failed')
+        raise AssertionError("test are failed")
     except AttributeError:
         pass
 
-    gen = ('test{0}'.format(i) for i in range(500))
-    test = mixer.blend('tests.test_main.Test', name=gen)
-    assert test.name == 'test0'
+    gen = ("test{0}".format(i) for i in range(500))
+    test = mixer.blend(f"tests.test_main.{scheme.__name__}", name=gen)
+    assert test.name == "test0"
 
-    name_gen = mixer.sequence(lambda c: 'test' + str(c))
-    test = mixer.blend(Test, name=name_gen)
-    test = mixer.blend(Test, name=name_gen)
-    test = mixer.blend(Test, name=name_gen)
-    assert test.name == 'test2'
+    name_gen = mixer.sequence(lambda c: "test" + str(c))
+    test = mixer.blend(scheme, name=name_gen)
+    test = mixer.blend(scheme, name=name_gen)
+    test = mixer.blend(scheme, name=name_gen)
+    assert test.name == "test2"
 
-    name_gen = mixer.sequence('test{0}')
-    test = mixer.blend(Test, name=name_gen)
-    test = mixer.blend(Test, name=name_gen)
-    assert test.name == 'test1'
+    name_gen = mixer.sequence("test{0}")
+    test = mixer.blend(scheme, name=name_gen)
+    test = mixer.blend(scheme, name=name_gen)
+    assert test.name == "test1"
 
     name_gen = mixer.sequence()
-    test = mixer.blend(Test, name=name_gen)
-    test = mixer.blend(Test, name=name_gen)
+    test = mixer.blend(scheme, name=name_gen)
+    test = mixer.blend(scheme, name=name_gen)
     assert test.name == 1
 
-    mixer.register('tests.test_main.Test',
-                   name='Michel', one=lambda: 'ID', unknown="No error here")
-    test = mixer.blend(Test)
-    assert test.one == 'ID'
-    assert test.name == 'Michel'
+    mixer.register(
+        f"tests.test_main.{scheme.__name__}",
+        name="Michel",
+        one=lambda: "ID",
+        unknown="No error here",
+    )
+    test = mixer.blend(scheme)
+    assert test.one == "ID"
+    assert test.name == "Michel"
 
 
-def test_mixer_cycle():
-    mixer = Mixer()
-    test = mixer.cycle(3).blend(Test)
+@pytest.mark.parametrize(
+    "mixer, scheme", [(Mixer(), Test), (AnnotationMixer(), AnnotationTest)]
+)
+def test_mixer_cycle(mixer, scheme):
+    test = mixer.cycle(3).blend(scheme)
     assert len(test) == 3
-    assert test[0].__class__ == Test
+    assert test[0].__class__ == scheme
 
-    test = mixer.cycle(3).blend(Test, name=mixer.sequence('lama{0}'))
-    assert test[2].name == 'lama2'
+    test = mixer.cycle(3).blend(scheme, name=mixer.sequence("lama{0}"))
+    assert test[2].name == "lama2"
 
 
-def test_mixer_default():
-    from mixer.main import mixer
+@pytest.mark.parametrize(
+    "mixer, scheme", [(Mixer(), Test), (AnnotationMixer(), AnnotationTest)]
+)
+def test_mixer_default(mixer, scheme):
 
-    test = mixer.blend(Test)
+    test = mixer.blend(scheme)
     assert test.name
 
 
-def test_invalid_scheme():
-    from mixer.main import mixer
+@pytest.mark.parametrize("mixer", [Mixer(), AnnotationMixer()])
+def test_invalid_scheme(mixer):
 
     with pytest.raises(ValueError):
-        mixer.blend('tests.test_main.Unknown')
+        mixer.blend("tests.test_main.Unknown")
 
 
-def test_sequence():
-    from mixer.main import mixer
+@pytest.mark.parametrize("mixer", [Mixer(), AnnotationMixer()])
+def test_sequence(mixer):
 
     gen = mixer.sequence()
     assert next(gen) == 0
     assert next(gen) == 1
 
-    gen = mixer.sequence('test - {0}')
-    assert next(gen) == 'test - 0'
-    assert next(gen) == 'test - 1'
+    gen = mixer.sequence("test - {0}")
+    assert next(gen) == "test - 0"
+    assert next(gen) == "test - 1"
 
     gen = mixer.sequence(lambda c: c + 2)
     assert next(gen) == 2
@@ -196,23 +236,25 @@ def test_sequence():
     assert next(gen) == 4
 
 
-def test_custom():
-    mixer = Mixer()
-
-    @mixer.middleware(Test)
-    def postprocess(x): # noqa
-        x.name += ' Done'
+@pytest.mark.parametrize(
+    "mixer_cls, scheme", [(Mixer, Test), (AnnotationMixer, AnnotationTest)]
+)
+def test_custom(mixer_cls, scheme):
+    mixer = mixer_cls()
+    @mixer.middleware(scheme)
+    def postprocess(x):  # noqa
+        x.name += " Done"
         return x
 
     mixer.register(
-        Test,
-        name='Mike',
+        scheme,
+        name="Mike",
         one=mixer.faker.pyfloat,
         body=mixer.faker.date_time,
     )
 
-    test = mixer.blend(Test)
-    assert test.name == 'Mike Done'
+    test = mixer.blend(scheme)
+    assert test.name == "Mike Done"
     assert isinstance(test.one, float)
     assert isinstance(test.body, datetime.datetime)
 
@@ -221,69 +263,75 @@ def test_custom():
     class MyFactory(GenFactory):
         generators = {str: lambda: "Always same"}
 
-    mixer = Mixer(factory=MyFactory, fake=False)
-    test = mixer.blend(Test)
+    mixer = mixer_cls(factory=MyFactory, fake=False)
+    test = mixer.blend(scheme)
     assert test.name == "Always same"
 
-
-def test_ctx():
+@pytest.mark.parametrize(
+    "mixer, scheme", [(Mixer(), Test), (AnnotationMixer(), AnnotationTest)]
+)
+def test_ctx(mixer,scheme):
     from mixer.main import LOGGER
 
-    mixer = Mixer()
+    
     level = LOGGER.level
 
-    with mixer.ctx(loglevel='INFO'):
-        mixer.blend(Test)
+    with mixer.ctx(loglevel="INFO"):
+        mixer.blend(scheme)
         assert LOGGER.level != level
 
     dw = mixer.faker.day_of_week()
-    assert dw[0] in 'MTWFS'
+    assert dw[0] in "MTWFS"
 
-    with mixer.ctx(locale='ru'):
+    with mixer.ctx(locale="ru"):
         dw = mixer.faker.day_of_week()
-        assert dw[0] in 'ПВСЧ'
+        assert dw[0] in "ПВСЧ"
 
     assert LOGGER.level == level
 
+@pytest.mark.parametrize(
+    "mixer", [Mixer(), AnnotationMixer()]
+)
+def test_locale(mixer):
+    mixer.faker.locale = "ru"
 
-def test_locale():
-    mixer = Mixer()
-    mixer.faker.locale = 'ru'
-
-    with mixer.ctx(locale='it'):
+    with mixer.ctx(locale="it"):
         mixer.faker.name()
 
-    assert mixer.faker.locale == 'ru_RU'
+    assert mixer.faker.locale == "ru_RU"
 
-    with mixer.ctx(loglevel='INFO'):
+    with mixer.ctx(loglevel="INFO"):
         mixer.faker.name()
 
-    assert mixer.faker.locale == 'ru_RU'
+    assert mixer.faker.locale == "ru_RU"
 
-
-def test_silence():
-    mixer = Mixer()
+@pytest.mark.parametrize(
+    "mixer, scheme", [(Mixer(), Test), (AnnotationMixer(), AnnotationTest)]
+)
+def test_silence(mixer, scheme):
+    
 
     class CustomException(Exception):
         pass
 
-    @mixer.middleware(Test)
-    def falsed(test): # noqa
-        raise CustomException('Unhandled')
+    @mixer.middleware(scheme)
+    def falsed(test):  # noqa
+        raise CustomException("Unhandled")
 
     with pytest.raises(CustomException):
-        mixer.blend(Test)
+        mixer.blend(scheme)
 
     with mixer.ctx(silence=True):
-        mixer.blend(Test)
+        mixer.blend(scheme)
 
-    mixer.unregister_middleware(Test, falsed)
-    mixer.blend(Test)  # does not raise any exceptions
+    mixer.unregister_middleware(scheme, falsed)
+    mixer.blend(scheme)  # does not raise any exceptions
 
-
-def test_guard():
-    mixer = Mixer()
-    test = mixer.guard().blend(Test)
+@pytest.mark.parametrize(
+    "mixer, scheme", [(Mixer(), Test), (AnnotationMixer(), AnnotationTest)]
+)
+def test_guard(mixer, scheme):
+    test = mixer.guard().blend(scheme)
     assert test
 
 
@@ -293,10 +341,11 @@ def test_skip():
     assert test.one is not mixer.SKIP
     assert test.one is int
 
-
-def test_reload():
-    mixer = Mixer()
-    test = mixer.blend(Test)
+@pytest.mark.parametrize(
+    "mixer, scheme", [(Mixer(), Test), (AnnotationMixer(), AnnotationTest)]
+)
+def test_reload(mixer, scheme):
+    test = mixer.blend(scheme)
     test2 = mixer.reload(test)
     assert test is not test2
     assert test.name == test2.name
