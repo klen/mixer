@@ -106,7 +106,7 @@ class MarkovChain(object):
 
     def generateStringWithSeed(self, seed):
         """ Generate a "sentence" with the database and a given word """
-        # using str.split here means we're contructing the list in memory
+        # using str.split here means we're constructing the list in memory
         # but as the generated sentence only depends on the last word of the seed
         # I'm assuming seeds tend to be rather short.
         words = seed.split()

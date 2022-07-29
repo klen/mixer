@@ -425,7 +425,7 @@ class ProxyMixer:
         raise AttributeError('Use "cycle" only for "blend"')
 
 
-# Support depricated attributes
+# Support deprecated attributes
 class _MetaMixer(type):
 
     FAKE = property(lambda cls: t.Fake())
@@ -479,7 +479,7 @@ class Mixer(_.with_metaclass(_MetaMixer)):
 
     def __getattr__(self, name):
         if name in ['f', 'g', 'fake', 'random', 'mix', 'select']:
-            warnings.warn('"mixer.%s" is depricated, use "mixer.%s" instead.'
+            warnings.warn('"mixer.%s" is deprecated, use "mixer.%s" instead.'
                           % (name, name.upper()), stacklevel=2)
             name = name.upper()
             return getattr(self, name)

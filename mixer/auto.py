@@ -6,7 +6,7 @@ from . import _compat as _
 
 class MixerProxy(object):
 
-    """ Load mixer for class automaticly.
+    """ Load mixer for class automatically.
 
     ::
 
