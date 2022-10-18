@@ -19,7 +19,7 @@
 	* Added Django 2.0 support for Python 3.6;
 	* Added Django 1.10 support for Python 3.6;
 	* Added Django 1.11 support for Python 3.5+.
-	* Droped support for Django 1.9-
+	* Dropped support for Django 1.9-
 
 2016-11-16  horneds
 
@@ -48,7 +48,7 @@
 	* fake-factory (Faker) integrated to Mixer
 	* Support locales
 	* WARNING: API has been changed (mixer.G, mixer.F has been removed,
-	use mixer.faker insted)
+	use mixer.faker instead)
 
 2014-11-18  horneds
 
@@ -185,7 +185,7 @@
 
 	* Version 2.0.0
 	* 'mixer.random', 'mixer.fake', 'mixer.select', 'mixer.mix',
-	'mixer.f', 'mixer.g' -- are depricated use them in UPPERCASE ('mixer.RANDOM' and etc)
+	'mixer.f', 'mixer.g' -- are deprecated use them in UPPERCASE ('mixer.RANDOM' and etc)
 	* Added 'mixer.SKIP' attribute for skipping a value generation
 
 2013-12-27  horneds
