@@ -193,7 +193,11 @@ class Mixer(BaseMixer):
 
         """
         if self.params.get('commit'):
-            target.save()
+            force_insert = False
+            target_exists = type(target).select().where(type(target).id == target.id).exists()
+            if target.id is not None and not target_exists:
+                force_insert = True
+            target.save(force_insert=force_insert)
 
         return target
 
