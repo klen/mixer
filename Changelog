@@ -1,3 +1,13 @@
+2023-07-01
+  * Library is rewritten from scratch
+
+2023-03-25
+	* Drop support for python < 3.8
+	* Drop support for Flask
+	* Drop support for Pony ORM
+	* Drop support for Marshmallow
+	* Add support for Pydantic
+
 2022-03-23
 	* Django: Support for UUIDField
 
@@ -174,7 +184,7 @@
 	        # No errors will be raised
 		user = mixer.blend('auth.User', username='mike')
 		null = mixer.blend('auth.User', username='mike')
-		
+
 
 2014-01-03  horneds
 

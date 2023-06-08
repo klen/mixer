@@ -1,22 +1,28 @@
-MODULE=mixer
-SPHINXBUILD=sphinx-build
-ALLSPHINXOPTS= -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
-BUILDDIR=_build
+PACKAGE = mixer
 
-all: $(VIRTUAL_ENV)
+# ==============
+#  Developemnt
+# ==============
 
-.PHONY: help
-# target: help - Display callable targets
-help:
-	@egrep "^# target:" [Mm]akefile
+VIRTUAL_ENV ?= $(CURDIR)/.venv
+$(VIRTUAL_ENV): poetry.lock
+	@poetry install --with dev,tests
+	@poetry run pre-commit install --hook-type pre-push
+	@touch $(VIRTUAL_ENV)
 
-.PHONY: clean
-# target: clean - Clean repo
-clean:
-	@rm -rf build dist docs/_build
-	find $(CURDIR)/$(MODULE) -name "*.pyc" -delete
-	find $(CURDIR)/$(MODULE) -name "*.orig" -delete
-	find $(CURDIR)/$(MODULE) -name "__pycache__" -delete
+.PHONY: test t
+test t: $(VIRTUAL_ENV)
+	@poetry run pytest tests
+
+.PHONY: lint
+lint: $(VIRTUAL_ENV)
+	@poetry run mypy $(PACKAGE)
+	@poetry run ruff $(PACKAGE)
+
+.PHONY: doc
+# target: doc - Compile the docs
+doc: docs
+	@poetry run sphinx-build --source-dir=docs/ --build-dir=docs/_build --all-files
 
 
 # ==============
@@ -24,76 +30,31 @@ clean:
 # ==============
 
 .PHONY: release
-VERSION?=minor
+VPART?=minor
 # target: release - Bump version
-release:
-	@pip install bump2version
-	@bump2version $(VERSION)
-	@git checkout master
-	@git merge develop
-	@git checkout develop
-	@git push origin master develop
-	@git push --tags
+release: $(VIRTUAL_ENV)
+	git checkout develop
+	git pull
+	git checkout master
+	git merge develop
+	git pull
+	@poetry version $(VPART)
+	git commit -am "Bump version: `poetry version -s`"
+	git tag `poetry version -s`
+	git checkout develop
+	git merge master
 
 .PHONY: minor
 minor: release
 
 .PHONY: patch
 patch:
-	make release VERSION=patch
+	make release VPART=patch
 
+.PHONY: major
+major:
+	make release VPART=major
 
-# ===============
-#  Build package
-# ===============
-
-.PHONY: register
-# target: register - Register module on PyPi
-register:
-	@python setup.py register
-
-.PHONY: upload
-# target: upload - Upload module on PyPi
-upload: clean
-	@pip install twine wheel
-	@python setup.py sdist bdist_wheel
-	@twine upload dist/*.whl || true
-	@twine upload dist/*.gz || true
-
-.PHONY: docs
-# target: docs - Compile the docs
-docs: docs
-	@$(VIRTUAL_ENV)/bin/pip install sphinx
-	python setup.py build_sphinx --source-dir=docs/ --build-dir=docs/_build --all-files
-	# python setup.py upload_sphinx --upload-dir=docs/_build/html
-
-
-# =============
-#  Development
-# =============
-
-VIRTUAL_ENV 	?= $(CURDIR)/env
-$(VIRTUAL_ENV): requirements.txt requirements-tests.txt
-	@[ -d $(VIRTUAL_ENV) ]	|| python -m venv $(VIRTUAL_ENV)
-	@$(VIRTUAL_ENV)/bin/pip install -e .[tests]
-	@touch $(VIRTUAL_ENV)
-
-TEST=tests
-.PHONY: t
-# target: t - Runs tests
-t: clean $(VIRTUAL_ENV)
-	$(VIRTUAL_ENV)/bin/py.test $(TEST) -s
-
-.PHONY: audit
-# target: audit - Audit code
-audit:
-	@pylama $(MODULE) -i E501
-
-.PHONY: serve
-# target: serve - Run HTTP server with compiled docs
-serve:
-	pyserve docs/_build/html/
-
-.PHONY: pep8
-pep8:
-	find $(MODULE) -name "*.py" | xargs -n 1 autopep8 -i
+.PHONY: version v
+version v:
+	@poetry version -s

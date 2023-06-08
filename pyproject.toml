@@ -1,0 +1,72 @@
+[tool.poetry]
+name = "mixer"
+version = "8.0.0"
+homepage = "https://github.com/klen/mixer"
+description = "Mixer -- Is a fixtures replacement. Supported Django ORM, SqlAlchemy ORM, Mongoengine ODM and many other libraries."
+readme = "README.rst"
+license = "MIT"
+keywords = [
+  "testing",
+  "fixtures",
+  "mock",
+  "stub",
+  "data",
+  "django",
+  "sqlalchemy",
+  "mongoengine",
+  "peewee",
+  "pydantic",
+]
+authors = ["Kirill Klenov <horneds@gmail.com>"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Topic :: Software Development :: Testing",
+  "Topic :: Utilities",
+]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+faker = "*"
+signalbus = "^0.2.4"
+
+[tool.poetry.group.tests.dependencies]
+aiosqlite = "*"
+django = "*"
+mongoengine = "*"
+peewee = "*"
+peewee-aio = "*"
+pydantic = "*"
+pytest = "*"
+pytest-aio = "*"
+pytest-mypy = "*"
+sqlalchemy = "*"
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "*"
+ruff = "*"
+black = "*"
+ipdb = "*"
+sphinx = "*"
+
+[tool.ruff]
+line-length = 100
+select = ['ALL']
+target-version = "py38"
+ignore = ['A', 'ARG', 'ANN', 'D', 'DJ', 'COM', 'PLR', 'ERA', 'SLF', 'S', 'UP', 'TCH', 'TD', 'FIX']
+
+[tool.black]
+preview = true
+line-length = 100
+target-version = ["py38", "py39", "py310", "py311"]
+
+[tool.pytest.ini_options]
+addopts = "-lsvx"
