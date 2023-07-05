@@ -43,7 +43,7 @@ def iterable_helper(ftype: Type[TV], fctype: Type) -> Callable[..., TV]:
         error_message = f"Unsupported type: {fctype}"
         raise ValueError(error_message)
 
-    def gen(length=5):
+    def gen(length=5, **params):
         gen = generator
         return ftype(gen() for _ in range(length))
 

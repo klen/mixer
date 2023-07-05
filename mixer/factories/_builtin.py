@@ -77,7 +77,8 @@ def complex_factory(ftype, *, unique=False, **params) -> TGen[complex]:
 
 @register(bool)
 def bool_factory(ftype, **params) -> TGen[bool]:
-    return FAKER.pybool
+    gen = FAKER.pybool
+    return lambda **params: gen()
 
 
 @register(bytes)
@@ -93,7 +94,7 @@ def factory_bytes(ftype, **params) -> TGen[bytes]:
 def tuple_factory(ftype, **params) -> TGen[tuple]:
     args = get_args(ftype)
     if not args:
-        return FAKER.pytuple
+        return lambda **params: FAKER.pytuple()
 
     return iterable_helper(tuple, args[0])
 
@@ -108,7 +109,7 @@ def dict_factory(ftype, **params) -> TGen[dict]:
 
     args = get_args(ftype)
     if not args:
-        return FAKER.pydict
+        return lambda **params: FAKER.pydict()
 
     key_type, value_type = args
     keys_gen = iterable_helper(tuple, key_type)
@@ -125,7 +126,7 @@ def list_factory(ftype: list, **params) -> Callable[..., list]:
     """Generate list value."""
     args = get_args(ftype)
     if not args:
-        return FAKER.pylist
+        return lambda **params: FAKER.pylist()
 
     return iterable_helper(list, args[0])
 
@@ -135,6 +136,6 @@ def set_factory(ftype: set, **params) -> Callable[..., set]:
     """Generate set value."""
     args = get_args(ftype)
     if not args:
-        return FAKER.pyset
+        return lambda **params: FAKER.pyset()
 
     return iterable_helper(set, args[0])

@@ -142,7 +142,9 @@ def test_skip(post_type):
     "post_type", [fx.Post, fx.DCPost, fx.PWPost, fx.PDPost, fx.DJPost, fx.MEPost, fx.SAPost]
 )
 def test_random(post_type):
-    res = mixer.blend(post_type, order=mixer.RANDOM, user__logged_at=mixer.RANDOM)
+    res = mixer.blend(
+        post_type, order=mixer.RANDOM, user__logged_at=mixer.RANDOM, is_published=mixer.RANDOM
+    )
     assert res
     assert res.order != 0
     assert res.user.logged_at
