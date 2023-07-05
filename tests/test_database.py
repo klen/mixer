@@ -24,10 +24,7 @@ async def setup_pwa():
         await fx.PWAPost.drop_table()
 
 
-@pytest.mark.parametrize(
-    "post_type",
-    [fx.PWPost, fx.DJPost, fx.MEPost, fx.SAPost],
-)
+@pytest.mark.parametrize("post_type", [fx.PWPost, fx.DJPost, fx.MEPost, fx.SAPost])
 def test_commit_reload(post_type, mixer: Mixer):
     # Support SQLAlchemy
     if post_type is fx.SAPost:
@@ -46,7 +43,10 @@ def test_commit_reload(post_type, mixer: Mixer):
 
 
 async def test_commit_reload_pwa(mixer: Mixer, setup_pwa):
-    post = await mixer.blend(fx.PWAPost)
+    user = await mixer.blend(fx.PWAUser)
+    assert user.id == 1
+
+    post = await mixer.blend(fx.PWAPost, user=user)
     assert post.id
 
     post = await mixer.reload(post)

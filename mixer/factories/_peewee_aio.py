@@ -7,8 +7,9 @@ from mixer import database as db
 async def commit(instance: AIOModel, **params):
     """Commit instance to the database."""
     for name, rel in instance.__rel__.items():
-        res = await db.commit(rel)
-        setattr(instance, name, res)
+        if rel._pk is None:
+            res = await db.commit(rel)
+            setattr(instance, name, res)
 
     await instance.save(force_insert=True)
     return instance

@@ -5,6 +5,7 @@ from typing import BinaryIO, Callable, Optional, Type
 from uuid import UUID
 
 import mongoengine as me
+from bson.objectid import ObjectId
 
 from mixer import database as db
 from mixer import types as mt
@@ -38,6 +39,9 @@ map_type(me.UUIDField, UUID)
 # Multiline, ...
 
 
+register(me.ObjectIdField, ObjectId)
+
+
 @register(me.EnumField)
 def factory_me_enum(ftype: Type[me.EnumField], *, instance: me.EnumField, **params):
     enum = instance._enum_cls
@@ -48,7 +52,11 @@ def factory_me_enum(ftype: Type[me.EnumField], *, instance: me.EnumField, **para
 @register(me.ReferenceField)
 @register(me.CachedReferenceField)
 def factory_me_rf(ftype: Type[me.ReferenceField], *, instance: me.ReferenceField, **params):
-    return factory_me_document(instance.document_type, **params)
+    document_type = instance.document_type
+    if document_type is None:
+        msg = "document_type is required for ReferenceField"
+        raise ValueError(msg)
+    return factory_me_document(document_type, **params)
 
 
 @register(me.Document)

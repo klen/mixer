@@ -2,6 +2,7 @@ from datetime import date, datetime
 from uuid import UUID
 
 import pytest
+from mongoengine.fields import ObjectId
 
 from mixer import mixer
 from mixer.main import Mixer
@@ -26,12 +27,12 @@ def test_mixer():
 @pytest.mark.parametrize(
     ("post_type", "user_type"),
     [
+        (fx.MEPost, fx.MEUser),
         (fx.Post, fx.User),
         (fx.DCPost, fx.DCUser),
         (fx.PWPost, fx.PWUser),
         (fx.PDPost, fx.PDUser),
         (fx.DJPost, fx.DJUser),
-        (fx.MEPost, fx.MEUser),
         (fx.SAPost, fx.SAUser),
     ],
 )
@@ -42,7 +43,7 @@ def test_generation(post_type, user_type):
     if post_type is fx.SAPost:
         assert isinstance(res.id, int)
     elif post_type is fx.MEPost:
-        assert isinstance(res.id, fx.me.ObjectIdField)
+        assert isinstance(res.id, ObjectId)
     else:
         assert isinstance(res.id, UUID)
 

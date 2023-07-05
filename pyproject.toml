@@ -36,7 +36,7 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.8"
 faker = "*"
-signalbus = "^0.2.4"
+signalbus = "*"
 
 [tool.poetry.group.tests.dependencies]
 aiosqlite = "*"

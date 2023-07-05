@@ -93,7 +93,8 @@ def factory_pw_field(field, **params) -> Optional[Callable]:
 def commit(instance: pw.Model, **params):
     """Commit instance to the database."""
     for rel in instance.__rel__.values():
-        db.commit(rel)
+        if rel._pk is None:
+            db.commit(rel)
 
     instance.save(force_insert=True)
     return instance
