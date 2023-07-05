@@ -1,15 +1,14 @@
 from typing import Callable
 
-from pydantic import BaseModel
-from pydantic.fields import ModelField
+from pydantic import v1
 
 from . import register
 from .helpers import make_fields, make_gen
 from .utils import defaultable
 
 
-@register(BaseModel)
-def model_factory(ftype, name=None, **params) -> Callable[..., BaseModel]:
+@register(v1.BaseModel)
+def model_factory(ftype, name=None, **params) -> Callable[..., v1.BaseModel]:
     """Generate type value."""
     fields = ftype.__fields__
     generators = {name: make_gen(field, name=name, **params) for name, field in fields.items()}
@@ -21,8 +20,8 @@ def model_factory(ftype, name=None, **params) -> Callable[..., BaseModel]:
     return gen_pydantic
 
 
-@register(ModelField)
-def field_factory(ftype, *, instance: ModelField, **params):
+@register(v1.fields.ModelField)
+def field_factory(ftype, *, instance: v1.fields.ModelField, **params):
     ftype = instance.annotation
     gen = make_gen(ftype, **params)
 

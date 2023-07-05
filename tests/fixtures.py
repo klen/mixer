@@ -7,7 +7,7 @@ from uuid import UUID
 # Simple classes
 # --------------
 class CustomType(str):
-    pass
+    __slots__ = ()
 
 
 class User:
@@ -131,7 +131,7 @@ class PWAPost(AIOModel):
 
 # Pydantic classes
 # ----------------
-import pydantic as pd
+from pydantic import v1 as pd
 
 
 class PDUser(pd.BaseModel):

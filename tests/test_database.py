@@ -18,7 +18,7 @@ async def setup_pwa():
         await fx.PWAUser.create_table()
         await fx.PWAPost.create_table()
 
-        yield
+        yield True
 
         await fx.PWAUser.drop_table()
         await fx.PWAPost.drop_table()

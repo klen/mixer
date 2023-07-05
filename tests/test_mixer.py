@@ -4,13 +4,13 @@ from uuid import UUID
 import pytest
 
 from mixer import mixer
+from mixer.main import Mixer
 
 from . import fixtures as fx
 
 # TODO:
-# mixer.reload
 # mixer.register
-# mixer.middleware
+# mix?
 
 
 def test_mixer():
@@ -61,6 +61,16 @@ def test_generation(post_type, user_type):
     assert role in ["user", "admin"]
 
 
+def test_params_fake(mixer: Mixer):
+    res = mixer.blend(fx.Post)
+    assert res
+    assert res.title
+    with mixer.ctx(fake=False):
+        res = mixer.blend(fx.Post)
+    assert res
+    assert res.title
+
+
 @pytest.mark.parametrize(
     "post_type", [fx.Post, fx.DCPost, fx.PWPost, fx.PDPost, fx.DJPost, fx.MEPost, fx.SAPost]
 )
@@ -69,6 +79,45 @@ def test_cycle(post_type):
     assert res
     assert len(res) == 3
     assert all(isinstance(rp, post_type) for rp in res)
+
+
+@pytest.mark.parametrize(
+    "post_type", [fx.Post, fx.DCPost, fx.PWPost, fx.PDPost, fx.DJPost, fx.MEPost, fx.SAPost]
+)
+def test_cycle_gen(post_type):
+    res = mixer.cycle(3).blend(post_type, title=(t for t in ["p0", "p1", "p2"]))
+    assert res
+    assert len(res) == 3
+    posts = list(res)
+    assert posts[0].title == "p0"
+    assert posts[1].title == "p1"
+    assert posts[2].title == "p2"
+
+
+@pytest.mark.parametrize(
+    "post_type", [fx.Post, fx.DCPost, fx.PWPost, fx.PDPost, fx.DJPost, fx.MEPost, fx.SAPost]
+)
+def test_cycle_gen2(post_type):
+    res = mixer.cycle(3).blend(post_type, title=mixer.gen("p{}"))
+    assert res
+    assert len(res) == 3
+    posts = list(res)
+    assert posts[0].title == "p0"
+    assert posts[1].title == "p1"
+    assert posts[2].title == "p2"
+
+
+@pytest.mark.parametrize(
+    "post_type", [fx.Post, fx.DCPost, fx.PWPost, fx.PDPost, fx.DJPost, fx.MEPost, fx.SAPost]
+)
+def test_cycle_gen3(post_type):
+    res = mixer.cycle(3).blend(post_type, title=mixer.gen("p0", "p1", "p2"))
+    assert res
+    assert len(res) == 3
+    posts = list(res)
+    assert posts[0].title == "p0"
+    assert posts[1].title == "p1"
+    assert posts[2].title == "p2"
 
 
 @pytest.mark.parametrize(
@@ -111,3 +160,25 @@ def test_middleware(post_type, mixer):
     res = mixer.blend(post_type)
     assert res
     assert res.title == "middleware"
+
+
+def test_map_type(mixer):
+    class CustomType(float):
+        pass
+
+    mixer.map_type(CustomType, int)
+    res = mixer.blend(CustomType)
+    assert isinstance(res, int)
+
+
+def test_register_gen(mixer):
+    mixer.register(int, lambda: 1)
+    assert mixer.blend(int) == 1
+
+
+def test_register_factory(mixer):
+    @mixer.register(int)
+    def factory(**params):
+        return lambda: 1
+
+    assert mixer.blend(int) == 1

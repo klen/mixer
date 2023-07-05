@@ -6,13 +6,17 @@ repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:
-    - id: trailing-whitespace
-    - id: end-of-file-fixer
-    - id: check-merge-conflict
-    - id: check-case-conflict
-    - id: check-toml
+    - id: check-added-large-files
     - id: check-ast
+    - id: check-case-conflict
+    - id: check-executables-have-shebangs
+    - id: check-merge-conflict
+    - id: check-symlinks
+    - id: check-toml
+    - id: check-yaml
     - id: debug-statements
+    - id: end-of-file-fixer
+    - id: trailing-whitespace
 
 - repo: https://github.com/psf/black
   rev: 23.1.0
@@ -20,7 +24,7 @@ repos:
   - id: black
 
 - repo: https://github.com/python-poetry/poetry
-  rev: '1.4.0'
+  rev: '1.5.1'
   hooks:
     - id: poetry-check
     - id: poetry-lock

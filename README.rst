@@ -7,14 +7,14 @@ generation.
 
 Mixer supports:
 
+* `Built-in types <https://docs.python.org/3/library/stdtypes.html>`
+* `Python Classes <https://docs.python.org/3/tutorial/classes.html>`
+* `Data Classes <https://docs.python.org/3/library/dataclasses.html>`
+* `Pydantic <https://docs.pydantic.dev/latest/>`
 * Django_;
 * SQLAlchemy_;
-* Flask-SQLAlchemy_;
 * Peewee_;
-* Pony_;
 * Mongoengine_;
-* Marshmallow_;
-* Custom schemes;
 
 .. _badges:
 
@@ -40,29 +40,9 @@ Mixer supports:
 **Docs are available at https://mixer.readthedocs.org/. Pull requests with
 documentation enhancements and/or fixes are awesome and most welcome.**
 
-Описание на русском языке: http://klen.github.io/mixer.html
-
-.. important::
-
-   From version 6.2 the Mixer library doesn't support Python 2.
-   The latest version with python<3 support is mixer 6.1.3
-
-
 .. _contents:
 
 .. contents::
-
-
-Requirements
-=============
-
-- Python 3.7+
-- Django (3.0, 3.1) for Django ORM support;
-- Flask-SQLALchemy for SQLAlchemy ORM support and integration as Flask application;
-- Faker >= 0.7.3
-- Mongoengine for Mongoengine ODM support;
-- SQLAlchemy for SQLAlchemy ORM support;
-- Peewee ORM support;
 
 
 Installation
@@ -84,6 +64,81 @@ Usage
  |   By default Mixer saves the generated objects in a database. If you want to disable
  |   this, initialize the Mixer by manual like Mixer(commit=False)
 
+
+Basic workflow
+--------------
+
+Fixtures:
+
+.. code-block:: python
+
+  class User:
+      id: int
+      email: str
+
+
+  class Post:
+      id: int
+      title: str
+      body: str
+      user: User
+
+Generate objects:
+
+.. code-block:: python
+
+  from mixer import mixer
+
+  post = mixer.blend(Post)
+
+  assert post
+  assert post.id    # e.g. 772654888
+  assert post.title  # e.g. 'Race Company Within Event Recent'
+  assert post.body # e.g. 'Meeting also family cause just decade peace. Such rise rule well Democrat seat.'
+  assert post.user
+  assert post.user.id  # e.g. 772654888
+  assert post.user.email # e.g. 'jane.doe@example'
+
+Predefined values:
+
+.. code-block:: python
+
+  post = mixer.blend(Post, title='My title')
+  assert post.title == 'My title'
+
+  # Use __ to define values for relations
+  post = mixer.blend(Post, user__email='jane.doe@test')
+  assert post.user.email == "jane.doe@test"
+
+Generate multiple objects:
+
+.. code-block:: python
+
+  posts = mixer.cycle(3).blend(Post)
+  assert len(posts) == 3
+
+  # You may use generators to define values
+  posts = mixer.cycle(3).blend(Post, title=(name for name in ['foo', 'bar', 'baz'])))
+  assert len(posts) == 3
+  assert posts[0].title == 'foo'
+  assert posts[1].title == 'bar'
+  assert posts[2].title == 'baz'
+
+  # optionaly use mixer.gen(...) to define generators
+  posts = mixer.cycle(3).blend(Post, title=mixer.gen('foo', 'bar', 'baz')))
+  assert len(posts) == 3
+
+  # or simplier
+  posts = mixer.cycle(3).blend(Post, title=mixer.gen('foo-{}')))
+  assert len(posts) == 3
+  assert posts[0].title == 'foo-0'
+  assert posts[1].title == 'foo-1'
+
+Skip fields:
+
+.. code-block:: python
+
+   post = mixer.blend(Post, title=mixer.SKIP)
 
 Django workflow
 ---------------
@@ -108,7 +163,7 @@ Quick example:
 
     # Generate SomeModel from SomeApp and force a value of money field from default to random
     some = mixer.blend('someapp.somemodel', money=mixer.RANDOM)
-    
+
     # Generate SomeModel from SomeApp and skip the generation of money field
     some = mixer.blend('someapp.somemodel', money=mixer.SKIP)
 
@@ -141,7 +196,7 @@ Quick example:
 
     # Generate SomeModel from SomeApp and force a value of money field from default to random
     some = mixer.blend('project.models.SomeModel', money=mixer.RANDOM)
-    
+
     # Generate SomeModel from SomeApp and skip the generation of money field
     some = mixer.blend('project.models.SomeModel', money=mixer.SKIP)
 
@@ -384,53 +439,6 @@ At any time you could switch mixer current locale:
 
     mixer.faker.phone()         ## u'1-438-238-1116'
 
-.. _bugtracker:
-
-Bug tracker
-===========
-
-If you have any suggestions, bug reports or
-annoyances please report them to the issue tracker
-at https://github.com/klen/mixer/issues
-
-
-Contributing
-============
-
-Development of mixer happens at Github: https://github.com/klen/mixer
-
-
-Contributors
-=============
-
-* Antoine Bertin            (https://github.com/Diaoul)
-* Benjamin Port             (https://github.com/bport)
-* Dmitriy Moseev            (https://github.com/DmitriyMoseev)
-* Eelke Hermens             (https://github.com/eelkeh)
-* Esteban J. G. Gabancho    (https://github.com/egabancho)
-* Felix Dreissig            (https://github.com/F30)
-* Illia Volochii            (https://github.com/illia-v)
-* Jannis                    (https://github.com/jnns)
-* Kirill Pavlov             (https://github.com/pavlov99)
-* Kwok-kuen Cheung          (https://github.com/cheungpat)
-* Mahdi Yusuf               (https://github.com/myusuf3)
-* Marek Baczyński           (https://github.com/imbaczek)
-* Marigold                  (https://github.com/Marigold)
-* Matt Caldwell             (https://github.com/mattcaldwell)
-* Mikhail Porokhovnichenko  (https://github.com/marazmiki)
-* Skylar Saveland           (https://github.com/skyl)
-* Suriya Subramanian        (https://github.com/suriya)
-* Gram                      (https://github.com/orsinium)
-* Joshua                    (https://github.com/jomasti)
-* Lucas Rangel Cezimbra     (https://github.com/lucasrcezimbra)
-* avi-pomicell              (https://github.com/avi-pomicell)
-* Jochen Brissier           (https://github.com/jbrissier)
-
-
-License
-========
-
-Licensed under a `BSD license`_.
 
 
 .. _links:

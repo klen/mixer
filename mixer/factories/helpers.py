@@ -81,6 +81,11 @@ def make_fields(
         if value in (SKIP, RANDOM):
             continue
 
-        fields[field] = next(value) if isinstance(value, GeneratorType) else value
+        # Support generators
+        try:
+            fields[field] = next(value) if isinstance(value, GeneratorType) else value
+        except StopIteration as err:  # noqa: PERF203
+            msg = f"Generator value for '{field}' is empty"
+            raise ValueError(msg) from err
 
     return fields

@@ -9,6 +9,7 @@ from typing import (
     Dict,
     Generator,
     Generic,
+    List,
     Optional,
     Tuple,
     Type,
@@ -16,9 +17,11 @@ from typing import (
 )
 
 from . import database as db
+from .factories import map_type, register
 from .factories.constants import RANDOM, SKIP
 from .factories.helpers import make_gen
 from .factories.types import TV
+from .factories.utils import sequence
 
 if TYPE_CHECKING:
     from .types import TMixerParams
@@ -29,8 +32,6 @@ class Mixer:
 
     SKIP = SKIP
     RANDOM = RANDOM
-
-    params: TMixerParams = {"fake": True, "commit": False}
 
     def __init__(self, *, fake: bool = True, commit: bool = False):
         self.params: TMixerParams = {"fake": fake, "commit": commit}
@@ -99,6 +100,10 @@ class Mixer:
         """Commit instances."""
         return db.commit(instance, **(params or self.params))
 
+    gen = staticmethod(sequence)
+    map_type = staticmethod(map_type)
+    register = staticmethod(register)
+
 
 class MixerChain(Generic[TV]):
     """Mixer chain class."""
@@ -108,6 +113,7 @@ class MixerChain(Generic[TV]):
         self.__cycle__ = count
         self.__type__: Any = None
         self.__params__: Dict[str, Any] = {}
+        self.__result__ = None
 
     def cycle(self, count: int = 5):
         return MixerChain(self.__mixer__, count)
@@ -134,7 +140,7 @@ class MixerChain(Generic[TV]):
         for _ in range(self.__cycle__):
             yield await self.__mixer__.ablend(mtype, **params)
 
-    async def __coro__(self) -> list[TV]:
+    async def __coro__(self) -> List[TV]:
         return [res async for res in self]
 
     def __await__(self):

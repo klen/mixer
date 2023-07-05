@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 from re import compile
 from typing import Any, Callable, Final, Optional
 
@@ -13,6 +14,7 @@ def is_typing(ftype):
 
 def find_type(ftype):
     """Convert string to type."""
+
     if not isinstance(ftype, str):
         return ftype
 
@@ -32,3 +34,25 @@ def defaultable(gen: Callable, default: Any = None):
         return gen(random=random, **params) if random else default
 
     return wrapper
+
+
+def sequence(value, *values):
+    """Generate sequence value."""
+    if not values:
+        if isinstance(value, str):
+            return gen_from_string(value)
+
+        if isinstance(value, Iterable):
+            return gen_from_iterable(value)
+
+    return gen_from_iterable([value, *values])
+
+
+def gen_from_string(value: str):
+    for n in range(1000):
+        yield value.format(n)
+
+
+def gen_from_iterable(value: Iterable):
+    for v in value:
+        yield v
