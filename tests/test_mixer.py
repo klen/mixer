@@ -98,7 +98,7 @@ def test_cycle_gen(post_type):
 @pytest.mark.parametrize(
     "post_type", [fx.Post, fx.DCPost, fx.PWPost, fx.PDPost, fx.DJPost, fx.MEPost, fx.SAPost]
 )
-def test_cycle_gen2(post_type):
+def test_cycle_mixer_gen_str(post_type):
     res = mixer.cycle(3).blend(post_type, title=mixer.gen("p{}"))
     assert res
     assert len(res) == 3
@@ -111,7 +111,7 @@ def test_cycle_gen2(post_type):
 @pytest.mark.parametrize(
     "post_type", [fx.Post, fx.DCPost, fx.PWPost, fx.PDPost, fx.DJPost, fx.MEPost, fx.SAPost]
 )
-def test_cycle_gen3(post_type):
+def test_cycle_mixer_gen_seq(post_type):
     res = mixer.cycle(3).blend(post_type, title=mixer.gen("p0", "p1", "p2"))
     assert res
     assert len(res) == 3
@@ -119,6 +119,19 @@ def test_cycle_gen3(post_type):
     assert posts[0].title == "p0"
     assert posts[1].title == "p1"
     assert posts[2].title == "p2"
+
+
+@pytest.mark.parametrize(
+    "post_type", [fx.Post, fx.DCPost, fx.PWPost, fx.PDPost, fx.DJPost, fx.MEPost, fx.SAPost]
+)
+def test_cycle_mixer_gen_rand(post_type):
+    res = mixer.cycle(3).blend(post_type, title=mixer.gen("p0", "p1", "p2", rand=True))
+    assert res
+    assert len(res) == 3
+    posts = list(res)
+    assert posts[0].title in ["p0", "p1", "p2"]
+    assert posts[1].title in ["p0", "p1", "p2"]
+    assert posts[2].title in ["p0", "p1", "p2"]
 
 
 @pytest.mark.parametrize(

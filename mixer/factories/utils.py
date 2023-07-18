@@ -1,4 +1,5 @@
-from collections.abc import Iterable
+from collections.abc import Sequence
+from random import choice
 from re import compile
 from typing import Any, Callable, Final, Optional
 
@@ -36,16 +37,16 @@ def defaultable(gen: Callable, default: Any = None):
     return wrapper
 
 
-def sequence(value, *values):
+def sequence(value, *values, rand: bool = False):
     """Generate sequence value."""
     if not values:
         if isinstance(value, str):
             return gen_from_string(value)
 
-        if isinstance(value, Iterable):
-            return gen_from_iterable(value)
+        if isinstance(value, Sequence):
+            return gen_from_iterable(value, rand=rand)
 
-    return gen_from_iterable([value, *values])
+    return gen_from_iterable([value, *values], rand=rand)
 
 
 def gen_from_string(value: str):
@@ -53,6 +54,11 @@ def gen_from_string(value: str):
         yield value.format(n)
 
 
-def gen_from_iterable(value: Iterable):
-    for v in value:
-        yield v
+def gen_from_iterable(value: Sequence, *, rand: bool = False):
+    if rand:
+        while True:
+            yield choice(value)
+
+    else:
+        for v in value:
+            yield v
