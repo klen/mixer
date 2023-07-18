@@ -120,9 +120,10 @@ Generate multiple objects:
   # You may use generators to define values
   posts = mixer.cycle(3).blend(Post, title=(name for name in ['foo', 'bar', 'baz'])))
   assert len(posts) == 3
-  assert posts[0].title == 'foo'
-  assert posts[1].title == 'bar'
-  assert posts[2].title == 'baz'
+  p1, p2, p3 = posts
+  assert p1.title == "foo"
+  assert p2.title == "bar"
+  assert p3.title == "baz"
 
   # optionaly use mixer.gen(...) to define generators
   posts = mixer.cycle(3).blend(Post, title=mixer.gen('foo', 'bar', 'baz')))
@@ -131,14 +132,17 @@ Generate multiple objects:
   # or simplier
   posts = mixer.cycle(3).blend(Post, title=mixer.gen('foo-{}')))
   assert len(posts) == 3
-  assert posts[0].title == 'foo-0'
-  assert posts[1].title == 'foo-1'
+  p1, p2, p3 = posts
+  assert p1.title == "foo-0"
+  assert p2.title == "foo-1"
+  assert p3.title == "foo-2"
 
-Skip fields:
+Skip fields generation:
 
 .. code-block:: python
 
    post = mixer.blend(Post, title=mixer.SKIP)
+  assert not hasattr(post, "title")
 
 Django workflow
 ---------------
@@ -146,8 +150,8 @@ Quick example:
 
 .. code-block:: python
 
-    from mixer.backend.django import mixer
-    from customapp.models import User, UserMessage
+    from mixer import mixer
+    from customapp.models import User, Post
 
     # Generate a random user
     user = mixer.blend(User)
@@ -158,17 +162,14 @@ Quick example:
     # Generate an UserMessage and an User. Set username for generated user to 'testname'.
     message = mixer.blend(UserMessage, user__username='testname')
 
-    # Generate SomeModel from SomeApp and select FK or M2M values from db
-    some = mixer.blend('someapp.somemodel', somerelation=mixer.SELECT)
-
     # Generate SomeModel from SomeApp and force a value of money field from default to random
-    some = mixer.blend('someapp.somemodel', money=mixer.RANDOM)
+    some = mixer.blend(SomeModel, money=mixer.RANDOM)
 
     # Generate SomeModel from SomeApp and skip the generation of money field
-    some = mixer.blend('someapp.somemodel', money=mixer.SKIP)
+    some = mixer.blend(SomeModel, money=mixer.SKIP)
 
     # Generate 5 SomeModel's instances and take company field's values from custom generator
-    some_models = mixer.cycle(5).blend('somemodel', company=(name for name in company_names))
+    some_models = mixer.cycle(5).blend(SomeModel, company=(name for name in company_names))
 
 
 Flask, Flask-SQLAlchemy

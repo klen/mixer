@@ -119,7 +119,7 @@ class MixerChain(Generic[TV]):
     def cycle(self, count: int = 5):
         return MixerChain(self.__mixer__, count)
 
-    def blend(self, mtype: Type[TV], **params) -> MixerChain[TV]:
+    def blend(self, mtype: TV, **params) -> MixerChain[TV]:
         self.__type__ = mtype
         self.__params__ = params
         return self
