@@ -198,3 +198,8 @@ def test_register_factory(mixer):
         return lambda: 1
 
     assert mixer.blend(int) == 1
+
+
+def test_mixer_faker(mixer):
+    assert mixer.faker.pyint()
+    assert mixer.faker.pystr()
