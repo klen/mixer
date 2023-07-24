@@ -24,18 +24,18 @@ def test_mixer():
     assert mixer.reload
 
 
-@pytest.mark.parametrize(
-    ("post_type", "user_type"),
-    [
-        (fx.MEPost, fx.MEUser),
-        (fx.Post, fx.User),
-        (fx.DCPost, fx.DCUser),
-        (fx.PWPost, fx.PWUser),
-        (fx.PDPost, fx.PDUser),
-        (fx.DJPost, fx.DJUser),
-        (fx.SAPost, fx.SAUser),
-    ],
-)
+FIXTURES = [
+    (fx.Post, fx.User),
+    (fx.DCPost, fx.DCUser),
+    (fx.PDPost, fx.PDUser),
+    (fx.PWPost, fx.PWUser),
+    (fx.DJPost, fx.DJUser),
+    (fx.SAPost, fx.SAUser),
+    (fx.MEPost, fx.MEUser),
+]
+
+
+@pytest.mark.parametrize(("post_type", "user_type"), FIXTURES)
 def test_generation(post_type, user_type):
     res = mixer.blend(post_type)
     assert res
@@ -72,9 +72,7 @@ def test_params_fake(mixer: Mixer):
     assert res.title
 
 
-@pytest.mark.parametrize(
-    "post_type", [fx.Post, fx.DCPost, fx.PWPost, fx.PDPost, fx.DJPost, fx.MEPost, fx.SAPost]
-)
+@pytest.mark.parametrize("post_type", [p for p, _ in FIXTURES])
 def test_cycle(post_type):
     res = mixer.cycle(3).blend(post_type)
     assert res
@@ -82,9 +80,7 @@ def test_cycle(post_type):
     assert all(isinstance(rp, post_type) for rp in res)
 
 
-@pytest.mark.parametrize(
-    "post_type", [fx.Post, fx.DCPost, fx.PWPost, fx.PDPost, fx.DJPost, fx.MEPost, fx.SAPost]
-)
+@pytest.mark.parametrize("post_type", [p for p, _ in FIXTURES])
 def test_cycle_gen(post_type):
     res = mixer.cycle(3).blend(post_type, title=(t for t in ["p0", "p1", "p2"]))
     assert res
@@ -95,9 +91,7 @@ def test_cycle_gen(post_type):
     assert posts[2].title == "p2"
 
 
-@pytest.mark.parametrize(
-    "post_type", [fx.Post, fx.DCPost, fx.PWPost, fx.PDPost, fx.DJPost, fx.MEPost, fx.SAPost]
-)
+@pytest.mark.parametrize("post_type", [p for p, _ in FIXTURES])
 def test_cycle_mixer_gen_str(post_type):
     res = mixer.cycle(3).blend(post_type, title=mixer.gen("p{}"))
     assert res
@@ -108,9 +102,7 @@ def test_cycle_mixer_gen_str(post_type):
     assert posts[2].title == "p2"
 
 
-@pytest.mark.parametrize(
-    "post_type", [fx.Post, fx.DCPost, fx.PWPost, fx.PDPost, fx.DJPost, fx.MEPost, fx.SAPost]
-)
+@pytest.mark.parametrize("post_type", [p for p, _ in FIXTURES])
 def test_cycle_mixer_gen_seq(post_type):
     res = mixer.cycle(3).blend(post_type, title=mixer.gen("p0", "p1", "p2"))
     assert res
@@ -121,9 +113,7 @@ def test_cycle_mixer_gen_seq(post_type):
     assert posts[2].title == "p2"
 
 
-@pytest.mark.parametrize(
-    "post_type", [fx.Post, fx.DCPost, fx.PWPost, fx.PDPost, fx.DJPost, fx.MEPost, fx.SAPost]
-)
+@pytest.mark.parametrize("post_type", [p for p, _ in FIXTURES])
 def test_cycle_mixer_gen_rand(post_type):
     res = mixer.cycle(3).blend(post_type, title=mixer.gen("p0", "p1", "p2", rand=True))
     assert res
@@ -134,9 +124,7 @@ def test_cycle_mixer_gen_rand(post_type):
     assert posts[2].title in ["p0", "p1", "p2"]
 
 
-@pytest.mark.parametrize(
-    "post_type", [fx.Post, fx.DCPost, fx.PWPost, fx.PDPost, fx.DJPost, fx.MEPost, fx.SAPost]
-)
+@pytest.mark.parametrize("post_type", [p for p, _ in FIXTURES])
 def test_values(post_type):
     res = mixer.blend(post_type, title="title", user__email="name@test.com")
     assert res
@@ -144,16 +132,14 @@ def test_values(post_type):
     assert res.user.email == "name@test.com"
 
 
-@pytest.mark.parametrize("post_type", [fx.Post, fx.PWPost, fx.DJPost, fx.MEPost, fx.SAPost])
+@pytest.mark.parametrize("post_type", [p for p, _ in FIXTURES if p not in [fx.DCPost, fx.PDPost]])
 def test_skip(post_type):
     res = mixer.blend(post_type, title=mixer.SKIP)
     assert res
     assert not getattr(res, "title", None)
 
 
-@pytest.mark.parametrize(
-    "post_type", [fx.Post, fx.DCPost, fx.PWPost, fx.PDPost, fx.DJPost, fx.MEPost, fx.SAPost]
-)
+@pytest.mark.parametrize("post_type", [p for p, _ in FIXTURES])
 def test_random(post_type):
     res = mixer.blend(
         post_type, order=mixer.RANDOM, user__logged_at=mixer.RANDOM, is_published=mixer.RANDOM
@@ -164,9 +150,7 @@ def test_random(post_type):
     assert isinstance(res.user.logged_at, datetime)
 
 
-@pytest.mark.parametrize(
-    "post_type", [fx.Post, fx.DCPost, fx.PWPost, fx.PDPost, fx.DJPost, fx.MEPost, fx.SAPost]
-)
+@pytest.mark.parametrize("post_type", [p for p, _ in FIXTURES])
 def test_middleware(post_type, mixer):
     @mixer.middleware(post_type)
     def middleware(post):
@@ -176,6 +160,24 @@ def test_middleware(post_type, mixer):
     res = mixer.blend(post_type)
     assert res
     assert res.title == "middleware"
+
+
+def test_mixer_values_base(mixer):
+    assert mixer.values
+    assert mixer.values.ticket.barcode
+    assert mixer.values.ticket.barcode.path == ["ticket", "barcode"]
+
+
+@pytest.mark.parametrize(("post_type", "user_type"), FIXTURES)
+def test_mixer_values(post_type, user_type, mixer):
+    post = mixer.blend(post_type, title=mixer.values.user.email)
+    assert post
+    assert post.title == post.user.email
+
+    users = mixer.cycle(3).blend(user_type)
+    posts = mixer.cycle(3).blend(post_type, title=mixer.values.user.email, user=mixer.gen(*users))
+    for post in posts:
+        assert post.title == post.user.email
 
 
 def test_map_type(mixer):
@@ -203,3 +205,6 @@ def test_register_factory(mixer):
 def test_mixer_faker(mixer):
     assert mixer.faker.pyint()
     assert mixer.faker.pystr()
+
+
+# ruff: noqa: PD011

@@ -20,7 +20,7 @@ from . import database as db
 from .factories import map_type, register
 from .factories.constants import FAKER, RANDOM, SKIP
 from .factories.helpers import make_gen
-from .factories.types import TV
+from .factories.types import TV, MixerValues
 from .factories.utils import sequence
 
 if TYPE_CHECKING:
@@ -99,6 +99,11 @@ class Mixer:
     def commit(self, instance, **params):
         """Commit instances."""
         return db.commit(instance, **(params or self.params))
+
+    @property
+    def values(self) -> MixerValues:
+        """Get values."""
+        return MixerValues()
 
     gen = staticmethod(sequence)
     map_type = staticmethod(map_type)

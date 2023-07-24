@@ -1,11 +1,11 @@
 from collections import defaultdict
 from inspect import isclass
 from types import GeneratorType
-from typing import Any, Callable, Dict, Optional, Tuple, Type, Union, get_origin
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union, get_origin
 
 from . import FACTORIES
 from .constants import RANDOM, SKIP
-from .types import TV
+from .types import TV, MixerValues, TValues
 from .utils import is_typing
 
 
@@ -50,21 +50,29 @@ def iterable_helper(ftype: Type[TV], fctype: Type) -> Callable[..., TV]:
     return gen
 
 
-def split_values(values: Dict[str, Any]) -> Tuple[Dict[str, Any], Dict[str, Dict[str, Any]]]:
+def split_values(
+    values: Dict[str, Any]
+) -> Tuple[TValues, List[Tuple[str, MixerValues]], Dict[str, TValues]]:
     nested_values: defaultdict = defaultdict(dict)
+    post_values = []
     for field in list(values.keys()):
-        nested, _, nfield = field.partition("__")
-        if nfield:
-            nested_values[nested][nfield] = values.pop(field)
+        value = values[field]
+        if isinstance(value, MixerValues):
+            post_values.append((field, value))
 
-    return values, nested_values
+        else:
+            nested, _, nfield = field.partition("__")
+            if nfield:
+                nested_values[nested][nfield] = values.pop(field)
+
+    return values, post_values, nested_values
 
 
 def make_fields(
     values: Dict[str, Any], generators: Dict[str, Optional[Callable]]
 ) -> Dict[str, Any]:
     fields = {}
-    values, nested_values = split_values(values)
+    values, post_values, nested_values = split_values(values)
     for field_name, gen in generators.items():
         if gen is None:
             continue
@@ -87,5 +95,8 @@ def make_fields(
         except StopIteration as err:  # noqa: PERF203
             msg = f"Generator value for '{field}' is empty"
             raise ValueError(msg) from err
+
+    for field, value in post_values:
+        fields[field] = value(fields)
 
     return fields

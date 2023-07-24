@@ -62,3 +62,10 @@ def gen_from_iterable(value: Sequence, *, rand: bool = False):
     else:
         for v in value:
             yield v
+
+
+def get(values, *parts, default=None):
+    value = default
+    for part in parts:
+        value = values.get(part) if isinstance(values, dict) else getattr(values, part, None)
+    return value
