@@ -1,17 +1,18 @@
 """ Mixer factories. """
 
-import typing
 import datetime
 import decimal
 import inspect
+import typing
 
-from . import _compat as _, mix_types as t
+from . import _compat as _
+from . import mix_types as t
 from ._faker import faker
 
 
 class GenFactoryMeta(type):
 
-    """ Precache generators. """
+    """Precache generators."""
 
     def __new__(mcs, name, bases, params):
         generators = dict()
@@ -24,8 +25,8 @@ class GenFactoryMeta(type):
                 fakers.update(cls.fakers)
                 types.update(cls.types)
 
-        fakers.update(params.get('fakers', dict()))
-        types.update(params.get('types', dict()))
+        fakers.update(params.get("fakers", dict()))
+        types.update(params.get("types", dict()))
 
         types = dict(mcs.__flat_keys(types))
 
@@ -35,14 +36,14 @@ class GenFactoryMeta(type):
                 if factory:
                     generators[atype] = factory
 
-        generators.update(params.get('generators', dict()))
+        generators.update(params.get("generators", dict()))
         generators = dict(mcs.__flat_keys(generators))
 
-        params['generators'] = generators
-        params['fakers'] = fakers
-        params['types'] = types
+        params["generators"] = generators
+        params["fakers"] = fakers
+        params["types"] = types
 
-        return super(GenFactoryMeta, mcs).__new__(mcs, name, bases, params)
+        return super().__new__(mcs, name, bases, params)
 
     @staticmethod
     def __flat_keys(d):
@@ -54,9 +55,9 @@ class GenFactoryMeta(type):
             yield key, value
 
 
-class GenFactory(_.with_metaclass(GenFactoryMeta)):
+class GenFactory(_.with_metaclass(GenFactoryMeta)):  # type: ignore
 
-    """ Make generators for types. """
+    """Make generators for types."""
 
     generators = {
         bool: faker.pybool,
@@ -88,46 +89,46 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
         t.URL: faker.url,
         t.UUID: faker.uuid,
         t.JSON: faker.json,
-        type(None): '',
+        type(None): lambda: None,
     }
 
     fakers = {
-        ('address', str): faker.street_address,
-        ('body', str): faker.text,
-        ('category', str): faker.genre,
-        ('city', str): faker.city,
-        ('company', str): faker.company,
-        ('content', str): faker.text,
-        ('country', str): faker.country,
-        ('description', str): faker.text,
-        ('domain', str): faker.domain_name,
-        ('email', str): faker.email,
-        ('first_name', str): faker.first_name,
-        ('firstname', str): faker.first_name,
-        ('genre', str): faker.genre,
-        ('last_name', str): faker.last_name,
-        ('lastname', str): faker.last_name,
-        ('lat', float): faker.latitude,
-        ('latitude', float): faker.latitude,
-        ('login', str): faker.user_name,
-        ('lon', float): faker.longitude,
-        ('longitude', float): faker.longitude,
-        ('name', str): faker.name,
-        ('percent', decimal.Decimal): faker.percent_decimal,
-        ('percent', int): faker.percent,
-        ('phone', str): faker.phone_number,
-        ('site', str): faker.url,
-        ('slug', str): faker.slug,
-        ('street', str): faker.street_name,
-        ('time_zone', str): faker.timezone,
-        ('timezone', str): faker.timezone,
-        ('title', str): faker.title,
-        ('url', str): faker.uri,
-        ('url', t.URL): faker.uri,
-        ('username', str): faker.user_name,
-        ('uuid', None): faker.uuid,
-        ('json', None): faker.json,
-        ('jsonb', None): faker.json,
+        ("address", str): faker.street_address,
+        ("body", str): faker.text,
+        ("category", str): faker.genre,
+        ("city", str): faker.city,
+        ("company", str): faker.company,
+        ("content", str): faker.text,
+        ("country", str): faker.country,
+        ("description", str): faker.text,
+        ("domain", str): faker.domain_name,
+        ("email", str): faker.email,
+        ("first_name", str): faker.first_name,
+        ("firstname", str): faker.first_name,
+        ("genre", str): faker.genre,
+        ("last_name", str): faker.last_name,
+        ("lastname", str): faker.last_name,
+        ("lat", float): faker.latitude,
+        ("latitude", float): faker.latitude,
+        ("login", str): faker.user_name,
+        ("lon", float): faker.longitude,
+        ("longitude", float): faker.longitude,
+        ("name", str): faker.name,
+        ("percent", decimal.Decimal): faker.percent_decimal,
+        ("percent", int): faker.percent,
+        ("phone", str): faker.phone_number,
+        ("site", str): faker.url,
+        ("slug", str): faker.slug,
+        ("street", str): faker.street_name,
+        ("time_zone", str): faker.timezone,
+        ("timezone", str): faker.timezone,
+        ("title", str): faker.title,
+        ("url", str): faker.uri,
+        ("url", t.URL): faker.uri,
+        ("username", str): faker.user_name,
+        ("uuid", None): faker.uuid,
+        ("json", None): faker.json,
+        ("jsonb", None): faker.json,
     }
 
     types = {
@@ -137,7 +138,7 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
 
     @classmethod
     def cls_to_simple(cls, fcls):
-        """ Translate class to one of simple base types.
+        """Translate class to one of simple base types.
 
         :return type: A simple type for generation
 
@@ -157,17 +158,17 @@ class GenFactory(_.with_metaclass(GenFactoryMeta)):
 
     @staticmethod
     def name_to_simple(fname):
-        """ Translate name to one of simple base names.
+        """Translate name to one of simple base names.
 
         :return str:
 
         """
-        fname = fname or ''
+        fname = fname or ""
         return fname.lower().strip()
 
     @classmethod
     def get_fabric(cls, fcls, fname=None, fake=False):
-        """ Make a objects fabric  based on class and name.
+        """Make a objects fabric  based on class and name.
 
         :return function:
 

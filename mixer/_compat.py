@@ -10,19 +10,16 @@
 import sys
 
 PY2 = sys.version_info[0] == 2
-_identity = lambda x: x
-
+_identity = lambda x: x  # noqa: E731
 
 if not PY2:
     text_type = str
     string_types = (str,)
-    integer_types = (int, )
+    integer_types = (int,)
 
-    iterkeys = lambda d: iter(d.keys())
-    itervalues = lambda d: iter(d.values())
-    iteritems = lambda d: iter(d.items())
-
-    from io import StringIO
+    iterkeys = lambda d: iter(d.keys())  # noqa: E731
+    itervalues = lambda d: iter(d.values())  # noqa: E731
+    iteritems = lambda d: iter(d.items())  # noqa: E731
 
     def reraise(tp, value, tb=None):
         if value.__traceback__ is not tb:
@@ -32,21 +29,21 @@ if not PY2:
     implements_to_string = _identity
 
 else:
-    text_type = unicode
-    string_types = (str, unicode)
-    integer_types = (int, long)
+    text_type = unicode  # noqa
+    string_types = (str, unicode)  # noqa
+    integer_types = (int, long)  # noqa
 
-    iterkeys = lambda d: d.iterkeys()
-    itervalues = lambda d: d.itervalues()
-    iteritems = lambda d: d.iteritems()
+    iterkeys = lambda d: d.iterkeys()  # noqa: E731
+    itervalues = lambda d: d.itervalues()  # noqa: E731
+    iteritems = lambda d: d.iteritems()  # noqa: E731
 
-    from cStringIO import StringIO
+    from cStringIO import StringIO  # noqa: F401
 
-    exec('def reraise(tp, value, tb=None):\n raise tp, value, tb')
+    exec("def reraise(tp, value, tb=None):\n raise tp, value, tb")
 
     def implements_to_string(cls):
         cls.__unicode__ = cls.__str__
-        cls.__str__ = lambda x: x.__unicode__().encode('utf-8')
+        cls.__str__ = lambda x: x.__unicode__().encode("utf-8")
         return cls
 
 
@@ -63,11 +60,13 @@ def with_metaclass(meta, *bases):
     class metaclass(meta):
         __call__ = type.__call__
         __init__ = type.__init__
+
         def __new__(cls, name, this_bases, d):
             if this_bases is None:
                 return type.__new__(cls, name, (), d)
             return meta(name, bases, d)
-    return metaclass('temporary_class', None, {})
+
+    return metaclass("temporary_class", None, {})
 
 
 # Certain versions of pypy have a bug where clearing the exception stack
@@ -76,12 +75,15 @@ def with_metaclass(meta, *bases):
 # is necessary because pypy seems to forget to check if an exception
 # happend until the next bytecode instruction?
 BROKEN_PYPY_CTXMGR_EXIT = False
-if hasattr(sys, 'pypy_version_info'):
-    class _Mgr(object):
+if hasattr(sys, "pypy_version_info"):
+
+    class _Mgr:
         def __enter__(self):
             return self
+
         def __exit__(self, *args):
             sys.exc_clear()
+
     try:
         try:
             with _Mgr():
@@ -94,12 +96,11 @@ if hasattr(sys, 'pypy_version_info'):
         pass
 
 try:
-    from collections import OrderedDict
+    from collections import OrderedDict  # nopycln: import
 except ImportError:
-    from UserDict import DictMixin
+    from UserDict import DictMixin  # type: ignore
 
-    class OrderedDict(dict, DictMixin):
-
+    class OrderedDict(dict, DictMixin):  # type: ignore
         null = object()
 
         def __init__(self, *args, **kwargs):
@@ -140,23 +141,24 @@ except ImportError:
     iteritems = DictMixin.iteritems
 
 try:
-    from importlib import import_module
+    from importlib import import_module  # nopycln: import
 except ImportError:
 
     def _resolve_name(name, package, level):
         """Return the absolute name of the module to be imported."""
-        if not hasattr(package, 'rindex'):
+        if not hasattr(package, "rindex"):
             raise ValueError("'package' not set to a string")
         dot = len(package)
-        for x in xrange(level, 1, -1):
+        for x in xrange(level, 1, -1):  # noqa: F821
             try:
-                dot = package.rindex('.', 0, dot)
+                dot = package.rindex(".", 0, dot)
             except ValueError:
-                raise ValueError("attempted relative import beyond top-level "
-                                "package")
-        return "%s.%s" % (package[:dot], name)
+                raise ValueError(  # type: ignore
+                    "attempted relative import beyond top-level " "package"
+                )
+        return f"{package[:dot]}.{name}"
 
-    def import_module(name, package=None):
+    def import_module(name, package=None):  # type: ignore
         """Import a module.
 
         The 'package' argument is required when performing a relative import. It
@@ -164,12 +166,12 @@ except ImportError:
         relative import to an absolute import.
 
         """
-        if name.startswith('.'):
+        if name.startswith("."):
             if not package:
                 raise TypeError("relative imports require the 'package' argument")
             level = 0
             for character in name:
-                if character != '.':
+                if character != ".":
                     break
                 level += 1
             name = _resolve_name(name[level:], package, level)

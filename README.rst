@@ -1,5 +1,12 @@
-.. image:: https://raw.github.com/klen/mixer/develop/docs/_static/logo.png
+.. image:: https://raw.github.com/jvllmr/mixer/develop/docs/_static/logo.png
     :width: 100px
+
+
+.. important::
+
+   This is a fork of https://github.com/klen/mixer that aims to maintain integrations with the newest library versions.
+   It also improves Developer Experience by being fully typed.
+
 
 The **Mixer** is a helper to generate instances of Django or SQLAlchemy models.
 It's useful for testing and fixture replacement. Fast and convenient test-data
@@ -18,20 +25,20 @@ Mixer supports:
 
 .. _badges:
 
-.. image:: https://github.com/klen/mixer/workflows/tests/badge.svg?style=flat-square
-    :target: https://github.com/klen/mixer/actions
+.. image:: https://github.com/jvllmr/mixer/workflows/tests/badge.svg?style=flat-square
+    :target: https://github.com/jvllmr/mixer/actions
     :alt: Tests Status
 
-.. image:: http://img.shields.io/pypi/v/mixer.svg?style=flat-square
-    :target: https://pypi.python.org/pypi/mixer
+.. image:: http://img.shields.io/pypi/v/mixer2.svg?style=flat-square
+    :target: https://pypi.python.org/pypi/mixer2
     :alt: Version
 
-.. image:: http://img.shields.io/pypi/dm/mixer.svg?style=flat-square
-    :target: https://pypi.python.org/pypi/mixer
+.. image:: http://img.shields.io/pypi/dm/mixer2.svg?style=flat-square
+    :target: https://pypi.python.org/pypi/mixer2
     :alt: Downloads
 
-.. image:: http://img.shields.io/pypi/l/mixer.svg?style=flat-square
-    :target: https://pypi.python.org/pypi/mixer
+.. image:: http://img.shields.io/pypi/l/mixer2.svg?style=flat-square
+    :target: https://pypi.python.org/pypi/mixer2
     :alt: License
 
 .. _documentation:
@@ -56,7 +63,7 @@ documentation enhancements and/or fixes are awesome and most welcome.**
 Requirements
 =============
 
-- Python 3.7+
+- Python 3.8+
 - Django (3.0, 3.1) for Django ORM support;
 - Flask-SQLALchemy for SQLAlchemy ORM support and integration as Flask application;
 - Faker >= 0.7.3
@@ -70,7 +77,7 @@ Installation
 
 **Mixer** should be installed using pip: ::
 
-    pip install mixer
+    pip install mixer2
 
 
 Usage
@@ -91,7 +98,7 @@ Quick example:
 
 .. code-block:: python
 
-    from mixer.backend.django import mixer
+    from mixer2.backend.django import mixer
     from customapp.models import User, UserMessage
 
     # Generate a random user
@@ -122,7 +129,7 @@ Quick example:
 
 .. code-block:: python
 
-    from mixer.backend.flask import mixer
+    from mixer2.backend.flask import mixer
     from models import User, UserMessage
 
     mixer.init_app(self.app)
@@ -156,7 +163,7 @@ For support this scheme, just create your own mixer class, like this:
 
 .. code-block:: python
 
-    from mixer.backend.sqlalchemy import Mixer
+    from mixer2.backend.sqlalchemy import Mixer
 
     class MyOwnMixer(Mixer):
 
@@ -174,7 +181,7 @@ Example of initialization:
 
 .. code-block:: python
 
-    from mixer.backend.sqlalchemy import Mixer
+    from mixer2.backend.sqlalchemy import Mixer
 
     ENGINE = create_engine('sqlite:///:memory:')
     BASE = declarative_base()
@@ -194,7 +201,7 @@ Example usage:
 
 .. code-block:: python
 
-    from mixer.backend.mongoengine import mixer
+    from mixer2.backend.mongoengine import mixer
 
     class User(Document):
         created_at = DateTimeField(default=datetime.datetime.now)
@@ -217,7 +224,7 @@ Example usage:
 
 .. code-block:: python
 
-    from mixer.backend.marshmallow import mixer
+    from mixer2.backend.marshmallow import mixer
     import marshmallow as ma
 
     class User(ma.Schema):
@@ -240,7 +247,7 @@ Quick example:
 
 .. code-block:: python
 
-    from mixer.main import mixer
+    from mixer2.main import mixer
 
     class Test:
         one = int
@@ -255,6 +262,29 @@ Quick example:
 
     scheme = mixer.blend(Scheme, prop__one=1)
 
+Type annotations, typing.TypedDict and python dataclasses
+------------
+Example:
+
+.. code-block:: python
+
+    from mixer2.backend.annotated import mixer
+    from typing import TypedDict
+
+    class Test:
+        one: int
+        two: int
+        name: str
+
+    class Scheme(TypedDict):
+        name: str
+        money: int
+        male: bool
+        prop: Test
+
+    scheme = mixer.blend(Scheme, name="John", male=True) # {"name": "John", "male": True, ...}
+
+It works the same with python dataclasses.
 
 DB commits
 ----------
@@ -264,7 +294,7 @@ database. For preventing this behavior init `mixer` manually:
 
 .. code-block:: python
 
-    from mixer.backend.django import Mixer
+    from mixer2.backend.django import Mixer
 
     mixer = Mixer(commit=False)
 
@@ -273,7 +303,7 @@ Or you can temporary switch context use the mixer as context manager:
 
 .. code-block:: python
 
-    from mixer.backend.django import mixer
+    from mixer2.backend.django import mixer
 
     # Will be save to db
     user1 = mixer.blend('auth.user')
@@ -293,7 +323,7 @@ Quick example:
 
 .. code-block:: python
 
-        from mixer.main import mixer
+        from mixer2.main import mixer
 
         class Test:
             id = int
@@ -317,7 +347,7 @@ Also, you can make your own factory for field types:
 
 .. code-block:: python
 
-    from mixer.backend.django import Mixer, GenFactory
+    from mixer2.backend.django import Mixer, GenFactory
 
     def get_func(*args, **kwargs):
         return "Always same"
@@ -336,7 +366,7 @@ You can add middleware layers to process generation:
 
 .. code-block:: python
 
-    from mixer.backend.django import mixer
+    from mixer2.backend.django import mixer
 
     # Register middleware to model
     @mixer.middleware('auth.user')
@@ -362,7 +392,7 @@ creating your own mixer:
 
 .. code-block:: python
 
-    from mixer.backend.django import Mixer
+    from mixer2.backend.django import Mixer
 
     mixer = Mixer(locale='it')
     mixer.faker.name()          ## u'Acchisio Conte'

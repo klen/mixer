@@ -1,0 +1,79 @@
+
+[project]
+name = "mixer2"
+version = "7.3.0"
+description = "A maintenance fork of klen/mixer Version 7"
+url = "https://github.com/jvllmr/mixer"
+authors = [
+    {name = "Klen", email = "horneds@gmail.com"},
+    {name = "Jan Vollmer", email = "jan@vllmr.dev"},
+]
+maintainers = [
+    {name = "Jan Vollmer", email = "jan@vllmr.dev"},
+]
+license = {text = "BSD"}
+license_files = ["LICENSE"]
+dependencies = [
+    "Faker<12.1,>=5.4.0",
+    "typing-extensions>=4.8.0",
+]
+requires-python = ">=3.8"
+readme = "README.rst"
+
+
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+	"Intended Audience :: Developers",
+	"License :: OSI Approved :: BSD License",
+	"Programming Language :: Python",
+	"Programming Language :: Python :: 3",
+	"Programming Language :: Python :: 3.7",
+	"Programming Language :: Python :: 3.8",
+	"Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+	"Topic :: Software Development :: Libraries :: Python Modules",
+	"Topic :: Software Development :: Testing",
+	"Topic :: Utilities"
+
+]
+
+[project.urls]
+Source = "https://github.com/jvllmr/mixer"
+Documentation = "https://mixer.readthedocs.org"
+Issues = "https://github.com/jvllmr/mixer/issues"
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[project.optional-dependencies]
+flask = ["Flask>=1.0", "flask-sqlalchemy>=2.1"]
+marshmallow = ["Marshmallow>=3.9"]
+mongoengine = ["mongoengine>=0.10.1"]
+peewee = ["peewee>=3.7.0"]
+pony = ["pony>=0.7"]
+django = ["Django>=3.0"]
+all = ["mixer2[flask,marshmallow,mongoengine,peewee,pony,django]"]
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "pytest>=7.4.3",
+    "psycopg2-binary>=2.9.9",
+    "tox>=4.11.3",
+    "mypy>=1.7.0",
+    "black>=23.11.0",
+    "ruff>=0.1.5",
+    "isort>=5.12.0",
+    "nox>=2023.4.22",
+    "setuptools>=68.2.2",
+    "pre-commit>=3.5.0",
+]
+
+[tool.pytest.ini_options]
+addopts = "-xsv"
+
+
+[tool.isort]
+profile = "black"

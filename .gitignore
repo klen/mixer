@@ -16,3 +16,4 @@
 dist
 docs/_build
 .pytest_cache
+.pdm-python

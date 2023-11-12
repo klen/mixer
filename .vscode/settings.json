@@ -1,0 +1,12 @@
+{
+  "editor.formatOnSave": true,
+  "python.defaultInterpreterPath": ".venv/bin/python",
+  "python.terminal.activateEnvInCurrentTerminal": true,
+  "python.languageServer": "Pylance",
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  },
+  "python.testing.pytestEnabled": true,
+  "python.analysis.inlayHints.functionReturnTypes": true,
+  "python.analysis.inlayHints.variableTypes": true
+}
