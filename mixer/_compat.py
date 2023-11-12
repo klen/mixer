@@ -141,7 +141,7 @@ except ImportError:
     iteritems = DictMixin.iteritems
 
 try:
-    pass
+    from importlib import import_module  # nopycln: import
 except ImportError:
 
     def _resolve_name(name, package, level):
@@ -158,7 +158,7 @@ except ImportError:
                 )
         return f"{package[:dot]}.{name}"
 
-    def import_module(name, package=None):
+    def import_module(name, package=None):  # type: ignore
         """Import a module.
 
         The 'package' argument is required when performing a relative import. It
