@@ -1,13 +1,17 @@
-from ..main import Mixer as BaseMixer, TypeMixer as BaseTypeMixer, GenFactory as BaseGenFactory
-import typing
-import mixer.mix_types as t
-import sys
-import random
 import dataclasses
+import random
+import typing
+
+import typing_extensions
+
+import mixer.mix_types as t
+
+from ..main import GenFactory as BaseGenFactory
+from ..main import Mixer as BaseMixer
+from ..main import TypeMixer as BaseTypeMixer
 
 
 class GenFactory(BaseGenFactory):
-
     @classmethod
     def cls_to_simple(cls, fcls):
         if hasattr(fcls, "__origin__"):
@@ -27,27 +31,12 @@ class TypeMixer(BaseTypeMixer):
         return super().populate_target(values)
 
     def __load_fields(self):
-        annotations = getattr(self.__scheme, "__annotations__", None)
-        if annotations is None:
-            raise ValueError(f"Class {self.__scheme} has no type annotations")
-
-        # https://docs.python.org/3/howto/annotations.html#manually-un-stringizing-stringized-annotations
-        for fname, prop in annotations.items():
+        for fname, type_ in typing_extensions.get_type_hints(self.__scheme).items():
             if fname.startswith("_"):
                 continue
 
-            try:
-                obj_globals = sys.modules[self.__scheme.__module__].__dict__
-            except (AttributeError, KeyError):
-                obj_globals = None
-
-            if isinstance(prop, typing.ForwardRef):
-                prop = prop.__forward_arg__
-
-            prop_type = eval(prop, obj_globals, dict(vars(self.__scheme)))
-
             yield fname, t.Field(
-                prop_type,
+                type_,
                 fname,
             )
 

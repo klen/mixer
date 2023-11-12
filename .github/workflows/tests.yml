@@ -12,47 +12,20 @@ on:
 
 jobs:
   tests:
-
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: [3.7, 3.8, 3.9, '3.10']
+        python-version: [3.8, 3.9, "3.10", "3.11", "3.12"]
+        os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
-    - name: Checkout changes
-      uses: actions/checkout@v2
-
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@main
-      with:
-        python-version: ${{ matrix.python-version }}
-
-    - name: Use cache
-      id: cache-env
-      uses: actions/cache@v2
-      with:
-        path: env
-        key: ${{ runner.os }}-env-${{ matrix.python-version }}-${{ hashFiles('requirements.txt', 'requirements-tests.txt') }}
-
-    - name: Setup requirements
-      run: |
-        python -m venv env
-        env/bin/pip install -e .[tests]
-      if: steps.cache-env.outputs.cache-hit != 'true'
-
-    - name: Test with pytest
-      run: env/bin/pytest tests
-
-  notify:
-    runs-on: ubuntu-latest
-    needs: tests
-    steps:
-
-    - name: Notify Success
-      uses: archive/github-actions-slack@master
-      with:
-          slack-channel: C2CRL4C4V
-          slack-text: Tests are passed *[${{ github.repository }}] (${{ github.ref }})* https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          slack-bot-user-oauth-access-token: ${{ secrets.SLACK_BOT_TOKEN }}
-          slack-optional-as_user: false
-          slack-optional-icon_emoji: ":white_check_mark:"
+      - uses: actions/checkout@v4
+      - name: Setup PDM
+        uses: pdm-project/setup-pdm@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: true
+      - name: Install dependencies
+        run: pdm install
+      - name: Run tests
+        run: pdm run pytest
