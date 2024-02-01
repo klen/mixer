@@ -18,8 +18,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects import mssql, mysql, oracle, postgresql, sqlite
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relation, relationship, scoped_session, sessionmaker
-from sqlalchemy.util import text_type
+from sqlalchemy.orm import relationship, scoped_session, sessionmaker
 
 ENGINE = create_engine('sqlite:///:memory:')
 BASE = declarative_base()
@@ -71,7 +70,7 @@ class Role(BASE):
     name = Column(String(20), primary_key=True)
     user_id = Column(Integer, ForeignKey(User.id), nullable=False)
 
-    user = relation(User)
+    user = relationship(User)
 
 
 BASE.metadata.create_all(ENGINE)
@@ -245,4 +244,4 @@ def test_postgresql():
 def test_random_compiled(dialect, expected):
     from mixer.backend.sqlalchemy import random
     compiled = random().compile(dialect=dialect)
-    assert text_type(compiled) == expected
+    assert str(compiled) == expected
