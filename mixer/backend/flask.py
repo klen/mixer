@@ -45,10 +45,9 @@ class Mixer(BaseMixer):
         assert app.extensions and app.extensions[
             'sqlalchemy'], "Flask-SQLAlchemy must be inialized before Mixer."
         try:
-            # https://github.com/pallets-eco/flask-sqlalchemy/issues/698#issuecomment-1250351168
             db = app.extensions['sqlalchemy'].db
         except AttributeError:
-
+            # https://github.com/pallets-eco/flask-sqlalchemy/issues/698#issuecomment-1250351168
             db = app.extensions['sqlalchemy']
         self.params['session'] = db.session
 
