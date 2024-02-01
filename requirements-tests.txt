@@ -1,7 +1,7 @@
 Django              >= 3.0
 Flask               >= 1.0
 Marshmallow         >= 3.9
-SQLAlchemy          >= 1.1.4
+SQLAlchemy          >= 1.4
 flask-sqlalchemy    >= 2.1
 mongoengine         >= 0.10.1
 peewee              >= 3.7.0
