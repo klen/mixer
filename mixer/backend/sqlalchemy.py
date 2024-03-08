@@ -222,6 +222,12 @@ class TypeMixer(BaseTypeMixer):
         # don't directly inherit from the base types
         if TypeDecorator in ftype.__bases__:
             ftype = ftype.impl
+            # In SQLAlchemy within the TypeDecorator class in SQLAlchemy,
+            # the impl attribute is meant to reference a SQLAlchemy TypeEngine class
+            # or a pre-configured instance of such a class that corresponds with the database column type to be used.
+            # The TypeDecorator then extends or modifies the behavior of this type. 
+            if not inspect.isclass(ftype):
+                ftype = type(ftype)           
 
         stype = self.__factory.cls_to_simple(ftype)
 
